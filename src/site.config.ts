@@ -5,7 +5,7 @@
 
 export const site = {
   /** 显示名（顶栏 / 页脚 / 版权） */
-  name: 'Nakika',
+  name: '鸣鹿Nakika',
 
   /** 顶栏 Logo 里的字，1~2 个字符最好看 */
   mark: 'N',
@@ -17,14 +17,14 @@ export const site = {
   /** 站点语言 */
   lang: 'zh-CN',
 
-  /** 作者署名 */
-  author: 'Nakika',
+  /** 作者署名（页脚版权用）。想跟顶栏显示名一致就写一样的。 */
+  author: '鸣鹿Nakika',
 
   // ---------------------------------------------------- 联系方式
-  // TODO: 把 bilibili 填上你的 B站空间地址。留空字符串则不在页脚显示。
+  // 留空字符串则不在页脚显示对应链接。
   links: {
-    email: '',                 // 例：'nakika0511@outlook.com'
-    bilibili: '',              // 例：'https://space.bilibili.com/你的UID'
+    email: 'nakika0511@outlook.com',
+    bilibili: 'https://space.bilibili.com/451932330',
     github: 'https://github.com/NakikaML',
     rss: '/rss.xml',
   },
@@ -32,9 +32,9 @@ export const site = {
   /** 顶栏导航 */
   nav: [
     { href: '/', label: '首页' },
-    { href: '/about/', label: '关于' },
+    { href: '/about/', label: '关于我' },
     { href: '/notes/', label: '笔记' },
-    { href: '/maps/', label: '知识地图' },
+    //{ href: '/maps/', label: '知识地图' },
     { href: '/blog/', label: '博客' },
     { href: '/works/', label: '作品' },
     { href: '/projects/', label: '项目' },

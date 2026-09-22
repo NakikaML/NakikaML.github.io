@@ -5,6 +5,7 @@ import NoteCard from '../components/NoteCard.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { contentNotes, mapNotes, countByCategory, byDateDesc } from '../utils/notes';
 import { projects } from '../data/projects';
+import { site } from '../site.config';
 
 const notes = await contentNotes();
 const maps = await mapNotes();
@@ -34,16 +35,16 @@ const stats = [
 ].filter((s) => s.n > 0);
 ---
 
-<BaseLayout fullTitle title="Nakika · 个人网站">
+<BaseLayout fullTitle title={`${site.name} · 个人网站`}>
   <div class="wrap">
     <!-- ------------------------------------------------ Hero -->
     <section class="hero">
-      <p class="hero__eyebrow">网络工程在读 · 温州大学</p>
-      <h1>你好，我是 Nakika。</h1>
+      <p class="hero__eyebrow">温州大学网络工程（卓工）在读本科生！</p>
+      <h1>你好，我是 鸣鹿Nakika。</h1>
       <p class="hero__lede">
-        网络工程专业在读，ACM 集训队与数据库系统竞赛队成员；同时也是 B 站配音与翻唱 UP 主。
+        网络工程专业在读，温州市图灵人工智能高等研究院极客工坊学员，同时也是 B 站一名主攻配音滴多面手 UP 主呀~
         这里放着我的技术博客、项目记录，以及配音和翻唱作品 ——
-        一个把「工科生的知识管理」和「创作者的表达欲」放在一起的地方。
+        一个半工科半文科生把「知识管理」和「创作表达」放在一起的地方。
       </p>
 
       <div class="btn-row">
