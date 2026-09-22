@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../site.config';
+
+// 这一页是手写的「对外版」自我介绍。
+// 你的完整个人档案留在 Obsidian 私有库里（含成绩、规划），不会同步到网站。
+---
+
+<BaseLayout title="关于我" description={`关于 ${site.name}：网络工程在读 / B站配音与翻唱 UP主`}>
+  <div class="wrap wrap--read">
+    <div class="page-head">
+      <p class="page-head__kicker">About</p>
+      <h1>关于我</h1>
+      <p class="page-head__lede">
+        一个在「工科」和「创作」之间来回切换的人。
+      </p>
+    </div>
+
+    <div class="prose">
+      <h2>我是谁</h2>
+      <p>
+        网络工程专业在读（准大二），就读于温州大学。高中选的是物理、化学、政治，
+        所以养成了一种文理兼容的思维习惯 —— 既对计算机科学的底层原理感兴趣，
+        也喜欢法学、哲学、经济学这些人文社科的推演方式。
+      </p>
+      <p>
+        学业之外，我是 B 站的一名配音与翻唱 UP 主，从高中开始运营自己的账号。
+        配音让我着迷的地方在于「用声音塑造一个不是我的人」，
+        而翻唱则更接近纯粹的表达欲。最近在学调音修音，想把自己作品的后期也一手包办。
+      </p>
+
+      <h2>在学什么</h2>
+      <ul>
+        <li><strong>主攻方向</strong>：网络工程 / 计算机系统 —— C/C++ 为主力语言，Java 较熟练，Python 入门水平</li>
+        <li><strong>竞赛</strong>：学校 ACM 集训队队员；计算机系统能力大赛数据库系统方向参赛队员</li>
+        <li><strong>项目</strong>：「极客工坊」外审专家管理系统开发成员</li>
+        <li><strong>语言</strong>：英语（CET-6）、日语（N2，备考 N1）、俄语与法语入门</li>
+        <li><strong>兴趣学科</strong>：计算机科学、法学、经济学、哲学、语言学</li>
+      </ul>
+
+      <h2>在做什么</h2>
+      <p>
+        这个网站本身就是一个项目。我有一套 1000+ 篇的结构化 Obsidian 笔记体系，
+        覆盖计算机科学、语言学习、通识课程、编程习题等方向。
+        但那套笔记是<strong>写给自己的速记</strong> —— 跳步、缩写、只有我懂的上下文，
+        直接搬上来对读者没有价值。
+      </p>
+      <p>
+        所以我给网站写了一条内容管线（Astro + 一套自检脚本），
+        但<strong>发布的内容全部是重新写过的</strong>：把当时的速记补成完整讲解，
+        把跳过的推导补上，把只有自己看得懂的简写展开。
+        这个过程比较慢，笔记板块会一点点长出来。
+      </p>
+      <p>
+        接下来想尝试做知识类视频，把计算机网络、程序设计这些专业内容讲给更多人听。
+      </p>
+
+      <h2>这个网站有什么</h2>
+      <table>
+        <thead>
+          <tr><th>板块</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="/projects/">项目</a></td><td>在做和做过的项目</td></tr>
+          <tr><td><a href="/blog/">博客</a></td><td>手写长文，记录思考与踩坑</td></tr>
+          <tr><td><a href="/works/">作品</a></td><td>配音、翻唱与其他创作</td></tr>
+          <tr><td><a href="/notes/">学习笔记</a></td><td>重构整理过的笔记（陆续更新中）</td></tr>
+          <tr><td><a href="/maps/">知识地图</a></td><td>按主题整理的学习路线</td></tr>
+        </tbody>
+      </table>
+
+      <h2>价值观</h2>
+      <p>
+        稳定优先于高薪，技术深度优先于仕途发展。
+        理想的工作状态是「稳定且有闲暇发展爱好」——
+        最厌恶的事情是每天很忙、拿着高薪却没时间做自己喜欢的事。
+        所以我在做长期规划时，会刻意给兴趣留出位置。
+      </p>
+      <p>
+        最有成就感的事是<strong>创造作品、帮助他人</strong>。
+        这个网站算是这两件事的一次合并尝试。
+      </p>
+
+      <h2>联系我</h2>
+      <p>
+        如果你对我的笔记有疑问，或者想聊配音、翻唱、算法、网络安全的任何话题，都欢迎找我。
+      </p>
+      <ul>
+        {site.links.bilibili && <li>B 站：<a href={site.links.bilibili} target="_blank" rel="noopener">点这里</a></li>}
+        {site.links.github && <li>GitHub：<a href={site.links.github} target="_blank" rel="noopener">点这里</a></li>}
+        {site.links.email && <li>邮箱：<a href={`mailto:${site.links.email}`}>{site.links.email}</a></li>}
+      </ul>
+
+      {
+        !site.links.bilibili && !site.links.github && !site.links.email && (
+          <div class="notice notice--warn">
+            <strong>待补充：</strong>你还没有填联系方式。
+            打开 <code>src/site.config.ts</code>，把 <code>links</code> 里的
+            <code>bilibili</code> / <code>github</code> / <code>email</code> 填上，
+            这里和页脚就会自动出现。
+          </div>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

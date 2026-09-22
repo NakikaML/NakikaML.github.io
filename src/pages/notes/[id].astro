@@ -1,0 +1,129 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NoteCard from '../../components/NoteCard.astro';
+import {
+  allNotes,
+  siblings,
+  relatedNotes,
+  fmtDate,
+  noteHref,
+} from '../../utils/notes';
+
+export async function getStaticPaths() {
+  const notes = await allNotes();
+  return notes.map((note) => ({
+    params: { id: note.id },
+    props: { note, siblingsPair: siblings(notes, note), related: relatedNotes(notes, note, 4) },
+  }));
+}
+
+const { note, siblingsPair, related } = Astro.props;
+const { Content, headings } = await render(note);
+
+const d = note.data;
+const isMap = d.kind === 'moc';
+
+// 只取 h2 / h3 做目录，太长的目录反而没人看
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const date = fmtDate(d.date);
+---
+
+<BaseLayout title={d.title} description={`${d.category} · ${d.title}`} ogType="article">
+  <div class="wrap wrap--read">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="/">首页</a>
+      <span>/</span>
+      <a href={isMap ? '/maps/' : '/notes/'}>{isMap ? '知识地图' : '笔记'}</a>
+      <span>/</span>
+      <a href={`/notes/?cat=${encodeURIComponent(d.category)}`}>{d.category}</a>
+    </nav>
+
+    <header class="note-head">
+      <h1>{d.title}</h1>
+      <div class="note-head__meta">
+        <span class="tag tag--accent">{d.category}</span>
+        {d.difficulty && <span>{d.difficulty}</span>}
+        {d.subfield && <span>{d.subfield}</span>}
+        {date && <time datetime={date}>{date}</time>}
+      </div>
+      {
+        d.tags.length > 0 && (
+          <div class="tag-row" style="margin-top:0.85rem">
+            {d.tags.map((t) => (
+              <a class="tag" href={`/notes/?tag=${encodeURIComponent(t)}`}>
+                #{t}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      toc.length > 2 && (
+        <nav class="toc" aria-label="目录">
+          <div class="toc__title">本页目录</div>
+          <ul>
+            {toc.map((h) => (
+              <li style={h.depth === 3 ? 'padding-left:0.9rem' : ''}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <article class="prose">
+      <Content />
+    </article>
+
+    {
+      d.url && (
+        <div class="notice">
+          本文是对外部内容的学习笔记，原文出处：
+          <a href={d.url} target="_blank" rel="noopener">
+            {d.url}
+          </a>
+        </div>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section style="margin-top:3.5rem">
+          <h2 style="font-size:1.1rem;border:0;padding:0;margin-bottom:1rem">相关笔记</h2>
+          <div class="grid">
+            {related.map((r) => (
+              <NoteCard note={r} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      (siblingsPair?.prev || siblingsPair?.next) && (
+        <nav class="prev-next" aria-label="同分类上下篇">
+          {siblingsPair?.prev ? (
+            <a href={noteHref(siblingsPair.prev)}>
+              <span class="prev-next__label">← 上一篇</span>
+              <span>{siblingsPair.prev.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {siblingsPair?.next ? (
+            <a class="prev-next__next" href={noteHref(siblingsPair.next)}>
+              <span class="prev-next__label">下一篇 →</span>
+              <span>{siblingsPair.next.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )
+    }
+  </div>
+</BaseLayout>

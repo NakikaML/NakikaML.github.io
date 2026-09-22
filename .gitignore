@@ -1,0 +1,28 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.astro/
+.pnpm-store/
+
+# 同步清单：记录 sync-vault 上次生成了哪些文件（本机状态，不需要入库）
+.sync-manifest.json
+
+# 说明：src/content/notes/ 与 public/notes-assets/ 现在**是手写内容的目录**，
+# 需要正常入库（GitHub Actions 的构建机上没有你的 Obsidian 库）。
+# 早期版本曾把这两个目录当同步产物忽略，现已不同 —— 别再加回来。
+
+# 作品封面等本地资源，按需自行决定是否入库
+# public/works/
+
+# 编辑器与系统
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+# 某些 Windows 工具会把没展开的 %SystemDrive% 当字面路径建目录，防一手
+%SystemDrive%/
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*

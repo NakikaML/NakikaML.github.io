@@ -1,0 +1,25 @@
+---
+import type { Note } from '../utils/notes';
+import { noteHref, fmtDate, noteSummary } from '../utils/notes';
+
+interface Props {
+  note: Note;
+  showExcerpt?: boolean;
+  showCategory?: boolean;
+}
+
+const { note, showExcerpt = false, showCategory = true } = Astro.props;
+const date = fmtDate(note.data.date);
+const desc = showExcerpt ? noteSummary(note) : '';
+const hasCategory = showCategory && note.data.category && note.data.category !== '未分类';
+---
+
+<a class="card" href={noteHref(note)}>
+  <h3 class="card__title">{note.data.title}</h3>
+  {desc && <p class="card__desc">{desc}</p>}
+  <div class="card__meta">
+    {hasCategory && <span class="tag tag--accent">{note.data.category}</span>}
+    {note.data.difficulty && <span>{note.data.difficulty}</span>}
+    {date && <span>{date}</span>}
+  </div>
+</a>

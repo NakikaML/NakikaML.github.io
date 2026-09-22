@@ -1,0 +1,94 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { byDateDesc, fmtDate } from '../../utils/notes';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((p) => !p.data.draft).sort(byDateDesc);
+  return posts.map((post, i) => ({
+    params: { id: post.id },
+    props: {
+      post,
+      prev: posts[i + 1],
+      next: posts[i - 1],
+    },
+  }));
+}
+
+const { post, prev, next } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description || post.data.title}
+  ogType="article"
+>
+  <div class="wrap wrap--read">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="/">首页</a>
+      <span>/</span>
+      <a href="/blog/">博客</a>
+    </nav>
+
+    <header class="note-head">
+      <h1>{post.data.title}</h1>
+      <div class="note-head__meta">
+        <time datetime={fmtDate(post.data.date)}>{fmtDate(post.data.date)}</time>
+        {post.data.updated && <span>· 更新于 {fmtDate(post.data.updated)}</span>}
+      </div>
+      {
+        post.data.tags.length > 0 && (
+          <div class="tag-row" style="margin-top:0.85rem">
+            {post.data.tags.map((t) => (
+              <span class="tag">#{t}</span>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      toc.length > 2 && (
+        <nav class="toc" aria-label="目录">
+          <div class="toc__title">本页目录</div>
+          <ul>
+            {toc.map((h) => (
+              <li style={h.depth === 3 ? 'padding-left:0.9rem' : ''}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <article class="prose">
+      <Content />
+    </article>
+
+    {
+      (prev || next) && (
+        <nav class="prev-next" aria-label="上下篇">
+          {prev ? (
+            <a href={`/blog/${prev.id}/`}>
+              <span class="prev-next__label">← 上一篇</span>
+              <span>{prev.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <a class="prev-next__next" href={`/blog/${next.id}/`}>
+              <span class="prev-next__label">下一篇 →</span>
+              <span>{next.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )
+    }
+  </div>
+</BaseLayout>

@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面不存在" description="这个页面走丢了。">
+  <div class="wrap wrap--read" style="text-align:center;padding:4rem 1.5rem">
+    <p style="font-size:4rem;font-weight:800;color:var(--accent);margin:0;line-height:1">404</p>
+    <h1 style="margin:0.5rem 0 1rem">这个页面不存在</h1>
+    <p style="color:var(--text-muted)">
+      可能是链接过期了，或者这篇笔记还没公开。
+    </p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn--primary" href="/">回到首页</a>
+      <a class="btn" href="/notes/">浏览笔记</a>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,35 @@
+---
+import { site } from '../site.config';
+
+const year = new Date().getFullYear();
+const { email, bilibili, github, rss } = site.links;
+
+const socials = [
+  bilibili && { href: bilibili, label: 'Bilibili' },
+  github && { href: github, label: 'GitHub' },
+  email && { href: `mailto:${email}`, label: 'Email' },
+  rss && { href: rss, label: 'RSS' },
+].filter(Boolean) as { href: string; label: string }[];
+---
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <div>
+      © {year} {site.author}
+      <span aria-hidden="true"> · </span>
+      <span>Built with Astro</span>
+    </div>
+
+    {
+      socials.length > 0 && (
+        <nav aria-label="社交链接" style="display:flex;gap:1rem;flex-wrap:wrap">
+          {socials.map((s) => (
+            <a href={s.href} rel="me noopener" target="_blank">
+              {s.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+  </div>
+</footer>

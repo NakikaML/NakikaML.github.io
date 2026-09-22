@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { byDateDesc } from '../../utils/notes';
+
+const works = (await getCollection('works')).filter((w) => !w.data.draft).sort(byDateDesc);
+
+const TYPES = ['配音', '翻唱', '知识分享', '其他'] as const;
+const present = TYPES.filter((t) => works.some((w) => w.data.type === t));
+---
+
+<BaseLayout
+  title="作品"
+  description="配音、翻唱与其他创作作品集。"
+>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="page-head__kicker">Works</p>
+      <h1>作品</h1>
+      <p class="page-head__lede">
+        配音、翻唱，以及以后想做的知识类视频。
+        点封面直接跳到 B 站观看。
+      </p>
+    </div>
+
+    {
+      works.length === 0 ? (
+        <div class="empty">
+          <p style="margin-bottom:1rem">还没有添加作品。</p>
+          <p>
+            在 <code>src/content/works/</code> 下新建一个 <code>.md</code> 文件即可，
+            格式参考该目录里的示例文件。封面图放到 <code>public/works/</code> 下。
+          </p>
+        </div>
+      ) : (
+        <>
+          <div class="filters" id="type-filters">
+            <button type="button" class="is-active" data-type="">
+              全部 ({works.length})
+            </button>
+            {present.map((t) => (
+              <button type="button" data-type={t}>
+                {t} ({works.filter((w) => w.data.type === t).length})
+              </button>
+            ))}
+          </div>
+
+          <div class="grid grid--wide" id="work-grid">
+            {works.map((w) => (
+              <div class="work-item" data-type={w.data.type}>
+                <WorkCard work={w} />
+              </div>
+            ))}
+          </div>
+        </>
+      )
+    }
+  </div>
+
+  <script>
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.work-item'));
+    const btns = Array.from(document.querySelectorAll<HTMLElement>('#type-filters button'));
+
+    btns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const t = btn.dataset.type ?? '';
+        btns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        for (const el of items) {
+          el.style.display = !t || el.dataset.type === t ? '' : 'none';
+        }
+      });
+    });
+  </script>
+</BaseLayout>

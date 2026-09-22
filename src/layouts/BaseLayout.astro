@@ -1,0 +1,103 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+
+interface Props {
+  /** 页面标题；不传则用站点默认 */
+  title?: string;
+  description?: string;
+  /** 传 true 时 title 不再拼站点名（首页用） */
+  fullTitle?: boolean;
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = site.description,
+  fullTitle = false,
+  ogType = 'website',
+} = Astro.props;
+
+const pageTitle = title
+  ? fullTitle
+    ? title
+    : `${title} · ${site.name}`
+  : `${site.name} · 学习笔记与作品集`;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com');
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {
+      site.links.rss && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${site.name} · RSS`}
+          href={site.links.rss}
+        />
+      )
+    }
+
+    <meta name="generator" content={Astro.generator} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      // Mermaid 图按需渲染：只有页面里真的出现 ```mermaid 才加载这个重依赖
+      (async () => {
+        const blocks = document.querySelectorAll('code.language-mermaid');
+        if (blocks.length === 0) return;
+
+        blocks.forEach((code) => {
+          const pre = code.parentElement;
+          if (!pre) return;
+          const div = document.createElement('div');
+          div.className = 'mermaid';
+          div.textContent = code.textContent ?? '';
+          pre.replaceWith(div);
+        });
+
+        try {
+          const { default: mermaid } = await import('mermaid');
+          const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: dark ? 'dark' : 'neutral',
+            securityLevel: 'loose',
+          });
+          await mermaid.run({ querySelector: '.mermaid' });
+        } catch (err) {
+          console.warn('Mermaid 渲染失败，已保留源码块', err);
+        }
+      })();
+    </script>
+  </body>
+</html>

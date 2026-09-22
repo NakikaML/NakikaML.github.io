@@ -1,0 +1,210 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NoteCard from '../components/NoteCard.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { contentNotes, mapNotes, countByCategory, byDateDesc } from '../utils/notes';
+import { projects } from '../data/projects';
+
+const notes = await contentNotes();
+const maps = await mapNotes();
+const posts = (await getCollection('blog')).filter((p) => !p.data.draft).sort(byDateDesc);
+const works = (await getCollection('works')).filter((w) => !w.data.draft).sort(byDateDesc);
+
+const cats = countByCategory(notes);
+const latestNotes = notes.slice(0, 6);
+const featuredWorks = (works.filter((w) => w.data.featured).length
+  ? works.filter((w) => w.data.featured)
+  : works
+).slice(0, 3);
+const recentPosts = posts.slice(0, 3);
+
+// 只展示有内容的板块，避免首页出现空壳
+const hasNotes = notes.length > 0;
+const hasWorks = featuredWorks.length > 0;
+const hasPosts = recentPosts.length > 0;
+const hasMaps = maps.length > 0;
+
+// 统计条只显示非零项（笔记还在重构中时不显示「0 篇」这种尴尬数字）
+const stats = [
+  { n: notes.length, l: '篇笔记' },
+  { n: posts.length, l: '篇博客' },
+  { n: works.length, l: '件作品' },
+  { n: projects.length, l: '个项目' },
+].filter((s) => s.n > 0);
+---
+
+<BaseLayout fullTitle title="Nakika · 个人网站">
+  <div class="wrap">
+    <!-- ------------------------------------------------ Hero -->
+    <section class="hero">
+      <p class="hero__eyebrow">网络工程在读 · 温州大学</p>
+      <h1>你好，我是 Nakika。</h1>
+      <p class="hero__lede">
+        网络工程专业在读，ACM 集训队与数据库系统竞赛队成员；同时也是 B 站配音与翻唱 UP 主。
+        这里放着我的技术博客、项目记录，以及配音和翻唱作品 ——
+        一个把「工科生的知识管理」和「创作者的表达欲」放在一起的地方。
+      </p>
+
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/projects/">看我的项目</a>
+        <a class="btn" href="/blog/">读博客</a>
+        <a class="btn" href="/about/">关于我</a>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------ 数据 -->
+    {
+      stats.length > 0 && (
+        <div class="stats">
+          {stats.map((s) => (
+            <div class="stat">
+              <div class="stat__n">{s.n}</div>
+              <div class="stat__l">{s.l}</div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- ------------------------------------------------ 项目 -->
+    <section class="section">
+      <div class="section__head">
+        <h2>在做的事</h2>
+        <a href="/projects/">全部项目 →</a>
+      </div>
+      <div class="grid">
+        {
+          projects.slice(0, 3).map((p) => (
+            <a class="card" href="/projects/">
+              <h3 class="card__title">{p.name}</h3>
+              <p class="card__desc">{p.tagline}</p>
+              <div class="card__meta">
+                <span>● {p.status}</span>
+                <span>· {p.period}</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------ 博客 -->
+    {
+      hasPosts && (
+        <section class="section">
+          <div class="section__head">
+            <h2>博客</h2>
+            <a href="/blog/">全部 {posts.length} 篇 →</a>
+          </div>
+          <div class="grid">
+            {recentPosts.map((post) => (
+              <a class="card" href={`/blog/${post.id}/`}>
+                <h3 class="card__title">{post.data.title}</h3>
+                {post.data.description && <p class="card__desc">{post.data.description}</p>}
+                <div class="card__meta">
+                  <span>{post.data.date.toISOString().slice(0, 10)}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ------------------------------------------------ 精选作品 -->
+    {
+      hasWorks && (
+        <section class="section">
+          <div class="section__head">
+            <h2>配音与翻唱</h2>
+            <a href="/works/">全部作品 →</a>
+          </div>
+          <div class="grid grid--wide">
+            {featuredWorks.map((work) => (
+              <WorkCard work={work} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ------------------------------------------------ 知识地图 -->
+    {
+      hasMaps && (
+        <section class="section">
+          <div class="section__head">
+            <h2>知识地图</h2>
+            <a href="/maps/">全部地图 →</a>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.925rem;margin-top:-0.75rem">
+            按主题整理的学习路线，适合先看这个再决定读哪篇。
+          </p>
+          <div class="grid">
+            {maps.slice(0, 6).map((m) => (
+              <a class="card" href={`/notes/${m.id}/`}>
+                <h3 class="card__title">{m.data.title}</h3>
+                <div class="card__meta">
+                  <span class="tag tag--accent">{m.data.category}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ------------------------------------------------ 笔记 -->
+    {
+      hasNotes ? (
+        <>
+          <section class="section">
+            <div class="section__head">
+              <h2>最近更新</h2>
+              <a href="/notes/">全部 {notes.length} 篇 →</a>
+            </div>
+            <div class="grid">
+              {latestNotes.map((note) => (
+                <NoteCard note={note} showExcerpt />
+              ))}
+            </div>
+          </section>
+
+          {cats.length > 0 && (
+            <section class="section">
+              <div class="section__head">
+                <h2>知识分类</h2>
+                <a href="/notes/">全部笔记 →</a>
+              </div>
+              <div class="grid">
+                {cats.map((c) => (
+                  <a class="card" href={`/notes/?cat=${encodeURIComponent(c.name)}`}>
+                    <h3 class="card__title">{c.name}</h3>
+                    <div class="card__meta">
+                      <span>{c.count} 篇笔记</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <section class="section">
+          <div class="section__head">
+            <h2>学习笔记</h2>
+          </div>
+          <div class="empty" style="text-align:left;padding:2rem">
+            <p style="margin:0 0 0.6rem;color:var(--text-muted)">
+              <strong style="color:var(--text)">笔记板块正在重构中。</strong>
+            </p>
+            <p style="margin:0;color:var(--text-faint);font-size:0.875rem;line-height:1.9">
+              我有一整套自己的知识库，但那是写给自己的速记 —— 跳步、缩写、只有我能看懂的上下文。
+              放上来的每一篇都会重写一遍，所以进度会比较慢。敬请期待。
+            </p>
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

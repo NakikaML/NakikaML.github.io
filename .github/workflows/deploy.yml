@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+# 说明：GitHub Actions 里没有你的 Obsidian 库，所以跑不了 pnpm sync。
+# 这个流程假设 src/content/notes/ 与 public/notes-assets/ 已经提交进仓库。
+# 若你选择不提交生成内容，请删掉这个 workflow，改用本地构建 + 上传 dist/。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 不在这里写 version —— 版本由 package.json 的 packageManager 字段决定。
+      # 两处同时指定会让 pnpm/action-setup 直接报 "Multiple versions of pnpm specified" 而失败。
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build site
+        # 只构建，不 sync —— CI 里没有 Obsidian 库
+        run: pnpm run build:only
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+
+      - name: 产物自检
+        # 页面齐全 / 公式渲染 / 图片完整，任一不通过就中止部署
+        run: pnpm run verify
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

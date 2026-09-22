@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# 同步产物无需被索引成独立入口
+Disallow: /notes-assets/
+
+Sitemap: /sitemap-index.xml

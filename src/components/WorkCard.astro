@@ -1,0 +1,42 @@
+---
+import type { Work } from '../utils/notes';
+import { fmtDate } from '../utils/notes';
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+const d = work.data;
+const href = d.url || '#';
+const date = fmtDate(d.date);
+
+// 没有封面时用类型对应的 emoji 占位
+const glyph: Record<string, string> = {
+  配音: '🎙️',
+  翻唱: '🎵',
+  知识分享: '💡',
+  其他: '🎬',
+};
+---
+
+<a
+  class="card work-card"
+  href={href}
+  target={d.url ? '_blank' : undefined}
+  rel={d.url ? 'noopener' : undefined}
+>
+  <div class="work-card__cover">
+    {d.cover ? <img src={d.cover} alt={d.title} loading="lazy" /> : <span>{glyph[d.type] ?? '🎬'}</span>}
+  </div>
+
+  <div class="work-card__body">
+    <span class={`badge badge--${d.type}`}>{d.type}</span>
+    <h3 class="card__title">{d.title}</h3>
+    {d.description && <p class="card__desc">{d.description}</p>}
+    <div class="card__meta">
+      <span>{d.platform}</span>
+      {date && <span>· {date}</span>}
+    </div>
+  </div>
+</a>

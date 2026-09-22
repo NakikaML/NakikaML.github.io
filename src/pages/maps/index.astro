@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { mapNotes, excerpt } from '../../utils/notes';
+
+const maps = await mapNotes();
+
+// 按分类（MOC 下面还有一层）分组展示
+const groups = new Map<string, typeof maps>();
+for (const m of maps) {
+  const key = m.data.subfield || m.data.category || '未分组';
+  if (!groups.has(key)) groups.set(key, []);
+  groups.get(key)!.push(m);
+}
+---
+
+<BaseLayout
+  title="知识地图"
+  description={`共 ${maps.length} 张知识地图，按主题索引我的全部学习笔记。`}
+>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="page-head__kicker">Maps of Content</p>
+      <h1>知识地图</h1>
+      <p class="page-head__lede">
+        每张地图把一个主题下的所有笔记串成一条学习路线。
+        不确定从哪读起的时候，先看地图。
+      </p>
+    </div>
+
+    {
+      maps.length === 0 ? (
+        <div class="empty" style="text-align:left;padding:2rem">
+          <p style="margin:0 0 0.75rem;color:var(--text-muted)">
+            <strong style="color:var(--text)">目前还没有知识地图。</strong>
+          </p>
+          <p style="margin:0;color:var(--text-faint);font-size:0.875rem;line-height:1.9">
+            知识地图是「一个主题下所有笔记的总览页」，需要等笔记重构到一定数量之后才有意义，
+            所以暂时是空的。等笔记板块开始填充，这里会同步长出来。
+          </p>
+        </div>
+      ) : (
+        [...groups.entries()].map(([group, list]) => (
+          <section class="section">
+            <div class="section__head">
+              <h2>{group}</h2>
+              <span style="font-size:0.85rem;color:var(--text-faint)">{list.length} 张</span>
+            </div>
+            <div class="grid">
+              {list.map((m) => (
+                <a class="card" href={`/notes/${m.id}/`}>
+                  <h3 class="card__title">{m.data.title}</h3>
+                  {excerpt(m.body, 90) && <p class="card__desc">{excerpt(m.body, 90)}</p>}
+                  <div class="card__meta">
+                    <span class="tag tag--accent">{m.data.category}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        ))
+      )
+    }
+  </div>
+</BaseLayout>

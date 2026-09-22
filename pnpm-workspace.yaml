@@ -1,0 +1,5 @@
+# pnpm 11 起，构建脚本白名单写在里（package.json 的 "pnpm" 字段已不再被读取）。
+# esbuild 是 Astro 的构建依赖，必须允许它执行安装脚本，否则 astro build 会失败。
+allowBuilds:
+  esbuild: true
+  sharp: true

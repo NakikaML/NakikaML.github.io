@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NoteCard from '../../components/NoteCard.astro';
+import { contentNotes, countByCategory, countByTag } from '../../utils/notes';
+
+const notes = await contentNotes();
+const cats = countByCategory(notes);
+const tags = countByTag(notes, 3).slice(0, 24);
+const hasNotes = notes.length > 0;
+---
+
+<BaseLayout
+  title="学习笔记"
+  description={
+    hasNotes
+      ? `共 ${notes.length} 篇笔记，支持按分类筛选、按标签过滤与关键词搜索。`
+      : '这里会陆续放上我重构整理过的笔记。'
+  }
+>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="page-head__kicker">Notes</p>
+      <h1>学习笔记</h1>
+      <p class="page-head__lede">
+        {
+          hasNotes
+            ? `共 ${notes.length} 篇。都是我重新整理、为公开阅读写过的内容，不是私人笔记的搬运。支持按分类筛选、按标签过滤和关键词搜索。`
+            : '这里会陆续放上我重构整理过的笔记。我的私人知识库不直接对外，放上来的每一篇都会重写一遍——把当时的速记、跳步和只有自己看得懂的缩写补成完整的讲解。'
+        }
+      </p>
+    </div>
+
+    {
+      !hasNotes && (
+        <div class="empty" style="text-align:left;padding:2rem">
+          <p style="margin:0 0 0.75rem;color:var(--text-muted)">
+            <strong style="color:var(--text)">目前还没有内容。</strong>
+            这是有意为之，不是出错了。
+          </p>
+          <p style="margin:0;color:var(--text-faint);font-size:0.875rem;line-height:1.9">
+            笔记正在陆续重构中。想先看点别的？<a href="/blog/">去看博客</a>
+            · <a href="/works/">看看作品</a> · <a href="/projects/">看看项目</a>
+          </p>
+        </div>
+      )
+    }
+
+    {hasNotes && (
+      <>
+    <!-- ------------------------------------------------ 筛选 -->
+    <div class="filters" id="cat-filters">
+      <button type="button" class="is-active" data-cat="">全部 ({notes.length})</button>
+      {
+        cats.map((c) => (
+          <button type="button" data-cat={c.name}>
+            {c.name} ({c.count})
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      tags.length > 0 && (
+        <div class="filters" id="tag-filters" style="border-bottom:0;padding-bottom:0;margin-bottom:1rem">
+          <span style="font-size:0.8rem;color:var(--text-faint);align-self:center;margin-right:0.25rem">
+            热门标签
+          </span>
+          {tags.map((t) => (
+            <button type="button" data-tag={t.name}>
+              {t.name} ({t.count})
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <div style="margin:0 0 2rem">
+      <input
+        type="search"
+        id="q"
+        placeholder="搜索标题、标签…"
+        autocomplete="off"
+        style="width:100%;max-width:420px;padding:0.6rem 0.9rem;border:1px solid var(--border);border-radius:8px;background:var(--bg-elevated);color:var(--text);font-family:inherit;font-size:0.9rem"
+      />
+    </div>
+
+    <p id="result-count" style="font-size:0.85rem;color:var(--text-faint);margin-bottom:1.25rem"></p>
+
+    <!-- ------------------------------------------------ 列表 -->
+    <div class="grid" id="note-grid">
+      {
+        notes.map((note) => (
+          <div
+            class="note-item"
+            data-cat={note.data.category}
+            data-tags={(note.data.tags ?? []).join('|')}
+            data-search={`${note.data.title} ${note.data.category} ${(note.data.tags ?? []).join(' ')} ${note.data.subject} ${note.data.subfield}`.toLowerCase()}
+          >
+            <NoteCard note={note} showExcerpt />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="empty" id="no-result" style="display:none">
+      没有匹配的笔记，换个关键词试试。
+    </div>
+      </>
+    )}
+  </div>
+
+  <script>
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.note-item'));
+    const catBtns = Array.from(document.querySelectorAll<HTMLElement>('#cat-filters button'));
+    const tagBtns = Array.from(document.querySelectorAll<HTMLElement>('#tag-filters button'));
+    const q = document.getElementById('q') as HTMLInputElement | null;
+    const counter = document.getElementById('result-count');
+    const noResult = document.getElementById('no-result');
+
+    let activeCat = '';
+    let activeTag = '';
+
+    // 支持从首页 /notes/?cat=计算机科学 直接跳进来
+    const urlCat = new URLSearchParams(location.search).get('cat');
+    if (urlCat) {
+      activeCat = urlCat;
+      catBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.cat === urlCat));
+    }
+
+    function apply() {
+      const kw = (q?.value ?? '').trim().toLowerCase();
+      let shown = 0;
+
+      for (const el of items) {
+        const catOk = !activeCat || el.dataset.cat === activeCat;
+        const tagOk = !activeTag || (el.dataset.tags ?? '').split('|').includes(activeTag);
+        const kwOk = !kw || (el.dataset.search ?? '').includes(kw);
+        const ok = catOk && tagOk && kwOk;
+        el.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      }
+
+      if (counter) counter.textContent = `显示 ${shown} / ${items.length} 篇`;
+      if (noResult) noResult.style.display = shown === 0 ? '' : 'none';
+    }
+
+    catBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeCat = btn.dataset.cat ?? '';
+        catBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        apply();
+      });
+    });
+
+    tagBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const t = btn.dataset.tag ?? '';
+        activeTag = activeTag === t ? '' : t;
+        tagBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.tag === activeTag));
+        apply();
+      });
+    });
+
+    q?.addEventListener('input', apply);
+    apply();
+  </script>
+</BaseLayout>

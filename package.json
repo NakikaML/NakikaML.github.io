@@ -1,0 +1,30 @@
+{
+  "name": "nakika-personal-website",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nakika 的个人网站：学习笔记 / 博客 / 项目 / 配音与翻唱作品集",
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "sync": "node scripts/sync-vault.mjs",
+    "sync:dry": "node scripts/sync-vault.mjs --dry",
+    "dev": "astro dev",
+    "build": "node scripts/sync-vault.mjs && astro build",
+    "build:only": "astro build",
+    "preview": "astro preview",
+    "verify": "node scripts/verify-build.mjs",
+    "check:math": "node scripts/check-math-delims.mjs",
+    "check:live": "node scripts/check-live.mjs",
+    "release": "node scripts/sync-vault.mjs && astro build && node scripts/verify-build.mjs"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.1",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.3",
+    "katex": "^0.18.7",
+    "mermaid": "^12.0.0",
+    "picomatch": "^4.0.7",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  }
+}
