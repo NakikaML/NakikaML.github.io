@@ -36,9 +36,14 @@ const tags = [...tagSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 16);
 
     {
       posts.length === 0 ? (
-        <div class="empty">
-          还没有博客文章。在 <code>src/content/blog/</code> 下新建一个 <code>.md</code> 文件就能发布，
-          格式参考该目录里的示例文章。
+        <div class="empty" style="text-align:left;padding:2rem">
+          <p style="margin:0 0 0.75rem;color:var(--text-muted)">
+            <strong style="color:var(--text)">还没有文章。</strong>
+          </p>
+          <p style="margin:0;color:var(--text-faint);font-size:0.875rem;line-height:1.9">
+            文章在陆续写。想先看点别的？<a href="/projects/">看项目</a>
+            · <a href="/about/">关于我</a>
+          </p>
         </div>
       ) : (
         <div class="grid" style="grid-template-columns:1fr">

@@ -17,7 +17,6 @@ const CHECKS = [
   { path: '/notes/', expect: '学习笔记', label: '页面正常' },
   { path: '/maps/', expect: '知识地图' },
   { path: '/blog/', expect: '博客' },
-  { path: '/blog/why-i-built-this-site/', expect: '为什么我要做一个个人网站', label: '博客正文' },
   { path: '/works/', expect: '作品' },
   { path: '/projects/', expect: '项目' },
   { path: '/rss.xml', expect: '<rss' },
