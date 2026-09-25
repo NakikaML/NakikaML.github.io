@@ -14,10 +14,12 @@ const works = (await getCollection('works')).filter((w) => !w.data.draft).sort(b
 
 const cats = countByCategory(notes);
 const latestNotes = notes.slice(0, 6);
-const featuredWorks = (works.filter((w) => w.data.featured).length
-  ? works.filter((w) => w.data.featured)
-  : works
-).slice(0, 3);
+// 精选优先：标了 featured 的排前面，不足 3 件时用最新作品补齐。
+// （以前是「有精选就只显示精选」，只标 1 件时首页就只剩一张孤零零的卡）
+// 一件都没标时，结果与旧的兜底行为一致：最新 3 件。
+const featuredWorks = [...works]
+  .sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
+  .slice(0, 3);
 const recentPosts = posts.slice(0, 3);
 
 // 只展示有内容的板块，避免首页出现空壳
@@ -40,7 +42,7 @@ const stats = [
     <!-- ------------------------------------------------ Hero -->
     <section class="hero">
       <div class="hero__text">
-        <p class="hero__eyebrow">温州大学网络工程（卓工）在读本科生！</p>
+        <p class="hero__eyebrow">不会翻唱滴文青声优不是一个好理工狗233</p>
         <h1>你好，我是 鸣鹿Nakika。</h1>
         <p class="hero__lede">
           网络工程专业在读，温州市图灵人工智能高等研究院极客工坊学员，同时也是 B 站一名主攻配音滴多面手 UP 主呀~
@@ -132,7 +134,7 @@ const stats = [
       hasWorks && (
         <section class="section">
           <div class="section__head">
-            <h2>配音与翻唱</h2>
+            <h2>精选作品</h2>
             <a href="/works/">全部作品 →</a>
           </div>
           <div class="grid grid--wide">

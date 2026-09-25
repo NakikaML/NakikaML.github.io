@@ -7,7 +7,7 @@ cover: "/works/BV1hv7s6TEDp.webp"
 date: 2026-06-27
 roles: []
 tags: []
-featured: false
+featured: true
 draft: false
 ---
 > 从 B 站自动导入（BV1hv7s6TEDp）。作品页只渲染上面的 frontmatter，正文不显示。

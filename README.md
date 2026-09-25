@@ -130,6 +130,10 @@ draft: false
 ---
 ```
 
+> **首页精选怎么算**：首页最多显示 3 件作品，标了 `featured: true` 的排在前面；
+> 不足 3 件时用最新作品自动补齐（一件都没标就是最新 3 件）。
+> `pnpm run import:bili --update` 重新导入时会保留你手填的 `featured`，不会被覆盖。
+
 ### 🗂️ 加一个项目
 
 编辑 `src/data/projects.ts`，照着现有条目加。
