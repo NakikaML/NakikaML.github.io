@@ -59,13 +59,14 @@ const blog = defineCollection({
 });
 
 // --------------------------------------------------------------- works
-// 配音 / 翻唱 / 知识分享 —— 你的创作作品集
+// 配音 / 翻唱 / 声展 / 知识分享 —— 你的创作作品集
 const works = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/works' }),
   schema: z.object({
     title: z.string(),
-    /** 作品类型，决定分组与配色 */
-    type: z.enum(['配音', '翻唱', '知识分享', '其他']).default('其他'),
+    /** 作品类型，决定分组与配色（新增类型记得同步三处：
+     *  这里、src/pages/works/index.astro 的 TYPES、src/styles/global.css 的 .badge--xxx） */
+    type: z.enum(['配音', '翻唱', '声展', '知识分享', '其他']).default('其他'),
     /** 发布平台 */
     platform: z.enum(['Bilibili', 'YouTube', '其他']).default('Bilibili'),
     /** 作品外链（B站视频地址等） */
@@ -73,8 +74,6 @@ const works = defineCollection({
     /** 封面图，放在 public/works/ 下，填 /works/xxx.jpg */
     cover: z.string().default(''),
     date: z.coerce.date(),
-    /** 作品简介 */
-    description: z.string().default(''),
     /** 参与角色，如「配音：张三」 */
     roles: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),

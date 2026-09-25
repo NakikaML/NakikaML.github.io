@@ -4,32 +4,67 @@
    ============================================================ */
 
 /* ---------------------------------------------------- 设计令牌 */
+/*
+ * 配色取自 OC 头像：绯朱红（眼睛 / 发带）、暖橙金（头发）、青碧绿（围巾）、
+ * 米白（衣服）—— 底色是暖的，主色用暖橙金，红与绿做点缀。
+ *
+ * 想整体换色，只改这一段就够了：
+ *   --accent-*  主色（暖橙金）  --red-*  副色（绯朱红）  --green-*  第三色（青碧绿）
+ * 注意两点：
+ *   · --*-text 是「浅底上的小字 / 链接」专用，已按 4.5:1 对比度调深；
+ *   · 金色实底上要压深褐墨 --on-accent，别用白字（白字只有 2.7:1，直接糊掉）。
+ */
 :root {
-  --bg: #ffffff;
-  --bg-soft: #f7f7fa;
+  /* 中性色：暖白底 + 米色软底（不再是冷紫灰） */
+  --bg: #fffdf9;
+  --bg-soft: #f7f2e9;
   --bg-elevated: #ffffff;
-  --text: #17171d;
-  --text-muted: #6a6a78;
-  --text-faint: #9a9aa8;
-  --border: #e7e7ee;
-  --border-strong: #d5d5e0;
+  --text: #241d17;
+  --text-muted: #6c6255;
+  --text-faint: #9a8d7d;
+  --border: #eae0d3;
+  --border-strong: #d9cbb9;
 
-  --accent: #6d5efc;
-  --accent-hover: #5a4aeb;
-  --accent-soft: #f1eeff;
-  --accent-text: #4c3ce0;
+  /* 主色 —— 暖橙金（OC 的头发）：链接 / 按钮 / 导航选中 / 卡片 hover / 焦点环 */
+  --accent: #d78b34;
+  --accent-hover: #c07622;
+  --accent-soft: #fdf1de;
+  --accent-text: #8f5715;
+  --on-accent: #2a1c08; /* 金色实底上的字（深褐墨，6.0:1） */
 
-  --warn: #d97706;
-  --warn-soft: #fff7ed;
-  --ok: #059669;
+  /* 副色 —— 绯朱红（OC 的眼睛与发带）：提示框 / 声展徽章 / 项目「筹备中」 */
+  --red: #c9402e;
+  --red-hover: #ad3323;
+  --red-soft: #fcece7;
+  --red-text: #bc3527;
+
+  /* 第三色 —— 青碧绿（OC 的围巾） */
+  --green: #4f9a76;
+  --green-soft: #e8f4ed;
+  --green-text: #2f7355;
+
+  /* 红系扩展 —— 桃红：给「翻唱」徽章一个能和副色区分开的位子 */
+  --rose: #c2486f;
+  --rose-soft: #fcebf1;
+  --rose-text: #a52e58;
+
+  /* Logo / favicon 渐变：固定走红系，跟 UI 主色解耦（白字在上面 4.8:1 / 6.8:1） */
+  --brand-from: #c9402e;
+  --brand-to: #9c3d15;
+
+  /* 语义色：警示改用绯朱红，比橙黄更符合直觉；旧名字保持有效 */
+  --warn: var(--red);
+  --warn-soft: var(--red-soft);
+  --warn-text: var(--red-text);
+  --ok: var(--green);
 
   --radius: 10px;
   --radius-sm: 6px;
   --radius-lg: 16px;
 
-  --shadow-sm: 0 1px 2px rgba(20, 20, 40, 0.05);
-  --shadow: 0 4px 16px rgba(20, 20, 40, 0.07);
-  --shadow-lg: 0 12px 32px rgba(20, 20, 40, 0.10);
+  --shadow-sm: 0 1px 2px rgba(74, 46, 24, 0.06);
+  --shadow: 0 4px 16px rgba(74, 46, 24, 0.08);
+  --shadow-lg: 0 12px 32px rgba(74, 46, 24, 0.12);
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC",
@@ -47,27 +82,41 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e0e13;
-    --bg-soft: #16161d;
-    --bg-elevated: #1a1a22;
-    --text: #e9e9f0;
-    --text-muted: #a0a0b0;
-    --text-faint: #71717f;
-    --border: #27272f;
-    --border-strong: #35353f;
+    /* 暖黑（深咖啡 / 夜色林地），不是蓝黑 */
+    --bg: #16120e;
+    --bg-soft: #201a14;
+    --bg-elevated: #251e17;
+    --text: #f2e9de;
+    --text-muted: #b2a496;
+    --text-faint: #8b7f70;
+    --border: #312820;
+    --border-strong: #423729;
 
-    --accent: #8b7dff;
-    --accent-hover: #9d92ff;
-    --accent-soft: #1e1b33;
-    --accent-text: #a99fff;
+    --accent: #e8a44e;
+    --accent-hover: #f0b463;
+    --accent-soft: #33250f;
+    --accent-text: #f0b968;
+    --on-accent: #2a1c08;
 
-    --warn: #fbbf24;
-    --warn-soft: #2a2113;
-    --ok: #34d399;
+    --red: #f2705a;
+    --red-hover: #f78a75;
+    --red-soft: #3a1c15;
+    --red-text: #ff9781;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+    --green: #43b98d;
+    --green-soft: #122b23;
+    --green-text: #6fd6ac;
+
+    --rose: #ef7ba6;
+    --rose-soft: #361c26;
+    --rose-text: #f59cbd;
+
+    --brand-from: #f2705a;
+    --brand-to: #b8502c;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.34);
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.40);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.50);
 
     color-scheme: dark;
   }
@@ -125,7 +174,7 @@ main { flex: 1; padding: 3rem 0 5rem; }
   left: -9999px;
   top: 0;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   padding: 0.6rem 1rem;
   border-radius: 0 0 var(--radius-sm) 0;
   z-index: 100;
@@ -166,7 +215,7 @@ main { flex: 1; padding: 3rem 0 5rem; }
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), #b06cf0);
+  background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
   color: #fff;
   display: grid;
   place-items: center;
@@ -314,7 +363,7 @@ li > ul, li > ol { margin: 0.3rem 0; }
 }
 /* Shiki 输出的是内联浅色主题，暗色模式下换个底色保证可读 */
 @media (prefers-color-scheme: dark) {
-  .prose pre { background: #14141b !important; }
+  .prose pre { background: #1e1712 !important; }
   .prose pre code { filter: invert(0.92) hue-rotate(180deg); }
 }
 
@@ -466,6 +515,10 @@ a.tag:hover {
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
+/* 数字按红 → 黄 → 绿轮转，把 OC 的三色直接摆出来 */
+.stats .stat:nth-child(3n + 1) .stat__n { color: var(--red-text); }
+.stats .stat:nth-child(3n + 2) .stat__n { color: var(--accent-text); }
+.stats .stat:nth-child(3n + 3) .stat__n { color: var(--green-text); }
 .stat__l {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -511,12 +564,12 @@ a.tag:hover {
 .btn--primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 .btn--primary:hover {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
-  color: #fff;
+  color: var(--on-accent);
 }
 .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.5rem; }
 
@@ -549,7 +602,7 @@ a.tag:hover {
 .filters .is-active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* ------------------------------------------------- 面包屑/返回 */
@@ -634,10 +687,26 @@ a.tag:hover {
 .toc a:hover { color: var(--accent-text); }
 
 /* ------------------------------------------------------ 首页 */
+/* Hero：左边文字、右边 OC 头像（窄屏自动堆叠，头像在上） */
 .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2.5rem;
   padding: 3rem 0 2rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 3rem;
+}
+.hero__text { min-width: 0; }
+.hero__avatar img {
+  display: block;
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 20%; /* 圆角方形（不是正圆） */
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 .hero__eyebrow {
   font-size: 0.85rem;
@@ -659,6 +728,17 @@ a.tag:hover {
   margin: 0 0 1.5rem;
 }
 
+/* 窄屏：头像挪到文字上面，尺寸收小 */
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding-top: 2.25rem;
+  }
+  .hero__avatar { order: -1; }
+  .hero__avatar img { width: 132px; height: 132px; }
+}
+
 .section { margin: 3.5rem 0; }
 .section__head {
   display: flex;
@@ -676,21 +756,60 @@ a.tag:hover {
 .section__head a { font-size: 0.875rem; color: var(--text-muted); }
 
 /* ------------------------------------------------------ 作品 */
-.work-card { padding: 0; overflow: hidden; }
+/* 横向卡片：封面在左，右侧两行文字（标题粗体 / 平台·时间 灰字） */
+.work-card {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
 .work-card__cover {
-  aspect-ratio: 16 / 9;
+  flex: 0 0 168px;
   background: linear-gradient(135deg, var(--accent-soft), var(--bg-soft));
   display: grid;
   place-items: center;
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
   overflow: hidden;
 }
-.work-card__cover img { width: 100%; height: 100%; object-fit: cover; }
+.work-card__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .work-card__cover span {
   font-size: 1.75rem;
   opacity: 0.5;
 }
-.work-card__body { padding: 1rem 1.15rem 1.15rem; display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+.work-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.8rem 1rem;
+}
+/* 第一行：类型徽章 + 标题 */
+.work-card__line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+}
+.work-card__line .badge { flex: none; transform: translateY(-0.1em); }
+.work-card__line .card__title {
+  min-width: 0;
+  font-size: 0.98rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* 第二行：平台 · 上传时间（灰字） */
+.work-card__meta {
+  margin: 0;
+  font-size: 0.79rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
 
 .badge {
   display: inline-block;
@@ -700,16 +819,12 @@ a.tag:hover {
   border-radius: 4px;
   letter-spacing: 0.02em;
 }
-.badge--配音 { background: #eef2ff; color: #4338ca; }
-.badge--翻唱 { background: #fdf2f8; color: #be185d; }
-.badge--知识分享 { background: #ecfdf5; color: #047857; }
+/* 徽章：全部走令牌，浅色 / 暗色自动适配，不用再写一套暗色覆盖 */
+.badge--配音 { background: var(--accent-soft); color: var(--accent-text); }
+.badge--翻唱 { background: var(--rose-soft); color: var(--rose-text); }
+.badge--声展 { background: var(--red-soft); color: var(--red-text); }
+.badge--知识分享 { background: var(--green-soft); color: var(--green-text); }
 .badge--其他 { background: var(--bg-soft); color: var(--text-muted); }
-
-@media (prefers-color-scheme: dark) {
-  .badge--配音 { background: #1e1b4b; color: #a5b4fc; }
-  .badge--翻唱 { background: #4a1d3d; color: #f9a8d4; }
-  .badge--知识分享 { background: #064e3b; color: #6ee7b7; }
-}
 
 /* ------------------------------------------------------ 空状态 */
 .empty {
@@ -727,3 +842,329 @@ a.tag:hover {
   border-radius: 4px;
   border: 1px solid var(--border);
 }
+
+/* ============================================ 作品筛选（搜索 + 侧边栏标签） */
+/* --------------------------------------------------------- 搜索栏 */
+.works-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1.5rem 0 1.25rem;
+  padding: 0 0.5rem 0 0.85rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.works-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.works-search__icon { display: flex; flex: none; color: var(--text-faint); }
+.works-search__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.7rem 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.works-search__input::placeholder { color: var(--text-faint); }
+/* 去掉 type=search 自带的叉，用自己的「清除」按钮 */
+.works-search__input::-webkit-search-decoration,
+.works-search__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.works-search__clear {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.works-search__clear:hover { border-color: var(--accent); color: var(--accent-text); }
+
+/* --------------------------------------------------- 侧边栏 + 内容区 */
+.works-layout {
+  display: grid;
+  grid-template-columns: 212px minmax(0, 1fr);
+  gap: 2.25rem;
+  align-items: start;
+}
+.works-sidebar {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.3rem;
+  font-size: 0.85rem;
+}
+.works-sidebar__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.works-sidebar__head h2 { font-size: 0.9rem; margin: 0; }
+.works-sidebar__clear {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.works-sidebar__reset {
+  width: 100%;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.7rem;
+  margin-top: 0.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.works-sidebar__reset:hover { border-color: var(--accent); color: var(--accent-text); }
+
+.tagfilter__group { margin-bottom: 0.9rem; }
+/* 分组标题做成 <details> 的 summary —— 点一下就能折叠 */
+.tagfilter__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--text-faint);
+  margin: 0;
+  padding: 0.28rem 0.4rem 0.28rem 0;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  transition: color 0.15s;
+}
+.tagfilter__title::-webkit-details-marker { display: none; }
+.tagfilter__title::marker { content: ''; }
+.tagfilter__title:hover { color: var(--text-muted); }
+/* 小三角：收起时朝右，展开时朝下 */
+.tagfilter__title::before {
+  content: '';
+  flex: none;
+  width: 0.4em;
+  height: 0.4em;
+  margin-left: 0.15rem;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.tagfilter__group[open] > .tagfilter__title::before { transform: rotate(45deg); }
+/* 标题右侧显示这一组有几个标签 */
+.tagfilter__sum {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+/* 收起状态下如果这组里有勾选项，标题高亮，免得忘了自己筛了什么 */
+.tagfilter__group.has-active > .tagfilter__title { color: var(--accent-text); }
+.tagfilter__list { display: flex; flex-direction: column; gap: 0.05rem; padding-top: 0.15rem; }
+.tagfilter__item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.12s, color 0.12s;
+}
+.tagfilter__item:hover { background: var(--bg-soft); color: var(--text); }
+/* 勾选态用 JS 打 is-checked（不依赖 :has()，兼容更稳） */
+.tagfilter__item.is-checked {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.tagfilter__item.is-checked .tagfilter__count { color: inherit; }
+.tagfilter__item input {
+  flex: none;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.tagfilter__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tagfilter__count {
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.works-main { min-width: 0; }
+.works-count { font-size: 0.83rem; color: var(--text-muted); margin: 0 0 1rem; }
+.work-item[hidden] { display: none; }
+
+/* 作品网格：一行一个，整行铺开 */
+#work-grid {
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+}
+/* 整行很宽，缩略图相应放大，并用 min-height 保住 16:9（220 × 9/16 ≈ 124）不让封面被裁 */
+#work-grid .work-card__cover {
+  flex-basis: 220px;
+  min-height: 124px;
+}
+
+/* 窄屏：缩略图收窄，别把标题挤没了 */
+@media (max-width: 560px) {
+  #work-grid .work-card__cover { flex-basis: 118px; }
+  .work-card__body { padding: 0.7rem 0.8rem; }
+  .work-card__line { gap: 0.35rem; }
+  .work-card__line .card__title { font-size: 0.92rem; }
+}
+
+/* 无结果 */
+.works-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-faint);
+}
+.works-empty p { margin: 0; }
+
+/* 窄屏：侧边栏收到上面，标签变成一行行小胶囊 */
+@media (max-width: 880px) {
+  .works-layout { grid-template-columns: 1fr; gap: 1.25rem; }
+  .works-sidebar { position: static; max-height: none; overflow: visible; padding-right: 0; }
+  .tagfilter__list { flex-direction: row; flex-wrap: wrap; gap: 0.3rem; }
+  .tagfilter__item {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.22rem 0.62rem;
+  }
+  .tagfilter__item.is-checked { border-color: var(--accent); }
+  .tagfilter__item input { display: none; }
+}
+
+/* ================================================ 荣誉 / 履历列表 */
+/* 用在「关于我」的精选和 /cv 履历页 */
+.honor {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+/*
+ * 这里刻意**不用 grid / flex** 排 li：
+ * li 里除了 <span class="honor__when">，还有普通文字和内联的 <strong>。
+ * 一旦 li 成为 grid/flex 容器，这些文字和 <strong> 会各自变成独立的格子/项目，
+ * 「浙江省…竞赛 优秀奖」就会被拆成两行（"优秀奖"被挤到下一行）。
+ * 所以改成「绝对定位的年份 + padding-left 留出左侧空档」，正文按正常内联流排。
+ */
+.honor li {
+  position: relative;
+  padding-left: 5.4rem;
+  line-height: 1.6;
+}
+.honor li::before { content: none; } /* 覆盖 prose 里 ul li 的圆点 */
+.honor__when {
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* 证书这类没有年份的：不需要左侧空档 */
+.honor--plain li { padding-left: 0; }
+.honor--plain { margin-top: 0.5rem; gap: 0.3rem; }
+
+/* 小号灰色说明/跳转链接 */
+.muted-link {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: -0.75rem 0 1.5rem;
+}
+
+@media (max-width: 520px) {
+  .honor li { padding-left: 0; }
+  .honor__when {
+    position: static;
+    display: block;
+    margin-bottom: 0.05rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* ==================================================== 横向 Tab 分栏 */
+/* 用在「关于我」：简要信息 / 履历 …… 想再加就再加一个按钮 + 一个 panel */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.tabs__btn {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tabs__btn:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+.tabs__btn.is-active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent-text);
+}
+.tabpanel[hidden] { display: none; }
+/* 切到「履历」这类以列表为主的 Tab 时，去掉第一个标题的上边距，视觉更贴 */
+.tabpanel > .prose > h2:first-child { margin-top: 0; }

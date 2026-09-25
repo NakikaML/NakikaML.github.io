@@ -15,6 +15,7 @@ const date = fmtDate(d.date);
 const glyph: Record<string, string> = {
   配音: '🎙️',
   翻唱: '🎵',
+  声展: '🎧',
   知识分享: '💡',
   其他: '🎬',
 };
@@ -31,12 +32,12 @@ const glyph: Record<string, string> = {
   </div>
 
   <div class="work-card__body">
-    <span class={`badge badge--${d.type}`}>{d.type}</span>
-    <h3 class="card__title">{d.title}</h3>
-    {d.description && <p class="card__desc">{d.description}</p>}
-    <div class="card__meta">
-      <span>{d.platform}</span>
-      {date && <span>· {date}</span>}
+    <div class="work-card__line">
+      <span class={`badge badge--${d.type}`}>{d.type}</span>
+      <h3 class="card__title">{d.title}</h3>
     </div>
+    <p class="work-card__meta">
+      {d.platform}{date && <span> · {date}</span>}
+    </p>
   </div>
 </a>

@@ -1,4 +1,5 @@
 // @ts-check
+import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
@@ -40,6 +41,50 @@ function quietKatex(options) {
       console.warn = origWarn;
       console.error = origError;
     }
+  };
+}
+
+/**
+ * 让 `astro dev` 也自动生成头像/图标。
+ *
+ * 不加这个的话，dev 期间替换 src/assets/avatar.png 会「没反应」——
+ * 因为 scripts/build-avatar.mjs 只在 build 时跑，生成物没更新，
+ * 页面上就还是旧头像（public/ 虽然是实时读盘的，但读到的还是旧文件）。
+ *
+ * 这里在 dev 启动时先跑一次，再监听 src/assets/ 的增删改：
+ * 你往里面丢/换图片，会自动重新生成并刷新页面。
+ */
+function avatarAssets() {
+  const SCRIPT = fileURLToPath(new URL('./scripts/build-avatar.mjs', import.meta.url));
+  return {
+    name: 'nakika-avatar-assets',
+    configureServer(server) {
+      /**
+       * 必须用**异步** execFile，不能用 execFileSync：
+       * 同步版会阻塞事件循环几百毫秒，正好卡在 Vite 初始化模块系统的时机上，
+       * 实测会触发 "Vite module runner has been closed" 报错。
+       */
+      const run = (reload) => {
+        execFile(process.execPath, [SCRIPT], { stdio: 'inherit' }, (err) => {
+          if (err) {
+            console.warn('[avatar] 生成失败（不影响 dev 运行）：', err.message);
+            return;
+          }
+          if (reload) server.ws.send({ type: 'full-reload' });
+        });
+      };
+      // 让出一轮事件循环，别和 Vite 自己的启动流程抢
+      setTimeout(() => run(false), 0);
+
+      const onFs = (file) => {
+        if (!/[\\/]src[\\/]assets[\\/]/.test(file)) return;
+        console.log('[avatar] 检测到 src/assets 有变化，重新生成…');
+        run(true);
+      };
+      server.watcher.on('add', onFs);
+      server.watcher.on('change', onFs);
+      server.watcher.on('unlink', onFs);
+    },
   };
 }
 
@@ -87,6 +132,7 @@ export default defineConfig({
   devToolbar: { enabled: false },
 
   vite: {
+    plugins: [avatarAssets()],
     resolve: {
       alias: {
         // picomatch 是 CJS 包，被 @astrojs/internal-helpers 用 ESM 语法默认导入，

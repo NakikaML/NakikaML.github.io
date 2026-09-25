@@ -39,18 +39,32 @@ const stats = [
   <div class="wrap">
     <!-- ------------------------------------------------ Hero -->
     <section class="hero">
-      <p class="hero__eyebrow">温州大学网络工程（卓工）在读本科生！</p>
-      <h1>你好，我是 鸣鹿Nakika。</h1>
-      <p class="hero__lede">
-        网络工程专业在读，温州市图灵人工智能高等研究院极客工坊学员，同时也是 B 站一名主攻配音滴多面手 UP 主呀~
-        这里放着我的技术博客、项目记录，以及配音和翻唱作品 ——
-        一个半工科半文科生把「知识管理」和「创作表达」放在一起的地方。
-      </p>
+      <div class="hero__text">
+        <p class="hero__eyebrow">温州大学网络工程（卓工）在读本科生！</p>
+        <h1>你好，我是 鸣鹿Nakika。</h1>
+        <p class="hero__lede">
+          网络工程专业在读，温州市图灵人工智能高等研究院极客工坊学员，同时也是 B 站一名主攻配音滴多面手 UP 主呀~
+          这里放着我的技术博客、项目记录，以及配音和翻唱作品 ——
+          一个半工科半文科生把「知识管理」和「创作表达」放在一起的地方。
+        </p>
 
-      <div class="btn-row">
-        <a class="btn btn--primary" href="/projects/">看我的项目</a>
-        <a class="btn" href="/blog/">读博客</a>
-        <a class="btn" href="/about/">关于我</a>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="/projects/">看我的项目</a>
+          <a class="btn" href="/blog/">读博客</a>
+          <a class="btn" href="/about/">关于我</a>
+        </div>
+      </div>
+
+      {/* OC 头像。由 scripts/build-avatar.mjs 从 src/assets/avatar.png 生成，换图后重跑 pnpm run avatar */}
+      <div class="hero__avatar">
+        <img
+          src="/avatar-360.webp"
+          srcset="/avatar-360.webp 1x, /avatar-720.webp 2x"
+          width="180"
+          height="180"
+          alt="鸣鹿Nakika 的 OC 头像"
+          fetchpriority="high"
+        />
       </div>
     </section>
 

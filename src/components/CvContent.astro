@@ -1,0 +1,60 @@
+---
+/**
+ * CvContent.astro —— 履历正文（荣誉 / 证书 / 经历 / 语言）
+ *
+ * 现在挂在「关于我」的「履历」Tab 里。
+ * 加条目：在对应 <ul class="honor"> 里加一行 <li>：
+ *   带日期的 —— <li><span class="honor__when">2026.09</span>内容</li>
+ *   不带日期 —— 放进 honor--plain 那个列表，直接写内容
+ *
+ * ⚠️ <li> 里可以有普通文字和内联 <strong>，但**不要**给 li 加 display:grid/flex，
+ *    否则这些内容会被拆成独立的格子/项目而换行（.honor 的样式里已注明原因）。
+ */
+---
+
+<div class="prose">
+  <h2>荣誉</h2>
+  <ul class="honor">
+    <li><span class="honor__when">2026.05</span>浙江省第十二届日语配音竞赛 <strong>优秀奖</strong></li>
+    <li><span class="honor__when">2026.04</span>全国大学生英语竞赛 NECCS 校级三等奖</li>
+    <li><span class="honor__when">2026.03</span>温州大学第十九届「小橙编程科技杯」程序设计竞赛 三等奖</li>
+    <li><span class="honor__when">2025.12</span>温州大学第四届配音大赛 三等奖</li>
+    <li>
+      <span class="honor__when">2025.12</span>2025 年冬季「攀拓计算机能力测评 · 程序设计」（乙级）三等奖
+    </li>
+    <li><span class="honor__when">2025.10</span>温州大学 2025 年军训团合唱比赛 二等奖</li>
+    <li><span class="honor__when">2024.11</span>宁波市直属普高学生政治小论文 二等奖</li>
+    <li><span class="honor__when">2023.12</span>宁波市高中英语现场作文大赛市直属 二等奖</li>
+    <li><span class="honor__when">2023.10</span>宁波市直属普高学生政治小论文 三等奖</li>
+  </ul>
+
+  <h2>证书</h2>
+  <ul class="honor honor--plain">
+    <li>攀拓计算机能力测评 · 程序设计 PAT 乙级（89 分）</li>
+    <li>普通话水平测试 二级甲等（87.60 分）</li>
+    <li>全国大学生英语能力测试 CET-4 已通过（488）</li>
+    <li>全国大学生英语能力测试 CET-6 已通过（466）</li>
+    <li>红十字救护员证</li>
+  </ul>
+
+  <h2>经历</h2>
+  <ul class="honor">
+    <li>
+      <span class="honor__when">2026.09–</span>温州大学计算机与人工智能学院《程序设计基础》课程 学生助教员
+    </li>
+    <li><span class="honor__when">2023–</span>B 站配音与翻唱 UP 主，投稿作品 <a href="/works/">100+ 件</a></li>
+    <!-- 下面三条补上起止时间会更完整（大致月份即可） -->
+    <li><span class="honor__when">—</span>温州大学 网络工程 本科在读</li>
+    <li><span class="honor__when">—</span>温州大学 ACM 集训队 队员</li>
+    <li><span class="honor__when">—</span>温州市图灵人工智能高等研究院「极客工坊」学员</li>
+  </ul>
+
+  <h2>语言</h2>
+  <ul class="honor honor--plain">
+    <li>中文（母语）· 普通话二级甲等</li>
+    <li>英语（CET-6）· 有英语翻配作品</li>
+    <li>日语（N2，备考 N1）· 日语翻配、翻唱与有声书</li>
+    <li>俄语（入门）· 用于俄语翻配</li>
+    <li>法语（入门）· 用于法语翻配</li>
+  </ul>
+</div>

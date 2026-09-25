@@ -1,0 +1,10 @@
+---
+/**
+ * /cv/ 已经合并进「关于我」的「履历」Tab 里了。
+ * 这个文件只保留一个跳转 —— 方便对外直接发 /cv/ 这个短链接（比如写进简历）。
+ *
+ * 想彻底删掉：删掉本文件，并把 scripts/verify-build.mjs 里
+ * required 列表中的 ['履历（跳转）', 'cv/index.html'] 一并删掉。
+ */
+return Astro.redirect('/about/#cv', 301);
+---

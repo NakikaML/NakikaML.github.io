@@ -3,24 +3,32 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import WorkCard from '../../components/WorkCard.astro';
 import { byDateDesc } from '../../utils/notes';
+import { buildTagIndex, searchText } from '../../utils/workTags';
 
 const works = (await getCollection('works')).filter((w) => !w.data.draft).sort(byDateDesc);
 
-const TYPES = ['配音', '翻唱', '知识分享', '其他'] as const;
+// 新增类型要同步这里 + content.config.ts 的 enum + global.css 的 .badge--xxx
+const TYPES = ['配音', '翻唱', '声展', '知识分享', '其他'] as const;
 const present = TYPES.filter((t) => works.some((w) => w.data.type === t));
+
+// 侧边栏标签（形式 / 语言 / IP）：只出现 1-2 次的标签会折叠进该组的「其他」
+const tagIdx = buildTagIndex(works);
+
+// 预先算好每篇的标签属性和搜索文本，别在模板里重复算
+const items = works.map((w) => ({
+  work: w,
+  attrs: tagIdx.attrs.get(w.id) ?? '',
+  hay: searchText(w),
+}));
 ---
 
-<BaseLayout
-  title="作品"
-  description="配音、翻唱与其他创作作品集。"
->
+<BaseLayout title="作品" description="配音、翻唱、声展与其他创作作品集，支持搜索与标签筛选。">
   <div class="wrap">
     <div class="page-head">
       <p class="page-head__kicker">Works</p>
       <h1>作品</h1>
       <p class="page-head__lede">
-        配音、翻唱，以及以后想做的知识类视频。
-        点封面直接跳到 B 站观看。
+        配音、翻唱，以及知识类视频（正在规划ing）。点击封面即可直接跳到指定网站观看。
       </p>
     </div>
 
@@ -30,11 +38,33 @@ const present = TYPES.filter((t) => works.some((w) => w.data.type === t));
           <p style="margin-bottom:1rem">还没有添加作品。</p>
           <p>
             在 <code>src/content/works/</code> 下新建一个 <code>.md</code> 文件即可，
-            格式参考该目录里的示例文件。封面图放到 <code>public/works/</code> 下。
+            封面图放到 <code>public/works/</code> 下。
           </p>
         </div>
       ) : (
         <>
+          {/* ------------------------------------------------ 搜索栏 */}
+          <div class="works-search">
+            <span class="works-search__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.6-3.6" />
+              </svg>
+            </span>
+            <input
+              id="work-search"
+              type="search"
+              class="works-search__input"
+              placeholder={`搜索作品：标题 / 角色 / 标签，例如「原神」「中文」「米卡」等`}
+              autocomplete="off"
+              aria-label="搜索作品"
+            />
+            <button type="button" id="work-search-clear" class="works-search__clear" hidden>
+              清除
+            </button>
+          </div>
+
+          {/* ------------------------------------------------ 类型筛选 */}
           <div class="filters" id="type-filters">
             <button type="button" class="is-active" data-type="">
               全部 ({works.length})
@@ -46,12 +76,65 @@ const present = TYPES.filter((t) => works.some((w) => w.data.type === t));
             ))}
           </div>
 
-          <div class="grid grid--wide" id="work-grid">
-            {works.map((w) => (
-              <div class="work-item" data-type={w.data.type}>
-                <WorkCard work={w} />
+          {/* ------------------------------------------------ 侧边栏 + 网格 */}
+          <div class="works-layout">
+            <aside class="works-sidebar" aria-label="标签筛选">
+              <div class="works-sidebar__head">
+                <h2>标签筛选</h2>
+                <button type="button" id="tag-clear" class="works-sidebar__clear" hidden>
+                  清空
+                </button>
               </div>
-            ))}
+
+              {
+                tagIdx.groups.map((g) => (
+                  <details class="tagfilter__group" data-group={g.group} open>
+                    <summary class="tagfilter__title">
+                      <span>{g.group}</span>
+                      <span class="tagfilter__sum">{g.tags.length}</span>
+                    </summary>
+                    <div class="tagfilter__list">
+                      {g.tags.map((t) => (
+                        <label
+                          class="tagfilter__item"
+                          title={t.name === '其他' ? `该组里只有 1-2 件作品的小众标签，共 ${t.count} 件` : `${t.count} 件`}
+                        >
+                          <input type="checkbox" value={t.name} data-group={g.group} />
+                          <span class="tagfilter__name">{t.name}</span>
+                          <span class="tagfilter__count">{t.count}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                ))
+              }
+
+              <button type="button" id="filter-reset" class="works-sidebar__reset" hidden>
+                清除全部筛选
+              </button>
+            </aside>
+
+            <div class="works-main">
+              <p class="works-count" id="works-count">共 {works.length} 件</p>
+
+              <div class="grid grid--wide" id="work-grid">
+                {items.map(({ work, attrs, hay }) => (
+                  <div
+                    class="work-item"
+                    data-type={work.data.type}
+                    data-tags={attrs}
+                    data-search={hay}
+                  >
+                    <WorkCard work={work} />
+                  </div>
+                ))}
+              </div>
+
+              <div class="works-empty" id="works-empty" hidden>
+                <p>没有符合条件的作品。</p>
+                <button type="button" id="empty-reset" class="btn">清除全部筛选</button>
+              </div>
+            </div>
           </div>
         </>
       )
@@ -60,16 +143,196 @@ const present = TYPES.filter((t) => works.some((w) => w.data.type === t));
 
   <script>
     const items = Array.from(document.querySelectorAll<HTMLElement>('.work-item'));
-    const btns = Array.from(document.querySelectorAll<HTMLElement>('#type-filters button'));
+    const typeBtns = Array.from(document.querySelectorAll<HTMLElement>('#type-filters button'));
+    const tagBoxes = Array.from(
+      document.querySelectorAll<HTMLInputElement>('.tagfilter__item input[type="checkbox"]')
+    );
+    const searchEl = document.getElementById('work-search') as HTMLInputElement | null;
+    const searchClear = document.getElementById('work-search-clear');
+    const tagClear = document.getElementById('tag-clear');
+    const resetBtn = document.getElementById('filter-reset');
+    const emptyReset = document.getElementById('empty-reset');
+    const countEl = document.getElementById('works-count');
+    const emptyEl = document.getElementById('works-empty');
+    const total = items.length;
 
-    btns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const t = btn.dataset.type ?? '';
-        btns.forEach((b) => b.classList.toggle('is-active', b === btn));
-        for (const el of items) {
-          el.style.display = !t || el.dataset.type === t ? '' : 'none';
+    // ---- 侧边栏分组的折叠状态：记在 localStorage，下次进来保持 ----
+    const groupEls = Array.from(document.querySelectorAll<HTMLDetailsElement>('.tagfilter__group'));
+    const OPEN_KEY = 'works-tagfilter-open';
+    try {
+      const saved = JSON.parse(localStorage.getItem(OPEN_KEY) || '{}') as Record<string, boolean>;
+      for (const d of groupEls) {
+        const g = d.dataset.group ?? '';
+        if (g in saved) d.open = saved[g];
+      }
+    } catch {
+      /* localStorage 不可用就保持默认全展开 */
+    }
+    for (const d of groupEls) {
+      d.addEventListener('toggle', () => {
+        const state: Record<string, boolean> = {};
+        for (const x of groupEls) state[x.dataset.group ?? ''] = x.open;
+        try {
+          localStorage.setItem(OPEN_KEY, JSON.stringify(state));
+        } catch {
+          /* 忽略写入失败 */
         }
       });
+    }
+
+    let curType = '';
+    let curQuery = '';
+
+    /** 把每篇作品的 data-tags（"组:标签 组:标签"）解析成 Map<组, Set<标签>> */
+    function tagsOf(el: HTMLElement): Map<string, Set<string>> {
+      const out = new Map<string, Set<string>>();
+      for (const part of (el.dataset.tags ?? '').split(' ')) {
+        const i = part.indexOf(':');
+        if (i < 0) continue;
+        const g = part.slice(0, i);
+        let t = part.slice(i + 1);
+        // 标签名在服务端做过 encodeURIComponent（标签名里可能有空格）
+        try {
+          t = decodeURIComponent(t);
+        } catch {
+          /* 非法转义序列就按原样用 */
+        }
+        if (!out.has(g)) out.set(g, new Set());
+        out.get(g)!.add(t);
+      }
+      return out;
+    }
+
+    // 预先解析，避免每次筛选都重新拆字符串
+    const parsed = items.map((el) => ({ el, tags: tagsOf(el) }));
+
+    /** 当前勾选的标签，按组归类 */
+    function selectedByGroup(): Map<string, Set<string>> {
+      const m = new Map<string, Set<string>>();
+      for (const b of tagBoxes) {
+        if (!b.checked) continue;
+        const g = b.dataset.group ?? '';
+        if (!m.has(g)) m.set(g, new Set());
+        m.get(g)!.add(b.value);
+      }
+      return m;
+    }
+
+    /**
+     * 筛选规则：
+     *   类型  —— 单选，必须相等
+     *   搜索  —— 子串匹配（标题/简介/角色/标签 拼成的搜索文本）
+     *   标签  —— **组内 OR、组间 AND**
+     *            例：勾了「形式:翻配」+「作品:原神」→ 必须是翻配 且 是原神
+     *                再勾「形式:广播剧」→ 翻配 或 广播剧 都算
+     */
+    function apply() {
+      const byGroup = selectedByGroup();
+      const hasTag = byGroup.size > 0;
+      let shown = 0;
+
+      for (const { el, tags } of parsed) {
+        let ok = true;
+
+        if (curType && el.dataset.type !== curType) ok = false;
+        if (ok && curQuery && !(el.dataset.search ?? '').includes(curQuery)) ok = false;
+
+        if (ok && hasTag) {
+          for (const [g, want] of byGroup) {
+            const have = tags.get(g);
+            if (!have) {
+              ok = false;
+              break;
+            }
+            let hit = false;
+            for (const t of want) {
+              if (have.has(t)) {
+                hit = true;
+                break;
+              }
+            }
+            if (!hit) {
+              ok = false;
+              break;
+            }
+          }
+        }
+
+        el.hidden = !ok;
+        if (ok) shown++;
+      }
+
+      countEl!.textContent =
+        shown === total ? `共 ${total} 件` : `筛选出 ${shown} 件 / 共 ${total} 件`;
+      emptyEl!.hidden = shown !== 0;
+
+      // 勾选态样式由 JS 打类名（不用 CSS :has()，兼容更稳）
+      for (const b of tagBoxes) {
+        b.closest('.tagfilter__item')?.classList.toggle('is-checked', b.checked);
+      }
+      // 收起来的分组里若还有勾选项，标题高亮，免得忘了自己筛过什么
+      for (const d of groupEls) {
+        const any = Array.from(
+          d.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
+        ).some((b) => b.checked);
+        d.classList.toggle('has-active', any);
+      }
+
+      const dirty = Boolean(curType || curQuery || hasTag);
+      if (resetBtn) resetBtn.hidden = !dirty;
+      if (tagClear) tagClear.hidden = !hasTag;
+      if (searchClear) searchClear.hidden = !curQuery;
+    }
+
+    typeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        curType = btn.dataset.type ?? '';
+        typeBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+        apply();
+      });
     });
+
+    tagBoxes.forEach((box) => box.addEventListener('change', apply));
+
+    if (searchEl) {
+      searchEl.addEventListener('input', () => {
+        curQuery = searchEl.value.trim().toLowerCase();
+        apply();
+      });
+      // Esc 清空搜索
+      searchEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          searchEl.value = '';
+          curQuery = '';
+          apply();
+        }
+      });
+    }
+
+    function clearSearch() {
+      if (!searchEl) return;
+      searchEl.value = '';
+      curQuery = '';
+      apply();
+    }
+
+    function clearTags() {
+      tagBoxes.forEach((b) => (b.checked = false));
+      apply();
+    }
+
+    function resetAll() {
+      curType = '';
+      typeBtns.forEach((b) => b.classList.toggle('is-active', !b.dataset.type));
+      clearSearch();
+      clearTags();
+    }
+
+    searchClear?.addEventListener('click', clearSearch);
+    tagClear?.addEventListener('click', clearTags);
+    resetBtn?.addEventListener('click', resetAll);
+    emptyReset?.addEventListener('click', resetAll);
+
+    apply();
   </script>
 </BaseLayout>

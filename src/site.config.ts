@@ -34,7 +34,7 @@ export const site = {
     { href: '/', label: '首页' },
     { href: '/about/', label: '关于我' },
     { href: '/notes/', label: '笔记' },
-    //{ href: '/maps/', label: '知识地图' },
+    { href: '/maps/', label: '知识地图' },
     { href: '/blog/', label: '博客' },
     { href: '/works/', label: '作品' },
     { href: '/projects/', label: '项目' },

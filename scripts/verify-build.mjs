@@ -46,6 +46,7 @@ console.log('\n【1】关键页面');
 const required = [
   ['首页', 'index.html'],
   ['关于我', 'about/index.html'],
+  ['履历（跳转到 /about/#cv）', 'cv/index.html'],
   ['笔记列表', 'notes/index.html'],
   ['知识地图', 'maps/index.html'],
   ['博客列表', 'blog/index.html'],
@@ -54,7 +55,9 @@ const required = [
   ['404', '404.html'],
   ['RSS', 'rss.xml'],
   ['sitemap', 'sitemap-index.xml'],
-  ['favicon', 'favicon.svg'],
+  ['图标 favicon.ico', 'favicon.ico'],
+  ['图标 apple-touch-icon', 'apple-touch-icon.png'],
+  ['首页头像', 'avatar-360.webp'],
 ];
 for (const [label, rel] of required) {
   if (fs.existsSync(path.join(DIST, rel))) ok(`${label} → /${rel}`);
@@ -148,13 +151,53 @@ if (missingImgs.length === 0) {
   failures++;
 }
 
+// ------------------------------------------- 4b. 根路径静态资源完整性
+// 曾经踩过的坑：作品封面 cover 写 /works/xxx.png，但图被放进了
+// src/content/works/ 而不是 public/works/。Astro 只把 public/ 原样拷进 dist/，
+// 所以构建**不报错**、页面里却是一个 404 的 <img>（裂图）。
+// 这里把「所有根路径静态资源引用」统一对照 dist/ 兜住，封面图也在内。
+const ASSET_EXT = /\.(?:png|jpe?g|webp|gif|avif|svg|ico|bmp|mp3|mp4|webm|ogg|wav|pdf|woff2?|ttf|otf)$/i;
+const assetRefs = new Map(); // 资源路径 → 首个引用它的页面
+for (const f of htmlFiles) {
+  const html = fs.readFileSync(f, 'utf8');
+  for (const m of html.matchAll(/(?:src|href)\s*=\s*"([^"]*)"|srcset\s*=\s*"([^"]*)"/gi)) {
+    const raw = m[1] ?? m[2] ?? '';
+    // srcset 是逗号分隔的候选列表，逐个拆开只取 URL 部分
+    for (const cand of raw.split(',')) {
+      const url = cand.trim().split(/\s+/)[0];
+      if (!url || !url.startsWith('/') || url.startsWith('//')) continue;
+      const clean = url.split('#')[0].split('?')[0];
+      if (!ASSET_EXT.test(clean)) continue;
+      let decoded = clean;
+      try {
+        decoded = decodeURIComponent(clean);
+      } catch {
+        /* 非法转义序列，按原样比对 */
+      }
+      if (!assetRefs.has(decoded)) assetRefs.set(decoded, path.relative(DIST, f));
+    }
+  }
+}
+const missingAssets = [...assetRefs].filter(
+  ([p]) => !fs.existsSync(path.join(DIST, p.replace(/^\//, '')))
+);
+ok(`页面共引用 ${assetRefs.size} 个根路径静态资源`);
+if (missingAssets.length === 0) {
+  ok('所有根路径静态资源都存在于 dist/');
+} else {
+  bad(`${missingAssets.length} 个根路径静态资源缺失（页面上会显示成裂图）：`);
+  missingAssets.slice(0, 10).forEach(([p, page]) => info(`${p}  ← 被 ${page} 引用`));
+  info('提示：封面图要放在 public/ 下，cover 字段写 /works/xxx.png 才能被服务出去');
+  failures++;
+}
+
 // ------------------------------------------------------------ 5. 体积
 console.log('\n【5】产物体积构成');
 const buckets = { html: 0, images: 0, js: 0, css: 0, other: 0 };
 for (const f of all) {
   const size = fs.statSync(f).size;
-  const rel = path.relative(DIST, f);
-  if (rel.startsWith('notes-assets')) buckets.images += size;
+  // 图片按扩展名统计 —— 以前只算 notes-assets，作品封面会被错算进 other
+  if (/\.(png|jpe?g|webp|gif|avif|svg|ico|bmp)$/i.test(f)) buckets.images += size;
   else if (f.endsWith('.html')) buckets.html += size;
   else if (f.endsWith('.js')) buckets.js += size;
   else if (f.endsWith('.css')) buckets.css += size;

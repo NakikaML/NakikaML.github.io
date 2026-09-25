@@ -1,9 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CvContent from '../components/CvContent.astro';
 import { site } from '../site.config';
 
 // 这一页是手写的「对外版」自我介绍。
 // 你的完整个人档案留在 Obsidian 私有库里（含成绩、规划），不会同步到网站。
+//
+// ── 用横向 Tab 分栏 ──
+// 想再加一个 Tab（比如「技能栈」「时间线」）只做两步，JS 会自动接管：
+//   1. 在下面 TABS 里加一项 { id: 'xxx', label: '标题' }
+//   2. 在下面加一个 <section class="tabpanel" data-panel="xxx" hidden> … </section>
+// Tab 状态走 URL hash，所以 /about/#cv 这种链接可以直接分享。
+const TABS = [
+  { id: 'brief', label: '简要信息' },
+  { id: 'cv', label: '履历' },
+];
 ---
 
 <BaseLayout title="关于我" description={`关于 ${site.name}：网络工程在读 / B站配音与翻唱 UP主`}>
@@ -16,90 +27,166 @@ import { site } from '../site.config';
       </p>
     </div>
 
-    <div class="prose">
-      <h2>我是谁</h2>
-      <p>
-        网络工程专业在读（目前大二），就读于温州大学。高中选的是物理、化学、政治，
-        所以养成了一种文理兼容的思维习惯 —— 既对计算机科学的底层原理感兴趣，
-        也喜欢法学、哲学、经济学这些人文社科的推演方式。
-      </p>
-      <p>
-        学业之外，我是 B 站的一名配音与翻唱 UP 主，从高中开始就运营自己的账号。
-        配音让我着迷的地方在于「用声音塑造一个不是我的人」，
-        而翻唱则更接近纯粹的表达欲。最近在学调音混音，想把自己作品的后期也一手包办。
-      </p>
-
-      <h2>在学什么</h2>
-      <ul>
-        <li><strong>主攻方向</strong>：网络工程 / 网络安全 </li>
-        <li><strong>竞赛</strong>：校 ACM 集训队队员</li>
-        <li><strong>项目</strong>：温州市图灵人工智能高等研究院「极客工坊」学员</li>
-        <li><strong>语言</strong>：英语（CET-6）、日语（N2，备考 N1）、俄语与法语入门</li>
-        <li><strong>兴趣学科</strong>：计算机科学、哲学、法学、语言学、经济学</li>
-      </ul>
-
-      <h2>在做什么</h2>
-      <p>
-        这个网站本身就是一个项目，顺带锻炼一下自己的前端开发水平233。我有一套结构化的 Obsidian 笔记知识库体系，
-        覆盖计算机科学、语言学习、通识课程、编程习题等方向。
-        但那套笔记是<strong>写给自己的速记</strong> —— 跳步、缩写、只有我懂的上下文，
-        直接搬上来对读者没有价值。
-      </p>
-      <p>
-        所以我给网站写了一条内容管线（Astro + 一套自检脚本），
-        但<strong>发布的内容全部是重新写过的</strong>：把当时的速记补成完整讲解，
-        把跳过的推导补上，把只有自己看得懂的简写展开。
-        这个过程比较慢，笔记板块会一点点长出来。
-      </p>
-      <p>
-        接下来想尝试做知识类视频，把计算机网络、程序设计这些专业内容讲给更多人听。
-      </p>
-
-      <h2>这个网站有什么</h2>
-      <table>
-        <thead>
-          <tr><th>板块</th><th>内容</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><a href="/projects/">项目</a></td><td>在做和做过的项目</td></tr>
-          <tr><td><a href="/blog/">博客</a></td><td>手写长文，记录思考与踩坑</td></tr>
-          <tr><td><a href="/works/">作品</a></td><td>配音、翻唱与其他创作</td></tr>
-          <tr><td><a href="/notes/">学习笔记</a></td><td>重构整理过的笔记（陆续更新中）</td></tr>
-          <tr><td><a href="/maps/">知识地图</a></td><td>按主题整理的学习路线</td></tr>
-        </tbody>
-      </table>
-
-      <h2>价值观</h2>
-      <p>
-        理想的工作状态是「稳定且有闲暇发展爱好」——
-        最厌恶的事情是每天很忙、拿着高薪却没时间做自己喜欢的事。
-        所以我在做长期规划时，会刻意给兴趣留出位置。
-      </p>
-      <p>
-        最有成就感的事是<strong>创造作品、帮助他人</strong>。
-        这个网站算是这两件事的一次合并尝试。
-      </p>
-
-      <h2>联系我</h2>
-      <p>
-        如果你对我的笔记有疑问，或者想聊配音、翻唱、算法、网络安全的任何话题，都欢迎找我。
-      </p>
-      <ul>
-        {site.links.bilibili && <li>B 站：<a href={site.links.bilibili} target="_blank" rel="noopener">点这里</a></li>}
-        {site.links.github && <li>GitHub：<a href={site.links.github} target="_blank" rel="noopener">点这里</a></li>}
-        {site.links.email && <li>邮箱：<a href={`mailto:${site.links.email}`}>{site.links.email}</a></li>}
-      </ul>
-
+    <div class="tabs" role="tablist" aria-label="关于我的分栏">
       {
-        !site.links.bilibili && !site.links.github && !site.links.email && (
-          <div class="notice notice--warn">
-            <strong>待补充：</strong>你还没有填联系方式。
-            打开 <code>src/site.config.ts</code>，把 <code>links</code> 里的
-            <code>bilibili</code> / <code>github</code> / <code>email</code> 填上，
-            这里和页脚就会自动出现。
-          </div>
-        )
+        TABS.map((t, i) => (
+          <button
+            type="button"
+            class={`tabs__btn${i === 0 ? ' is-active' : ''}`}
+            id={`tab-${t.id}`}
+            data-tab={t.id}
+            role="tab"
+            aria-controls={`panel-${t.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+          >
+            {t.label}
+          </button>
+        ))
       }
     </div>
+
+    <!-- ------------------------------------------------ Tab 1：简要信息 -->
+    <section class="tabpanel" data-panel="brief" id="panel-brief" role="tabpanel" aria-labelledby="tab-brief">
+      <div class="prose">
+        <h2>我是谁</h2>
+        <p>
+          本鹿是<strong>INFJ</strong>型人格，兴趣爱好有编程、配音、唱歌、绘画等等，是一个多面手哦嘿嘿！
+        </p>
+        <p>
+          目前是温州大学网络工程的大二学生。高中选的是物理、化学、政治，所以养成了一种文理兼容的思维习惯
+          —— 既对计算机科学的底层原理感兴趣，也喜欢法学、哲学、经济学这些人文社科的推演方式。
+        </p>
+        <p>
+          学业之外，我是 B 站的一名配音与翻唱 UP 主，从高中开始就运营自己的账号。
+          配音让我着迷的地方在于「用声音塑造一个不是我的人」，
+          而翻唱则更接近纯粹的表达欲。最近在学调音混音，想把自己作品的后期也一手包办。
+        </p>
+
+        <h2>在学什么</h2>
+        <ul>
+          <li><strong>主攻方向</strong>：网络工程 / 网络安全 </li>
+          <li><strong>竞赛</strong>：校 ACM 集训队队员</li>
+          <li><strong>项目</strong>：温州市图灵人工智能高等研究院「极客工坊」学员</li>
+          <li><strong>语言</strong>：英语（CET-6）、日语（N2，备考 N1）、俄语与法语入门</li>
+          <li><strong>兴趣学科</strong>：计算机科学、哲学、法学、语言学、经济学</li>
+        </ul>
+
+        <h2>精选荣誉与证书</h2>
+        <ul class="honor">
+          <li>
+            <span class="honor__when">2026.09</span>温州大学计算机与人工智能学院《程序设计基础》课程学生助教员
+          </li>
+          <li><span class="honor__when">2026.05</span>浙江省第十二届日语配音竞赛 优秀奖</li>
+          <li><span class="honor__when">2025.12</span>温州大学第四届配音大赛 三等奖</li>
+        </ul>
+        <ul class="honor honor--plain">
+          <li>攀拓计算机能力测评 · 程序设计 PAT 乙级（89 分）</li>
+          <li>普通话水平测试 二级甲等</li>
+          <li>全国大学生英语能力测试 CET-6</li>
+        </ul>
+        <p class="muted-link">完整的荣誉、证书与经历见 <a href="#cv">履历</a>。</p>
+
+        <h2>在做什么</h2>
+        <p>
+          这个网站本身就是一个项目，顺带锻炼一下自己的前端开发水平233。我有一套结构化的 Obsidian 笔记知识库体系，
+          覆盖计算机科学、语言学习、通识课程、编程习题等方向。
+          但那套笔记是<strong>写给自己的速记</strong> —— 跳步、缩写、只有我懂的上下文，
+          直接搬上来对读者没有价值。
+        </p>
+        <p>
+          所以我给网站写了一条内容管线（Astro + 一套自检脚本），
+          但<strong>发布的内容全部是重新写过的</strong>：把当时的速记补成完整讲解，
+          把跳过的推导补上，把只有自己看得懂的简写展开。
+          这个过程比较慢，笔记板块会一点点长出来。
+        </p>
+        <p>
+          接下来想尝试做知识类视频，把计算机网络、程序设计这些专业内容讲给更多人听。
+        </p>
+
+        <h2>这个网站有什么</h2>
+        <table>
+          <thead>
+            <tr><th>板块</th><th>内容</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="/projects/">项目</a></td><td>在做和做过的项目</td></tr>
+            <tr><td><a href="/blog/">博客</a></td><td>手写长文，记录思考与踩坑</td></tr>
+            <tr><td><a href="/works/">作品</a></td><td>配音、翻唱与其他创作</td></tr>
+            <tr><td><a href="/notes/">学习笔记</a></td><td>重构整理过的笔记（陆续更新中）</td></tr>
+            <tr><td><a href="/maps/">知识地图</a></td><td>按主题整理的学习路线</td></tr>
+          </tbody>
+        </table>
+
+        <h2>价值观</h2>
+        <p>
+          理想的工作状态是「稳定且有闲暇发展爱好」——
+          最厌恶的事情是每天很忙、拿着高薪却没时间做自己喜欢的事。
+          所以我在做长期规划时，会刻意给兴趣留出位置。
+        </p>
+        <p>
+          最有成就感的事是<strong>创造作品、帮助他人</strong>。
+          这个网站算是这两件事的一次合并尝试。
+        </p>
+
+        <h2>联系我</h2>
+        <p>
+          如果你对我的笔记有疑问，或者想聊配音、翻唱、算法、网络安全的任何话题，都欢迎找我。
+        </p>
+        <ul>
+          {site.links.bilibili && <li>B 站：<a href={site.links.bilibili} target="_blank" rel="noopener">点这里</a></li>}
+          {site.links.github && <li>GitHub：<a href={site.links.github} target="_blank" rel="noopener">点这里</a></li>}
+          {site.links.email && <li>邮箱：<a href={`mailto:${site.links.email}`}>{site.links.email}</a></li>}
+        </ul>
+
+        {
+          !site.links.bilibili && !site.links.github && !site.links.email && (
+            <div class="notice notice--warn">
+              <strong>待补充：</strong>你还没有填联系方式。
+              打开 <code>src/site.config.ts</code>，把 <code>links</code> 里的
+              <code>bilibili</code> / <code>github</code> / <code>email</code> 填上，
+              这里和页脚就会自动出现。
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------ Tab 2：履历 -->
+    <section class="tabpanel" data-panel="cv" id="panel-cv" role="tabpanel" aria-labelledby="tab-cv" hidden>
+      <CvContent />
+      <div class="prose">
+        <p class="muted-link"><a href="#brief">← 回到简要信息</a> · <a href="/works/">看作品 →</a></p>
+      </div>
+    </section>
   </div>
+
+  <script>
+    // 通用 Tab 切换：不关心有几个 Tab，全部按 data-tab / data-panel 自动接管。
+    // 状态写进 URL hash（#brief / #cv），所以链接可以直接分享、刷新也能停在同一个 Tab。
+    const tabBtns = Array.from(document.querySelectorAll<HTMLElement>('.tabs__btn'));
+    const tabPanels = Array.from(document.querySelectorAll<HTMLElement>('.tabpanel'));
+    const ids = tabBtns.map((b) => b.dataset.tab ?? '').filter(Boolean);
+    const fallback = ids[0] ?? '';
+
+    function showTab(id: string, syncHash: boolean) {
+      const target = ids.includes(id) ? id : fallback;
+      for (const b of tabBtns) {
+        const on = b.dataset.tab === target;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      }
+      for (const p of tabPanels) p.hidden = p.dataset.panel !== target;
+      // 用 replaceState 而不是改 location.hash：不会堆历史记录，也不会触发页面滚动
+      if (syncHash && location.hash.slice(1) !== target) {
+        history.replaceState(null, '', '#' + target);
+      }
+    }
+
+    for (const b of tabBtns) {
+      b.addEventListener('click', () => showTab(b.dataset.tab ?? '', true));
+    }
+    // 页内 <a href="#cv"> 这类链接跳转时同步 Tab
+    window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
+    showTab(location.hash.slice(1) || fallback, false);
+  </script>
 </BaseLayout>

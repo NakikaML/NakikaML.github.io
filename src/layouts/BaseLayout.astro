@@ -45,7 +45,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <meta property="og:url" content={canonical.href} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/* 站点图标由 scripts/build-avatar.mjs 从 src/assets/avatar.png 生成（换图后重跑 pnpm run avatar） */}
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {
       site.links.rss && (
         <link
