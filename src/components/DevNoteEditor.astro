@@ -1,0 +1,41 @@
+---
+/**
+ * DevNoteEditor.astro —— 本地编辑入口（**只在本机 dev 下存在**）
+ * ==================================================================
+ * 用法（在页面里）：
+ *   {import.meta.env.DEV && <DevNoteEditor collection="notes" id={note.id} />}
+ *
+ * 为什么生产构建里不会留下任何痕迹：
+ *   · 调用处被 import.meta.env.DEV 包着，构建时是 false —— 组件根本不被渲染，
+ *     它里面的 script 标签自然也不会被收集进页面，dist/ 里没有编辑器 JS/CSS；
+ *     ⚠️ 注意上面写的是「script 标签」而不是尖括号的字面量标签名：
+ *        frontmatter 注释里一旦出现字面量的 script 开标签，会被 Astro 的
+ *        script 扫描器误认为真标签，把紧随其后的中文当成 JS 去编译，
+ *        dev 下会报 `Invalid Character '，'` 并让依赖预打包降级。
+ *   · 真正的写接口在 scripts/dev/content-editor-plugin.mjs 里，那个 Vite 插件
+ *     带 apply: 'serve'，`astro build` 时连加载都不会加载。
+ *     两件事叠加的结果：线上站点不是「禁止写入」，而是压根没有可写的端点。
+ *
+ * scripts/verify-build.mjs 里有一项检查专门盯着这件事，构建后会自动核对。
+ */
+interface Props {
+  collection: string;
+  id: string;
+}
+
+const { collection, id } = Astro.props;
+---
+
+<div id="nakika-dev-editor" data-collection={collection} data-id={id} hidden></div>
+
+<script>
+  import { initEditor } from '../dev/editor-client';
+
+  const root = document.getElementById('nakika-dev-editor');
+  if (root) {
+    initEditor({
+      collection: root.dataset.collection ?? '',
+      id: root.dataset.id ?? '',
+    });
+  }
+</script>

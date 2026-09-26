@@ -1,11 +1,28 @@
 // @ts-check
-import { execFile } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
+import remarkCjkFriendly from 'remark-cjk-friendly';
 import rehypeKatex from 'rehype-katex';
+import remarkSourceLines from './scripts/dev/remark-source-lines.mjs';
+import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
+import { contentEditor } from './scripts/dev/content-editor-plugin.mjs';
+
+/**
+ * 是不是本地开发。
+ *
+ * 为什么不用 defineConfig 的函数形式：Astro 7 的 defineConfig 只接受配置对象
+ * （不像 Vite 那样能给 function）。但 Astro 在**加载配置文件之前**就会
+ * ensureProcessNodeEnv()：dev 设 'development'，build/preview 设 'production'，
+ * 所以这里读 NODE_ENV 是可靠的。
+ *
+ * 判定失败的方向也是安全的：万一被当成 production，本地编辑功能只是不出现，
+ * 绝不会反过来把写接口或行号属性带进构建产物。
+ */
+const IS_DEV = process.env.NODE_ENV !== 'production';
 
 // 上线域名。
 // 用 GitHub Pages 的「用户站点」仓库（仓库名 = NakikaML.github.io）时，
@@ -60,14 +77,23 @@ function avatarAssets() {
     name: 'nakika-avatar-assets',
     configureServer(server) {
       /**
-       * 必须用**异步** execFile，不能用 execFileSync：
+       * 必须用**异步**的方式，不能用 execFileSync：
        * 同步版会阻塞事件循环几百毫秒，正好卡在 Vite 初始化模块系统的时机上，
        * 实测会触发 "Vite module runner has been closed" 报错。
+       *
+       * 用 spawn 而不是 execFile：execFile 即使显式传了 stdio: 'inherit'，
+       * 内部仍会为 stdin 建一根管道，在禁止命名管道的受限环境（沙箱 / 某些容器）
+       * 里会直接 spawn EPERM，整个构建和 dev 都起不来。spawn + inherit 是
+       * 同一件事，但不建那根根本用不上的管道。
        */
       const run = (reload) => {
-        execFile(process.execPath, [SCRIPT], { stdio: 'inherit' }, (err) => {
-          if (err) {
-            console.warn('[avatar] 生成失败（不影响 dev 运行）：', err.message);
+        const child = spawn(process.execPath, [SCRIPT], { stdio: 'inherit' });
+        child.on('error', (err) => {
+          console.warn('[avatar] 生成失败（不影响 dev 运行）：', err.message);
+        });
+        child.on('exit', (code) => {
+          if (code !== 0) {
+            console.warn(`[avatar] 生成失败（退出码 ${code}，不影响 dev 运行）`);
             return;
           }
           if (reload) server.ws.send({ type: 'full-reload' });
@@ -105,7 +131,26 @@ export default defineConfig({
     // 为什么需要：知识库里有 6000+ 处行内公式与 1200+ 处块级公式，
     // 不过 KaTeX 的话页面上会显示成一片 $...$ 原文。
     processor: unified({
-      remarkPlugins: [remarkMath],
+      // remarkCjkFriendly 修的是 CommonMark 的「中文加粗失效」：
+      // 按规范，闭合的 ** 若紧跟在标点（含全角括号）之后、后面又是汉字，
+      // 它就不是 right-flanking，无法闭合——于是 **术语(English)**中文
+      // 这种写法会把 ** 原样显示出来，甚至把加粗套到错误的位置上。
+      // Obsidian 的解析器不按这套 flanking 规则，所以知识库里看着正常。
+      // 它注册的是 micromark 层的解析扩展（不是改树），必须在解析前生效。
+      // 详见 https://github.com/tats-u/markdown-cjk-friendly
+      //
+      // remarkInlineDfrac 必须排在 remarkMath 之后：先由 remarkMath 把 $…$
+      // 解析成 inlineMath 节点，它才有的可改。作用是把行内公式里顶层的
+      // \frac 升成 \dfrac —— KaTeX 的行内文本样式会把分子分母压成 0.7em
+      // 并挤在分数线上下，中文正文里看着像糊在一起（Obsidian 的 MathJax
+      // 不是这样，所以从知识库搬过来的公式一到网站上才显形）。
+      // 详见 scripts/remark-inline-dfrac.mjs。
+      //
+      // 本地开发时多挂一个 remarkSourceLines：给纯文本块写上源码行号，
+      // 页面上才能「点段落直接改字」。它自己也会判一次 NODE_ENV，双保险。
+      remarkPlugins: IS_DEV
+        ? [remarkCjkFriendly, remarkMath, remarkInlineDfrac, remarkSourceLines]
+        : [remarkCjkFriendly, remarkMath, remarkInlineDfrac],
       rehypePlugins: [
         // 笔记里有不少用中文直接写的公式（如 $$开始索引 = (当前页码-1) * 每页条数$$），
         // 关掉严格模式 + 不因渲染失败而中断构建，让它尽力渲染；
@@ -132,7 +177,9 @@ export default defineConfig({
   devToolbar: { enabled: false },
 
   vite: {
-    plugins: [avatarAssets()],
+    // contentEditor() 内部带 apply: 'serve'，构建时不会被加载；
+    // 它是「本地能写、线上不可写」这半边的物理保证。
+    plugins: [avatarAssets(), contentEditor()],
     resolve: {
       alias: {
         // picomatch 是 CJS 包，被 @astrojs/internal-helpers 用 ESM 语法默认导入，

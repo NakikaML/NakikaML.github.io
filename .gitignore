@@ -26,3 +26,7 @@ Thumbs.db
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# 自检脚本临时造的笔记（scripts/dev/test-editor.mjs 会主动删掉它；
+# 万一脚本被杀在中途，这一行保证它永远不会被提交、也就不会上线）
+src/content/notes/_smoke-edit-temp.md

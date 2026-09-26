@@ -191,6 +191,35 @@ if (missingAssets.length === 0) {
   failures++;
 }
 
+// ------------------------------------------- 4c. 本地编辑器未泄漏进产物
+// 需求：本地能在页面上改字，上传到 GitHub 后访问者只读。
+// 只读是静态站天生就有的（GitHub Pages 上没有服务端），但前提是
+// 「本地编辑」那套东西一个字都不能进 dist/ —— 这里把它钉死：
+//   · /__edit  写接口（Vite 插件 apply:'serve'，构建期不加载）
+//   · data-edit-* 行号属性（remarkSourceLines 只在 dev 挂载）
+//   · nk-de-   编辑器 UI 的类名前缀（组件只在 import.meta.env.DEV 下渲染）
+//   · _smoke-edit-temp  自检脚本的临时笔记（第四道保险：源码里本来就
+//     没有它、.gitignore 也挡着，这里再确认它没混进产物）
+console.log('\n【6】本地编辑器未泄漏进产物');
+const LEAK_MARKERS = ['__edit', 'data-edit-start', 'nk-de-bar', 'nakika-dev-editor', '_smoke-edit-temp'];
+const EDITOR_FILES = /\.(?:html|js|mjs|css|json|xml|txt|map)$/i;
+const leaks = [];
+for (const f of all) {
+  if (!EDITOR_FILES.test(f)) continue;
+  const text = fs.readFileSync(f, 'utf8');
+  for (const marker of LEAK_MARKERS) {
+    if (text.includes(marker)) leaks.push(`${path.relative(DIST, f)} 含 “${marker}”`);
+  }
+}
+if (leaks.length === 0) {
+  ok('产物里没有任何编辑器痕迹 —— 线上不存在写入端点，访问者天然只读');
+} else {
+  bad(`${leaks.length} 处编辑器痕迹泄漏进产物：`);
+  leaks.slice(0, 10).forEach(info);
+  info('检查 astro.config.mjs 的 IS_DEV 分支，以及组件是否只在 import.meta.env.DEV 下渲染');
+  failures++;
+}
+
 // ------------------------------------------------------------ 5. 体积
 console.log('\n【5】产物体积构成');
 const buckets = { html: 0, images: 0, js: 0, css: 0, other: 0 };

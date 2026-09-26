@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteCard from '../../components/NoteCard.astro';
+import DevNoteEditor from '../../components/DevNoteEditor.astro';
 import {
   allNotes,
   siblings,
@@ -125,5 +126,8 @@ const date = fmtDate(d.date);
         </nav>
       )
     }
+
+    {/* 本地开发专用：页面上直接改字 / 改原文。生产构建时 DEV 为 false，不输出任何东西 */}
+    {import.meta.env.DEV && <DevNoteEditor collection="notes" id={note.id} />}
   </div>
 </BaseLayout>
