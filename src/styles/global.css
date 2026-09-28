@@ -481,6 +481,10 @@ li > ul, li > ol { margin: 0.3rem 0; }
   overflow-y: hidden;
   padding: 0.5rem 0;
 }
+/* 上下标字号**不要**在这里改：KaTeX 自带一整套 .sizing 缩放表（上下标 70%、
+   文本式分式 90% 等），交给它就好。曾经这里写过一条 font-size 覆盖，
+   那是在 katex 版本错配（HTML 用 0.16 生成、CSS 取的 0.18）时打的补丁——
+   版本对齐之后必须删掉，否则会盖掉正确的缩放表。 */
 .katex { font-size: 1.05em; }
 
 /* Mermaid 图 */

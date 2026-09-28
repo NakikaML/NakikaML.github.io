@@ -1,5 +1,11 @@
 ---
 import '../styles/global.css';
+// ⚠️ katex 的版本必须与 rehype-katex 内部用的那份保持一致（都留在 0.16.x）：
+//    公式的 HTML 是 rehype-katex 用它自带的 katex 生成的（类名如 class="sizing"），
+//    这里加载的却是本项目 node_modules/katex 的 CSS。
+//    0.18 把这些类名改成了 katex-sizing —— 两边一旦错开，121 条字号缩放规则
+//    （上下标 70%、文本式分式 90%……）会全部失效，公式整体"变大变挤"。
+//    所以 package.json 里锁的是 katex ^0.16.47，不要单独 pnpm up katex。
 import 'katex/dist/katex.min.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';

@@ -10,6 +10,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkSourceLines from './scripts/dev/remark-source-lines.mjs';
 import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
 import rehypeCodeMeta from './scripts/rehype-code-meta.mjs';
+import rehypeScriptMetrics from './scripts/rehype-script-metrics.mjs';
 import { contentEditor } from './scripts/dev/content-editor-plugin.mjs';
 
 /**
@@ -169,6 +170,9 @@ export default defineConfig({
         // 放在最后：语言既可以从 <pre data-language> 取，也能回退到
         // <code class="language-xxx">，所以不依赖它和 Shiki 的先后顺序。
         rehypeCodeMeta,
+        // 把「同时有上下标」的盒子间距拉开一点，向 MathJax（Obsidian）的观感靠拢。
+        // 必须排在 rehypeKatex 之后：它要改的是 KaTeX 算好的内联 top/height。
+        rehypeScriptMetrics,
       ],
       gfm: true,
     }),
