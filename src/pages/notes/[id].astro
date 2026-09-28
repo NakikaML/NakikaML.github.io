@@ -10,6 +10,7 @@ import {
   fmtDate,
   noteHref,
 } from '../../utils/notes';
+import { buildToc, chapterOf, countToc } from '../../utils/toc';
 
 export async function getStaticPaths() {
   const notes = await allNotes();
@@ -25,8 +26,11 @@ const { Content, headings } = await render(note);
 const d = note.data;
 const isMap = d.kind === 'moc';
 
-// 只取 h2 / h3 做目录，太长的目录反而没人看
-const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+// 类论文的层级目录：h2 → 1.1，h3 → 1.1.1，h4 是知识点（只罗列、不编号）。
+// 编号规则与树形结构见 src/utils/toc.ts；章号从标题里取（"…-2 线性表" → 2）。
+const toc = buildToc(headings, chapterOf(d.title));
+const tocCount = countToc(toc);
+
 const date = fmtDate(d.date);
 ---
 
@@ -62,13 +66,43 @@ const date = fmtDate(d.date);
     </header>
 
     {
-      toc.length > 2 && (
+      tocCount > 2 && (
         <nav class="toc" aria-label="目录">
           <div class="toc__title">本页目录</div>
-          <ul>
-            {toc.map((h) => (
-              <li style={h.depth === 3 ? 'padding-left:0.9rem' : ''}>
-                <a href={`#${h.slug}`}>{h.text}</a>
+          <ul class="toc__list">
+            {toc.map((node) => (
+              <li class="toc__item toc__item--h2">
+                {node.slug && (
+                  <a href={`#${node.slug}`}>
+                    {node.number && <span class="toc__num">{node.number}</span>}
+                    <span>{node.text}</span>
+                  </a>
+                )}
+                {node.children.length > 0 && (
+                  <ul class="toc__list">
+                    {node.children.map((sub) => (
+                      <li class="toc__item toc__item--h3">
+                        {sub.slug && (
+                          <a href={`#${sub.slug}`}>
+                            <span class="toc__num">{sub.number}</span>
+                            <span>{sub.text}</span>
+                          </a>
+                        )}
+                        {/* 第三层：知识点，只罗列、不编号 */}
+                        {sub.children.length > 0 && (
+                          <p class="toc__points">
+                            {sub.children.map((leaf, i) => (
+                              <>
+                                {i > 0 && <span class="toc__sep">·</span>}
+                                <a href={`#${leaf.slug}`}>{leaf.text}</a>
+                              </>
+                            ))}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>
