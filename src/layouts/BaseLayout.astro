@@ -102,5 +102,38 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
         }
       })();
     </script>
+
+    <script>
+      // 代码块右上角的「复制」按钮（标记由 scripts/rehype-code-meta.mjs 生成）。
+      // 事件委托：一段脚本管全站所有代码块，不随内容增加而变重。
+      document.addEventListener('click', async (event) => {
+        const target = event.target;
+        const btn = target instanceof Element ? target.closest('[data-code-copy]') : null;
+        if (!btn) return;
+
+        const pre = btn.closest('.code-block')?.querySelector('pre');
+        if (!pre) return;
+
+        // 用 textContent 而不是 innerText：拿到的是原始代码，不受折行影响
+        const code = (pre.textContent ?? '').replace(/\n$/, '');
+        const original = btn.textContent;
+        const settle = (label) => {
+          btn.textContent = label;
+          btn.classList.add('is-done');
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.classList.remove('is-done');
+          }, 1600);
+        };
+
+        try {
+          await navigator.clipboard.writeText(code);
+          settle('已复制');
+        } catch {
+          // http:// 或很旧的浏览器没有 clipboard API，如实反馈而不是假装成功
+          settle('复制失败');
+        }
+      });
+    </script>
   </body>
 </html>

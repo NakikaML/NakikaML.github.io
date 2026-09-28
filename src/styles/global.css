@@ -397,6 +397,58 @@ li > ul, li > ol { margin: 0.3rem 0; }
   .prose pre code { filter: invert(0.92) hue-rotate(180deg); }
 }
 
+/* 代码块外壳：左上角语言标签、右上角复制按钮（opinion-4）。
+   标签与按钮由 scripts/rehype-code-meta.mjs 生成，点击逻辑在 BaseLayout.astro。
+   多包这一层是为了让角标不跟着代码横向滚动。 */
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.code-block__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.85rem;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--text-faint);
+}
+.code-block__lang {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.code-block__copy {
+  flex: none;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.code-block__copy:hover,
+.code-block__copy.is-done {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+/* 外层的边框与圆角已经画了，里面的 <pre> 不要再画一遍
+   （写在 .prose pre 之后，同优先级下靠后者生效） */
+.code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
 /* 表格：笔记里表格极多，必须好看且可横向滚动 */
 .prose table {
   width: 100%;

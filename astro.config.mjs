@@ -9,6 +9,7 @@ import remarkCjkFriendly from 'remark-cjk-friendly';
 import rehypeKatex from 'rehype-katex';
 import remarkSourceLines from './scripts/dev/remark-source-lines.mjs';
 import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
+import rehypeCodeMeta from './scripts/rehype-code-meta.mjs';
 import { contentEditor } from './scripts/dev/content-editor-plugin.mjs';
 
 /**
@@ -164,6 +165,10 @@ export default defineConfig({
             trust: true,
           },
         ],
+        // 给每个代码块套上「语言标签 + 复制按钮」的外壳（opinion-4）。
+        // 放在最后：语言既可以从 <pre data-language> 取，也能回退到
+        // <code class="language-xxx">，所以不依赖它和 Shiki 的先后顺序。
+        rehypeCodeMeta,
       ],
       gfm: true,
     }),
