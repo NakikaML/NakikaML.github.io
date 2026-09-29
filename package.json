@@ -15,8 +15,6 @@
     "build:only": "node scripts/build-avatar.mjs && astro build",
     "preview": "astro preview",
     "verify": "node scripts/verify-build.mjs",
-    "test:editor": "node scripts/dev/test-editor.mjs",
-    "smoke:editor": "node scripts/dev/smoke-editor.mjs",
     "test:frac": "node scripts/test-inline-dfrac.mjs",
     "check:math": "node scripts/check-math-delims.mjs",
     "check:bold": "node scripts/check-bold-render.mjs",

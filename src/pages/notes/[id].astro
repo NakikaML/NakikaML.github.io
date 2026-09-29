@@ -2,7 +2,6 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteCard from '../../components/NoteCard.astro';
-import DevNoteEditor from '../../components/DevNoteEditor.astro';
 import {
   allNotes,
   siblings,
@@ -30,12 +29,14 @@ const isMap = d.kind === 'moc';
 // 编号规则与树形结构见 src/utils/toc.ts；章号从标题里取（"…-2 线性表" → 2）。
 const toc = buildToc(headings, chapterOf(d.title));
 const tocCount = countToc(toc);
+// 目录够长才值得单独占一栏（很短的目录摆到左边反而比正文还抢眼）
+const hasToc = tocCount > 2;
 
 const date = fmtDate(d.date);
 ---
 
 <BaseLayout title={d.title} description={`${d.category} · ${d.title}`} ogType="article">
-  <div class="wrap wrap--read">
+  <div class="wrap wrap--note">
     <nav class="breadcrumb" aria-label="面包屑">
       <a href="/">首页</a>
       <span>/</span>
@@ -65,103 +66,182 @@ const date = fmtDate(d.date);
       }
     </header>
 
-    {
-      tocCount > 2 && (
-        <nav class="toc" aria-label="目录">
-          <div class="toc__title">本页目录</div>
-          <ul class="toc__list">
-            {toc.map((node) => (
-              <li class="toc__item toc__item--h2">
-                {node.slug && (
-                  <a href={`#${node.slug}`}>
-                    {node.number && <span class="toc__num">{node.number}</span>}
-                    <span>{node.text}</span>
-                  </a>
-                )}
-                {node.children.length > 0 && (
-                  <ul class="toc__list">
-                    {node.children.map((sub) => (
-                      <li class="toc__item toc__item--h3">
-                        {sub.slug && (
-                          <a href={`#${sub.slug}`}>
-                            <span class="toc__num">{sub.number}</span>
-                            <span>{sub.text}</span>
-                          </a>
-                        )}
-                        {/* 第三层：知识点，只罗列、不编号 */}
-                        {sub.children.length > 0 && (
-                          <p class="toc__points">
-                            {sub.children.map((leaf, i) => (
-                              <>
-                                {i > 0 && <span class="toc__sep">·</span>}
-                                <a href={`#${leaf.slug}`}>{leaf.text}</a>
-                              </>
-                            ))}
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )
-    }
+    <div class={`note-layout${hasToc ? ' note-layout--aside' : ''}`}>
+      {
+        hasToc && (
+          <nav class="toc" aria-label="目录">
+            <div class="toc__title">本页目录</div>
+            <ul class="toc__list">
+              {toc.map((node) => (
+                <li class="toc__item toc__item--h2">
+                  {node.slug && (
+                    <a href={`#${node.slug}`}>
+                      {node.number && <span class="toc__num">{node.number}</span>}
+                      <span>{node.text}</span>
+                    </a>
+                  )}
+                  {node.children.length > 0 && (
+                    <ul class="toc__list">
+                      {node.children.map((sub) => (
+                        <li class="toc__item toc__item--h3">
+                          {sub.slug && (
+                            <a href={`#${sub.slug}`}>
+                              <span class="toc__num">{sub.number}</span>
+                              <span>{sub.text}</span>
+                            </a>
+                          )}
+                          {/* 第三层：知识点，只罗列、不编号，一行一个 */}
+                          {sub.children.length > 0 && (
+                            <ul class="toc__points">
+                              {sub.children.map((leaf) => (
+                                <li>
+                                  <a href={`#${leaf.slug}`}>{leaf.text}</a>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
 
-    <article class="prose">
-      <Content />
-    </article>
+      <div class="note-body">
+        <article class="prose">
+          <Content />
+        </article>
 
-    {
-      d.url && (
-        <div class="notice">
-          本文是对外部内容的学习笔记，原文出处：
-          <a href={d.url} target="_blank" rel="noopener">
-            {d.url}
-          </a>
-        </div>
-      )
-    }
+        {
+          d.url && (
+            <div class="notice">
+              本文是对外部内容的学习笔记，原文出处：
+              <a href={d.url} target="_blank" rel="noopener">
+                {d.url}
+              </a>
+            </div>
+          )
+        }
 
-    {
-      related.length > 0 && (
-        <section style="margin-top:3.5rem">
-          <h2 style="font-size:1.1rem;border:0;padding:0;margin-bottom:1rem">相关笔记</h2>
-          <div class="grid">
-            {related.map((r) => (
-              <NoteCard note={r} />
-            ))}
-          </div>
-        </section>
-      )
-    }
+        {
+          related.length > 0 && (
+            <section style="margin-top:3.5rem">
+              <h2 style="font-size:1.1rem;border:0;padding:0;margin-bottom:1rem">相关笔记</h2>
+              <div class="grid">
+                {related.map((r) => (
+                  <NoteCard note={r} />
+                ))}
+              </div>
+            </section>
+          )
+        }
 
-    {
-      (siblingsPair?.prev || siblingsPair?.next) && (
-        <nav class="prev-next" aria-label="同分类上下篇">
-          {siblingsPair?.prev ? (
-            <a href={noteHref(siblingsPair.prev)}>
-              <span class="prev-next__label">← 上一篇</span>
-              <span>{siblingsPair.prev.data.title}</span>
-            </a>
-          ) : (
-            <span />
-          )}
-          {siblingsPair?.next ? (
-            <a class="prev-next__next" href={noteHref(siblingsPair.next)}>
-              <span class="prev-next__label">下一篇 →</span>
-              <span>{siblingsPair.next.data.title}</span>
-            </a>
-          ) : (
-            <span />
-          )}
-        </nav>
-      )
-    }
-
-    {/* 本地开发专用：页面上直接改字 / 改原文。生产构建时 DEV 为 false，不输出任何东西 */}
-    {import.meta.env.DEV && <DevNoteEditor collection="notes" id={note.id} />}
+        {
+          (siblingsPair?.prev || siblingsPair?.next) && (
+            <nav class="prev-next" aria-label="同分类上下篇">
+              {siblingsPair?.prev ? (
+                <a href={noteHref(siblingsPair.prev)}>
+                  <span class="prev-next__label">← 上一篇</span>
+                  <span>{siblingsPair.prev.data.title}</span>
+                </a>
+              ) : (
+                <span />
+              )}
+              {siblingsPair?.next ? (
+                <a class="prev-next__next" href={noteHref(siblingsPair.next)}>
+                  <span class="prev-next__label">下一篇 →</span>
+                  <span>{siblingsPair.next.data.title}</span>
+                </a>
+              ) : (
+                <span />
+              )}
+            </nav>
+          )
+        }
+      </div>
+    </div>
   </div>
+
+  <script>
+    // 目录联动（opinion-5）：滚到哪一节，就把左侧目录里的哪一条点亮。
+    // 只跟 h2/h3 这些编号条目 —— 三层知识点在目录里是挤成一行的小字，
+    // 逐个高亮会一直乱闪，反而看不清自己在哪。
+    const tocEl = document.querySelector<HTMLElement>('.toc');
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('.toc .toc__item > a[href^="#"]')
+    );
+
+    if (tocEl && links.length > 0) {
+      const entries = links
+        .map((link) => {
+          // href 里可能是中文 id，浏览器取回来也许是百分号编码，两种都试
+          const raw = (link.getAttribute('href') ?? '').slice(1);
+          let el = document.getElementById(raw);
+          if (!el) {
+            try {
+              el = document.getElementById(decodeURIComponent(raw));
+            } catch {
+              /* 非法转义序列，按原样找不到就算了 */
+            }
+          }
+          return el ? { link, el } : null;
+        })
+        .filter((x): x is { link: HTMLAnchorElement; el: HTMLElement } => x !== null);
+
+      // 顶栏是 sticky 的（4rem），基准线要压在它下面；与 CSS 的 scroll-margin-top 对齐
+      const OFFSET = 88;
+      let currentId = '';
+      let ticking = false;
+
+      function sync() {
+        ticking = false;
+        if (entries.length === 0) return;
+
+        // 当前小节 = 最后一个已经滚过基准线的标题
+        let idx = 0;
+        for (let i = 0; i < entries.length; i++) {
+          if (entries[i].el.getBoundingClientRect().top <= OFFSET) idx = i;
+          else break;
+        }
+        // 到底了就直接点亮最后一节：否则末尾几节永远轮不到
+        const atBottom =
+          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+        if (atBottom) idx = entries.length - 1;
+
+        const id = entries[idx].link.getAttribute('href') ?? '';
+        if (id === currentId) return;
+        currentId = id;
+
+        for (const e of entries) {
+          const on = (e.link.getAttribute('href') ?? '') === id;
+          e.link.classList.toggle('is-current', on);
+          if (on) {
+            e.link.setAttribute('aria-current', 'true');
+            // 长目录自己会滚动：只动目录的 scrollTop，绝不去动页面滚动位置
+            const box = tocEl.getBoundingClientRect();
+            const r = e.link.getBoundingClientRect();
+            if (r.top < box.top + 4 || r.bottom > box.bottom - 4) {
+              tocEl.scrollTop += r.top - box.top - (box.height - r.height) / 2;
+            }
+          } else {
+            e.link.removeAttribute('aria-current');
+          }
+        }
+      }
+
+      function schedule() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(sync);
+      }
+
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+      sync();
+    }
+  </script>
 </BaseLayout>

@@ -786,22 +786,82 @@ a.tag:hover {
   font-size: 0.92em;
 }
 
-/* 第三层：知识点，只罗列不编号，用「·」连成一行小字 */
+/* 第三层：知识点，只罗列不编号。
+   一行一个 —— 目录挪到左栏后只剩 12rem 左右，横着用「·」连会挤成一坨。 */
 .toc__points {
-  margin: 0.1rem 0 0.3rem;
-  padding-left: 2.85rem;
+  list-style: none;
+  margin: 0.15rem 0 0.4rem;
+  /* 与 h3 标题文字左对齐是 2.85rem（h3 自身 1.1rem 缩进 + 2.85rem 编号列），
+     但细目跟标题顶到同一条竖线上会显得整栏发闷，这里再往左让 0.7rem —— 标题和
+     细目之间就有一道错位，眼睛能分清哪层是哪层。 */
+  padding: 0 0 0 2.15rem;
   font-size: 0.78rem;
-  line-height: 1.7;
+  line-height: 1.5;
   color: var(--text-faint);
 }
+/* 行首标记 ▸：用 flex 排成「标记列 + 文字列」——
+   标记列宽固定，文字折行时天然对齐到文字列，不必靠「▸ + 空格」凑出悬挂缩进的宽度
+   （不同字体给的字宽不一样，凑出来的对齐会飘）。 */
+.toc__points li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+.toc__points li::before {
+  content: '▸';
+  flex: none;
+  width: 0.5rem;
+  /* --text-muted 比正文的 --text-faint 深一档：小三角太小，太浅会糊掉 */
+  color: var(--text-muted);
+}
+/* 允许长标题在标记列右侧收缩，不然 flex 子项默认按 min-content 把整栏撑开 */
+.toc__points li > a { min-width: 0; }
 .toc__points a { color: var(--text-faint); }
 .toc__points a:hover { color: var(--accent-text); }
-.toc__sep { margin: 0 0.35rem; opacity: 0.45; }
 
-/* 长目录（一章十几个小节那种）在手机上别占满整屏 */
-@media (max-width: 700px) {
-  .toc { max-height: 60vh; overflow-y: auto; }
+/* 单栏时（<1024px 目录在正文上方）长目录别占满整屏 ——
+   一章十几个小节、每个 h4 还各占一行，目录能长到好几屏 */
+@media (max-width: 1023px) {
+  .toc { max-height: 60vh; overflow-y: auto; overscroll-behavior: contain; }
 }
+
+/* ---------------------------------------- 笔记页：目录挪到左侧（opinion-5） */
+/* 宽屏时目录单独占一栏并吸顶，正文照旧限宽；窄屏回到「目录在上、正文在下」，
+   DOM 顺序本来就是目录在前，所以窄屏不需要额外规则。
+   15rem 目录 + 2.5rem 间距 = 17.5rem，正文那一栏正好还是 --max-read 的宽度。 */
+.wrap--note { max-width: calc(var(--max-read) + 17.5rem); }
+
+.note-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+/* 网格子项默认 min-width:auto，长公式/宽表格会把轨道撑破，这里按惯例放开 */
+.note-body { min-width: 0; }
+
+@media (min-width: 1024px) {
+  .note-layout--aside {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .note-layout--aside > .toc {
+    /* 顶栏是 sticky 的 4rem，吸顶位置必须让开它（与 h2~h6 的 scroll-margin-top 对齐） */
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0;
+  }
+}
+
+/* 当前读到哪一节：目录里对应那条点亮 */
+.toc a.is-current {
+  color: var(--accent-text);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 4px;
+  padding: 0.08rem 0.35rem;
+  margin: 0 -0.35rem;
+}
+.toc a.is-current .toc__num { color: var(--accent-text); }
 
 /* ------------------------------------------------------ 首页 */
 /* Hero：左边文字、右边 OC 头像（窄屏自动堆叠，头像在上） */
@@ -1182,6 +1242,18 @@ a.tag:hover {
   color: var(--text-faint);
 }
 .works-empty p { margin: 0; }
+/* ⚠️ 上面给了 display:flex，会盖掉 HTML 的 [hidden]（作者样式的 display 优先级更高），
+   所以必须自己写一条 —— 少这一条，筛出结果后「没有符合条件的作品」还是会一直挂在下面。 */
+.works-empty[hidden] { display: none; }
+
+/* 筛出结果时的到底提示 */
+.works-end {
+  margin: 1.75rem 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+.works-end[hidden] { display: none; }
 
 /* 窄屏：侧边栏收到上面，标签变成一行行小胶囊 */
 @media (max-width: 880px) {

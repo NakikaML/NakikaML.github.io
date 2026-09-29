@@ -112,19 +112,56 @@ const hasNotes = notes.length > 0;
   <script>
     const items = Array.from(document.querySelectorAll<HTMLElement>('.note-item'));
     const catBtns = Array.from(document.querySelectorAll<HTMLElement>('#cat-filters button'));
+    // 数组本身可变：从笔记页点「?tag=xxx」跳进来时，热门标签里可能没有这个标签，
+    // 这时会临时补一个按钮（见 ensureTagButton）
     const tagBtns = Array.from(document.querySelectorAll<HTMLElement>('#tag-filters button'));
     const q = document.getElementById('q') as HTMLInputElement | null;
     const counter = document.getElementById('result-count');
     const noResult = document.getElementById('no-result');
 
-    let activeCat = '';
-    let activeTag = '';
+    // 支持从首页 / 笔记页直接跳进来：/notes/?cat=计算机科学&tag=数据结构
+    const params = new URLSearchParams(location.search);
+    let activeCat = params.get('cat') ?? '';
+    let activeTag = params.get('tag') ?? '';
 
-    // 支持从首页 /notes/?cat=计算机科学 直接跳进来
-    const urlCat = new URLSearchParams(location.search).get('cat');
-    if (urlCat) {
-      activeCat = urlCat;
-      catBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.cat === urlCat));
+    /** 标签 → 篇数（只在临时补按钮时用得上） */
+    function countTag(tag: string): number {
+      return items.filter((el) => (el.dataset.tags ?? '').split('|').includes(tag)).length;
+    }
+
+    /** 点标签：再点一次同一个就取消 */
+    function pickTag(t: string) {
+      activeTag = activeTag === t ? '' : t;
+      tagBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.tag === activeTag));
+      apply();
+      syncUrl();
+    }
+
+    /**
+     * 热门标签只列出现次数达标的那些，笔记页的标签链接却可能是冷门标签。
+     * 这时候补一个按钮出来 —— 否则筛是筛了，页面上既看不出筛了什么，也没有取消的入口。
+     */
+    function ensureTagButton(tag: string) {
+      if (!tag || tagBtns.some((b) => b.dataset.tag === tag)) return;
+      const host = document.getElementById('tag-filters');
+      if (!host) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.tag = tag;
+      btn.textContent = `${tag} (${countTag(tag)})`;
+      btn.classList.add('is-active');
+      btn.addEventListener('click', () => pickTag(tag));
+      host.appendChild(btn);
+      tagBtns.push(btn);
+    }
+
+    /** 让 URL 跟着筛选走，刷新和分享都能停在同一批结果上 */
+    function syncUrl() {
+      const p = new URLSearchParams();
+      if (activeCat) p.set('cat', activeCat);
+      if (activeTag) p.set('tag', activeTag);
+      const qs = p.toString();
+      history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
     }
 
     function apply() {
@@ -144,21 +181,26 @@ const hasNotes = notes.length > 0;
       if (noResult) noResult.style.display = shown === 0 ? '' : 'none';
     }
 
+    // 先把 URL 里的筛选状态同步到界面上，再渲染一次
+    if (activeCat) {
+      catBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.cat === activeCat));
+    }
+    if (activeTag) {
+      ensureTagButton(activeTag);
+      tagBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.tag === activeTag));
+    }
+
     catBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         activeCat = btn.dataset.cat ?? '';
         catBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
         apply();
+        syncUrl();
       });
     });
 
     tagBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const t = btn.dataset.tag ?? '';
-        activeTag = activeTag === t ? '' : t;
-        tagBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.tag === activeTag));
-        apply();
-      });
+      btn.addEventListener('click', () => pickTag(btn.dataset.tag ?? ''));
     });
 
     q?.addEventListener('input', apply);

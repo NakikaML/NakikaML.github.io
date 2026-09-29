@@ -130,6 +130,8 @@ const items = works.map((w) => ({
                 ))}
               </div>
 
+              <p class="works-end" id="works-end" hidden>已经到底部了哦~</p>
+
               <div class="works-empty" id="works-empty" hidden>
                 <p>没有符合条件的作品。</p>
                 <button type="button" id="empty-reset" class="btn">清除全部筛选</button>
@@ -154,6 +156,7 @@ const items = works.map((w) => ({
     const emptyReset = document.getElementById('empty-reset');
     const countEl = document.getElementById('works-count');
     const emptyEl = document.getElementById('works-empty');
+    const endEl = document.getElementById('works-end');
     const total = items.length;
 
     // ---- 侧边栏分组的折叠状态：记在 localStorage，下次进来保持 ----
@@ -264,7 +267,9 @@ const items = works.map((w) => ({
 
       countEl!.textContent =
         shown === total ? `共 ${total} 件` : `筛选出 ${shown} 件 / 共 ${total} 件`;
+      // 有结果 → 显示「已经到底部了哦~」；没结果 → 显示空状态（两者互斥）
       emptyEl!.hidden = shown !== 0;
+      if (endEl) endEl.hidden = shown === 0;
 
       // 勾选态样式由 JS 打类名（不用 CSS :has()，兼容更稳）
       for (const b of tagBoxes) {

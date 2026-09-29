@@ -40,8 +40,7 @@ if (!fs.existsSync(dir)) {
   process.exit(1);
 }
 
-// 与 astro.config.mjs 的 markdown 配置保持一致（少了 remarkSourceLines：
-// 那个只在 dev 生效，且不影响解析结果）
+// 与 astro.config.mjs 的 markdown 配置保持一致
 const processor = await createMarkdownProcessor({
   remarkPlugins: [remarkCjkFriendly, remarkMath, remarkInlineDfrac],
   rehypePlugins: [[rehypeKatex, { strict: false, throwOnError: false, output: 'html', trust: true }]],

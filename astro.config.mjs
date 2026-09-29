@@ -7,24 +7,9 @@ import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
 import remarkCjkFriendly from 'remark-cjk-friendly';
 import rehypeKatex from 'rehype-katex';
-import remarkSourceLines from './scripts/dev/remark-source-lines.mjs';
 import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
 import rehypeCodeMeta from './scripts/rehype-code-meta.mjs';
 import rehypeScriptMetrics from './scripts/rehype-script-metrics.mjs';
-import { contentEditor } from './scripts/dev/content-editor-plugin.mjs';
-
-/**
- * 是不是本地开发。
- *
- * 为什么不用 defineConfig 的函数形式：Astro 7 的 defineConfig 只接受配置对象
- * （不像 Vite 那样能给 function）。但 Astro 在**加载配置文件之前**就会
- * ensureProcessNodeEnv()：dev 设 'development'，build/preview 设 'production'，
- * 所以这里读 NODE_ENV 是可靠的。
- *
- * 判定失败的方向也是安全的：万一被当成 production，本地编辑功能只是不出现，
- * 绝不会反过来把写接口或行号属性带进构建产物。
- */
-const IS_DEV = process.env.NODE_ENV !== 'production';
 
 // 上线域名。
 // 用 GitHub Pages 的「用户站点」仓库（仓库名 = NakikaML.github.io）时，
@@ -148,11 +133,7 @@ export default defineConfig({
       // 不是这样，所以从知识库搬过来的公式一到网站上才显形）。
       // 详见 scripts/remark-inline-dfrac.mjs。
       //
-      // 本地开发时多挂一个 remarkSourceLines：给纯文本块写上源码行号，
-      // 页面上才能「点段落直接改字」。它自己也会判一次 NODE_ENV，双保险。
-      remarkPlugins: IS_DEV
-        ? [remarkCjkFriendly, remarkMath, remarkInlineDfrac, remarkSourceLines]
-        : [remarkCjkFriendly, remarkMath, remarkInlineDfrac],
+      remarkPlugins: [remarkCjkFriendly, remarkMath, remarkInlineDfrac],
       rehypePlugins: [
         // 笔记里有不少用中文直接写的公式（如 $$开始索引 = (当前页码-1) * 每页条数$$），
         // 关掉严格模式 + 不因渲染失败而中断构建，让它尽力渲染；
@@ -186,9 +167,7 @@ export default defineConfig({
   devToolbar: { enabled: false },
 
   vite: {
-    // contentEditor() 内部带 apply: 'serve'，构建时不会被加载；
-    // 它是「本地能写、线上不可写」这半边的物理保证。
-    plugins: [avatarAssets(), contentEditor()],
+    plugins: [avatarAssets()],
     resolve: {
       alias: {
         // picomatch 是 CJS 包，被 @astrojs/internal-helpers 用 ESM 语法默认导入，
