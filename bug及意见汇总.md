@@ -31,6 +31,20 @@
         自检：`verify-build.mjs` 新增【4d】，构建产物里 161 张正文配图 **全部**带 lazy、`width`+`height`、放大标记；
         尺寸解析另有回归测试 `pnpm test:img`（38 项，jpg 用仓库真实素材对照 System.Drawing 的值）。
         效果：dsa-6 那 31 张图现在首屏只拉进入视口的那几张。
+- [x] bug-6: mermaid 图完全显示不出来 —— 页面上只有一个灰色代码块，从来没有渲染成图。
+      现状（已在 dev 页面与构建产物里分别核对）：`BaseLayout.astro` 的渲染脚本查的是
+      `document.querySelectorAll('code.language-mermaid')`，但 Astro 的 Shiki 集成把语言写在
+      `<pre data-language="mermaid">` 上、并把 `<code>` 的 `language-*` 类**去掉了** ——
+      两边 HTML 里 `language-mermaid` 都是 **0 处**，于是脚本在 `if (blocks.length === 0) return;`
+      就提前退出，连 `import('mermaid')` 都没执行（mermaid 的 chunk 其实一直好好地躺在 dist 里）。
+      这个 bug 长期没暴露，是因为之前上线的 9 篇笔记里一张 mermaid 图都没有，
+      直到这批 C++ 笔记带进来 23 张图才显形。
+      → 已修（`src/layouts/BaseLayout.astro`）：选择器改成认 `pre[data-language="mermaid"]`，
+        同时保留 `code.language-mermaid` 这条老写法（上游以后换写法也不会再瞎）；
+        连 `.code-block`（语言标签 + 复制按钮）那层壳一起换成 `.mermaid` 容器 —— 图不需要复制按钮；
+        渲染失败时把原始代码块放回去（原来那版失败后只会留一片空白，还把源码弄丢了）。
+        验收：用 headless Chrome 实际渲染 9 个含图页面（cpp-1/3/4/5/6/8/10/11/12），
+        **23/23 张图**都产出 `<svg>` 且带 `data-processed="true"`，页面里 0 处残留 mermaid 源码块。
 
 # 用户提出的意见/我的灵感及想法
 

@@ -3,14 +3,15 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteCard from '../components/NoteCard.astro';
 import WorkCard from '../components/WorkCard.astro';
-import { contentNotes, mapNotes, countByCategory, byDateDesc } from '../utils/notes';
+import { contentNotes, mapNotes, countByCategory, byDateDesc, visible } from '../utils/notes';
 import { projects } from '../data/projects';
 import { site } from '../site.config';
 
 const notes = await contentNotes();
 const maps = await mapNotes();
-const posts = (await getCollection('blog')).filter((p) => !p.data.draft).sort(byDateDesc);
-const works = (await getCollection('works')).filter((w) => !w.data.draft).sort(byDateDesc);
+// 开发服务器里包含草稿（卡片上会带「草稿」徽章），构建时草稿被剔除——见 utils/notes.ts
+const posts = visible(await getCollection('blog')).sort(byDateDesc);
+const works = visible(await getCollection('works')).sort(byDateDesc);
 
 const cats = countByCategory(notes);
 const latestNotes = notes.slice(0, 6);

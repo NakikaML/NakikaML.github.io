@@ -1131,6 +1131,30 @@ a.tag:hover {
 .badge--声展 { background: var(--red-soft); color: var(--red-text); }
 .badge--知识分享 { background: var(--green-soft); color: var(--green-text); }
 .badge--其他 { background: var(--bg-soft); color: var(--text-muted); }
+/* 草稿徽章：只在开发服务器里渲染（构建产物里根本不含草稿）。
+   用虚线边框表达「还没定稿」，而不是用红色表达「出错了」 */
+.badge--draft {
+  background: var(--warn-soft);
+  color: var(--warn-text);
+  border: 1px dashed color-mix(in srgb, var(--warn) 45%, transparent);
+}
+
+/* 开发模式提示条：只在 `pnpm dev` 时出现，提醒「现在看到的包含未发布内容」 */
+.dev-hint {
+  margin: 0 0 1.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px dashed color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn-text);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+.dev-hint strong { color: inherit; }
+.dev-hint code {
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  color: inherit;
+}
 
 /* ------------------------------------------------------ 空状态 */
 .empty {

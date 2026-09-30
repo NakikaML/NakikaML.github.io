@@ -34,6 +34,7 @@ const glyph: Record<string, string> = {
   <div class="work-card__body">
     <div class="work-card__line">
       <span class={`badge badge--${d.type}`}>{d.type}</span>
+      {d.draft && <span class="badge badge--draft">草稿</span>}
       <h3 class="card__title">{d.title}</h3>
     </div>
     <p class="work-card__meta">

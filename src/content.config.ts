@@ -8,11 +8,19 @@ import { glob } from 'astro/loaders';
  *             现已改为手写重构，脚本只会在你主动开启白名单时才写入）
  *   blog   — 手写博客，放在 src/content/blog/
  *   works  — 配音 / 翻唱 / 知识分享作品，放在 src/content/works/
+ *
+ * 三者的 pattern 都额外带一条 `!` 否定规则，把下划线开头的文件排除掉。
+ * 原因：`_模板-*.md` 是给人复制用的模板，不是内容。以前只靠它们自带的
+ * `draft: true` 挡住；现在开发服务器会把草稿也列出来（见 utils/notes.ts 的
+ * SHOW_DRAFTS），模板就会混进本地预览里，所以干脆在入口处排除。
  */
+
+/** 所有集合共用的匹配规则：所有 md，但不含 `_` 开头的模板 */
+const CONTENT_PATTERN = ['**/*.md', '!**/_*.md'];
 
 // ---------------------------------------------------------------- notes
 const notes = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/notes' }),
+  loader: glob({ pattern: CONTENT_PATTERN, base: './src/content/notes' }),
   schema: z.object({
     title: z.string(),
     /** 一句话摘要，显示在列表页与搜索结果里 */
@@ -47,7 +55,7 @@ const notes = defineCollection({
 
 // ---------------------------------------------------------------- blog
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  loader: glob({ pattern: CONTENT_PATTERN, base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     description: z.string().default(''),
@@ -61,7 +69,7 @@ const blog = defineCollection({
 // --------------------------------------------------------------- works
 // 配音 / 翻唱 / 声展 / 知识分享 —— 你的创作作品集
 const works = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/works' }),
+  loader: glob({ pattern: CONTENT_PATTERN, base: './src/content/works' }),
   schema: z.object({
     title: z.string(),
     /** 作品类型，决定分组与配色（新增类型记得同步三处：

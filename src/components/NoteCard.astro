@@ -18,6 +18,8 @@ const hasCategory = showCategory && note.data.category && note.data.category !==
   <h3 class="card__title">{note.data.title}</h3>
   {desc && <p class="card__desc">{desc}</p>}
   <div class="card__meta">
+    {/* 草稿徽章只在开发服务器里出现——构建产物里根本不含草稿 */}
+    {note.data.draft && <span class="badge badge--draft">草稿</span>}
     {hasCategory && <span class="tag tag--accent">{note.data.category}</span>}
     {note.data.difficulty && <span>{note.data.difficulty}</span>}
     {date && <span>{date}</span>}

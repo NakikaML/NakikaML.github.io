@@ -48,6 +48,8 @@ const date = fmtDate(d.date);
     <header class="note-head">
       <h1>{d.title}</h1>
       <div class="note-head__meta">
+        {/* 草稿徽章只在开发服务器里出现——构建产物里根本不含草稿 */}
+        {d.draft && <span class="badge badge--draft">草稿</span>}
         <span class="tag tag--accent">{d.category}</span>
         {d.difficulty && <span>{d.difficulty}</span>}
         {d.subfield && <span>{d.subfield}</span>}

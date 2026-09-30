@@ -22,10 +22,35 @@ export function byDateDesc<T extends { data: { date?: string | Date } }>(a: T, b
   return 0;
 }
 
-/** 全部笔记（已过滤草稿），按日期倒序 */
+/**
+ * 草稿可见性开关 —— 只在开发服务器里显示草稿
+ * ============================================================
+ * `astro dev`（pnpm dev）时 `import.meta.env.DEV` 为 **true**：
+ *   草稿照常生成页面，可以在 http://localhost:4321/notes/ 里像正式笔记一样
+ *   逐篇预览、改文件即时刷新。
+ * `astro build`（pnpm build / pnpm release）时它被编译成 **false**：
+ *   草稿不参与**任何**产物 —— 列表页、详情页、RSS、sitemap、
+ *   以及「下载原文 .md」里都不会出现。
+ *
+ * 所以 `draft: true` 的含义是「**只有本地开发时能看见，访问网站的人看不见**」，
+ * 而不是「写得差不多了再手动翻牌」。卡片与详情页上的「草稿」徽章只在开发时渲染，
+ * 因为构建产物里根本不会有草稿。
+ *
+ * 想临时按「线上视角」预览（确认草稿确实没漏出去），用 `pnpm build` + `pnpm preview`。
+ */
+export const SHOW_DRAFTS = import.meta.env.DEV;
+
+/**
+ * 按当前环境过滤草稿。三个集合（notes / blog / works）共用一套规则：
+ * 开发时原样返回，构建时剔除 `draft: true` 的条目。
+ */
+export function visible<T extends { data: { draft?: boolean } }>(items: T[]): T[] {
+  return SHOW_DRAFTS ? items : items.filter((i) => !i.data.draft);
+}
+
+/** 全部笔记（构建时已过滤草稿，开发时含草稿），按日期倒序 */
 export async function allNotes(): Promise<Note[]> {
-  const notes = await getCollection('notes');
-  return notes.filter((n) => !n.data.draft).sort(byDateDesc);
+  return visible(await getCollection('notes')).sort(byDateDesc);
 }
 
 /** 笔记卡片用的摘要：优先用 frontmatter 的 description，没有才从正文抽 */

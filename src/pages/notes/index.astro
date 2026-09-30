@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteCard from '../../components/NoteCard.astro';
-import { contentNotes, countByCategory, countByTag } from '../../utils/notes';
+import { contentNotes, countByCategory, countByTag, SHOW_DRAFTS } from '../../utils/notes';
 
 const notes = await contentNotes();
 const cats = countByCategory(notes);
+// 开发服务器里草稿也在 notes 里（见 utils/notes.ts 的 SHOW_DRAFTS）；
+// 构建时这里是 0，提示条也就不会出现。
+const draftCount = notes.filter((n) => n.data.draft).length;
 // 标签按出现次数排序。默认只露前 12 个，其余的折叠在「全部标签」后面（opinion-6）：
 // 以前这里只列出现次数 >= 3 的所谓「热门标签」，冷门标签根本没有入口。
 const TAGS_VISIBLE = 12;
@@ -33,6 +36,21 @@ const hasNotes = notes.length > 0;
         }
       </p>
     </div>
+
+    {
+      SHOW_DRAFTS && draftCount > 0 && (
+        <div class="dev-hint">
+          <strong>开发模式</strong>
+          <span>
+            当前列表里的 <strong>{draftCount}</strong> 篇带「草稿」徽章，是
+            <code>draft: true</code> 的笔记。它们<strong>只在这台开发服务器上可见</strong>——
+            <code>pnpm build</code> / <code>pnpm release</code> 不会把它们放进网站，
+            访客的列表页、详情页和 RSS 里都没有。想按线上视角确认一遍，用
+            <code>pnpm build</code> 加 <code>pnpm preview</code>。
+          </span>
+        </div>
+      )
+    }
 
     {
       !hasNotes && (

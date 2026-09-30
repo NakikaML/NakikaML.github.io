@@ -1,10 +1,11 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { byDateDesc, fmtDate } from '../../utils/notes';
+import { byDateDesc, fmtDate, visible } from '../../utils/notes';
 
 export async function getStaticPaths() {
-  const posts = (await getCollection('blog')).filter((p) => !p.data.draft).sort(byDateDesc);
+  // 开发服务器里草稿也会生成页面（可预览），构建时被 visible() 剔除
+  const posts = visible(await getCollection('blog')).sort(byDateDesc);
   return posts.map((post, i) => ({
     params: { id: post.id },
     props: {
@@ -35,6 +36,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
     <header class="note-head">
       <h1>{post.data.title}</h1>
       <div class="note-head__meta">
+        {post.data.draft && <span class="badge badge--draft">草稿</span>}
         <time datetime={fmtDate(post.data.date)}>{fmtDate(post.data.date)}</time>
         {post.data.updated && <span>· 更新于 {fmtDate(post.data.updated)}</span>}
       </div>

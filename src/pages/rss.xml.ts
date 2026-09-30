@@ -20,6 +20,9 @@ function esc(s: string): string {
 export const GET: APIRoute = async ({ site: astroSite }) => {
   const base = (astroSite?.href ?? 'https://example.com').replace(/\/$/, '');
 
+  // RSS 是「对外分发」的产物，所以这里**永远**剔除草稿，不走开发模式的 SHOW_DRAFTS 开关。
+  // 这样即使在 `pnpm dev` 下打开 /rss.xml，它也是一次现成的「草稿有没有漏出去」检查。
+  // （原先笔记那一路漏了草稿过滤：草稿会带着标题进订阅源。）
   const posts = (await getCollection('blog'))
     .filter((p) => !p.data.draft)
     .map((p) => ({
@@ -30,7 +33,7 @@ export const GET: APIRoute = async ({ site: astroSite }) => {
     }));
 
   const notes = (await getCollection('notes'))
-    .filter((n) => n.data.kind !== 'moc')
+    .filter((n) => !n.data.draft && n.data.kind !== 'moc')
     .map((n) => ({
       title: n.data.title,
       description: `${n.data.category}${n.data.subfield ? ' · ' + n.data.subfield : ''}`,

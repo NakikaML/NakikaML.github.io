@@ -82,17 +82,36 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <script>
       // Mermaid 图按需渲染：只有页面里真的出现 ```mermaid 才加载这个重依赖
       (async () => {
-        const blocks = document.querySelectorAll('code.language-mermaid');
+        /**
+         * 找出所有 mermaid 代码块。
+         *
+         * ⚠️ 这里踩过一次坑：Astro 的 Shiki 集成会把语言写在
+         *      <pre data-language="mermaid"> 上，并把 <code> 上的 language-* 类**去掉**。
+         *    所以只查 `code.language-mermaid` 永远是 0 个，脚本会在下面提前 return，
+         *    页面上只剩一个灰色代码块（这个 bug 一直没暴露，是因为之前的笔记里没有 mermaid 图）。
+         *    两种标记都认，避免以后再被上游换写法坑一次。
+         */
+        const hosts = new Set();
+        document.querySelectorAll('pre[data-language="mermaid"]').forEach((pre) => hosts.add(pre));
+        document.querySelectorAll('code.language-mermaid').forEach((code) => {
+          hosts.add(code.closest('pre') ?? code);
+        });
+
+        const blocks = [...hosts];
         if (blocks.length === 0) return;
 
-        blocks.forEach((code) => {
-          const pre = code.parentElement;
-          if (!pre) return;
+        // 把代码块换成一个空的 .mermaid 容器，交给 mermaid 渲染。
+        // 连「语言标签 + 复制按钮」那层壳一起换掉——图不需要复制按钮。
+        // 同时记下原节点：渲染失败时放回去，总比留一片空白强。
+        const swapped = [];
+        for (const block of blocks) {
+          const wrapper = block.closest('.code-block') ?? block;
           const div = document.createElement('div');
           div.className = 'mermaid';
-          div.textContent = code.textContent ?? '';
-          pre.replaceWith(div);
-        });
+          div.textContent = (block.querySelector('code') ?? block).textContent ?? '';
+          wrapper.replaceWith(div);
+          swapped.push({ div, wrapper });
+        }
 
         try {
           const { default: mermaid } = await import('mermaid');
@@ -104,7 +123,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
           });
           await mermaid.run({ querySelector: '.mermaid' });
         } catch (err) {
-          console.warn('Mermaid 渲染失败，已保留源码块', err);
+          // 渲染失败：把原始代码块放回去，并换成一句能看懂的提示
+          swapped.forEach(({ div, wrapper }) => div.replaceWith(wrapper));
+          console.warn('Mermaid 渲染失败，已回退为源码块', err);
         }
       })();
     </script>
