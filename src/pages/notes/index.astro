@@ -5,7 +5,11 @@ import { contentNotes, countByCategory, countByTag } from '../../utils/notes';
 
 const notes = await contentNotes();
 const cats = countByCategory(notes);
-const tags = countByTag(notes, 3).slice(0, 24);
+// 标签按出现次数排序。默认只露前 12 个，其余的折叠在「全部标签」后面（opinion-6）：
+// 以前这里只列出现次数 >= 3 的所谓「热门标签」，冷门标签根本没有入口。
+const TAGS_VISIBLE = 12;
+const tags = countByTag(notes, 1);
+const extraTags = Math.max(0, tags.length - TAGS_VISIBLE);
 const hasNotes = notes.length > 0;
 ---
 
@@ -63,13 +67,23 @@ const hasNotes = notes.length > 0;
       tags.length > 0 && (
         <div class="filters" id="tag-filters" style="border-bottom:0;padding-bottom:0;margin-bottom:1rem">
           <span style="font-size:0.8rem;color:var(--text-faint);align-self:center;margin-right:0.25rem">
-            热门标签
+            标签
           </span>
-          {tags.map((t) => (
-            <button type="button" data-tag={t.name}>
+          {tags.map((t, i) => (
+            <button
+              type="button"
+              data-tag={t.name}
+              class={i >= TAGS_VISIBLE ? 'is-extra' : ''}
+              hidden={i >= TAGS_VISIBLE}
+            >
               {t.name} ({t.count})
             </button>
           ))}
+          {extraTags > 0 && (
+            <button type="button" id="tag-toggle" class="filters__more" aria-expanded="false">
+              全部标签（+{extraTags}）
+            </button>
+          )}
         </div>
       )
     }
@@ -112,9 +126,14 @@ const hasNotes = notes.length > 0;
   <script>
     const items = Array.from(document.querySelectorAll<HTMLElement>('.note-item'));
     const catBtns = Array.from(document.querySelectorAll<HTMLElement>('#cat-filters button'));
-    // 数组本身可变：从笔记页点「?tag=xxx」跳进来时，热门标签里可能没有这个标签，
-    // 这时会临时补一个按钮（见 ensureTagButton）
-    const tagBtns = Array.from(document.querySelectorAll<HTMLElement>('#tag-filters button'));
+    // 数组本身可变：从笔记页点「?tag=xxx」跳进来时，标签列表里可能没有这个标签，
+    // 这时会临时补一个按钮（见 ensureTagButton）。
+    // 只取带 data-tag 的按钮 —— 「全部标签」那个开关也在同一个容器里，别混进来。
+    const tagBtns = Array.from(
+      document.querySelectorAll<HTMLElement>('#tag-filters button[data-tag]')
+    );
+    const tagToggle = document.getElementById('tag-toggle');
+    const collapsedLabel = tagToggle?.textContent?.trim() ?? '';
     const q = document.getElementById('q') as HTMLInputElement | null;
     const counter = document.getElementById('result-count');
     const noResult = document.getElementById('no-result');
@@ -133,16 +152,36 @@ const hasNotes = notes.length > 0;
     function pickTag(t: string) {
       activeTag = activeTag === t ? '' : t;
       tagBtns.forEach((b) => b.classList.toggle('is-active', b.dataset.tag === activeTag));
+      // 折叠状态下也要看得见「当前筛的是哪个标签」，否则等于没有取消入口
+      if (activeTag) ensureTagButton(activeTag);
       apply();
       syncUrl();
     }
 
+    /** 展开 / 收起被折叠的冷门标签（opinion-6） */
+    function setTagsExpanded(expanded: boolean) {
+      for (const b of tagBtns) {
+        if (!b.classList.contains('is-extra')) continue;
+        // 收起时留住正处于选中状态的那一个，不然筛完就看不见自己在筛什么了
+        b.hidden = expanded ? false : !b.classList.contains('is-active');
+      }
+      if (tagToggle) {
+        tagToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        tagToggle.textContent = expanded ? '收起标签' : collapsedLabel;
+      }
+    }
+
     /**
-     * 热门标签只列出现次数达标的那些，笔记页的标签链接却可能是冷门标签。
-     * 这时候补一个按钮出来 —— 否则筛是筛了，页面上既看不出筛了什么，也没有取消的入口。
+     * 标签列表默认只露前 12 个，笔记页的标签链接却可能是被折叠起来的冷门标签。
+     * 这时候把它露出来 / 补一个按钮 —— 否则筛是筛了，页面上既看不出筛了什么，也没有取消的入口。
      */
     function ensureTagButton(tag: string) {
-      if (!tag || tagBtns.some((b) => b.dataset.tag === tag)) return;
+      if (!tag) return;
+      const found = tagBtns.find((b) => b.dataset.tag === tag);
+      if (found) {
+        found.hidden = false;
+        return;
+      }
       const host = document.getElementById('tag-filters');
       if (!host) return;
       const btn = document.createElement('button');
@@ -151,7 +190,9 @@ const hasNotes = notes.length > 0;
       btn.textContent = `${tag} (${countTag(tag)})`;
       btn.classList.add('is-active');
       btn.addEventListener('click', () => pickTag(tag));
-      host.appendChild(btn);
+      // 插在「全部标签」开关之前，临时按钮不会跑到开关后面去
+      if (tagToggle) host.insertBefore(btn, tagToggle);
+      else host.appendChild(btn);
       tagBtns.push(btn);
     }
 
@@ -201,6 +242,10 @@ const hasNotes = notes.length > 0;
 
     tagBtns.forEach((btn) => {
       btn.addEventListener('click', () => pickTag(btn.dataset.tag ?? ''));
+    });
+
+    tagToggle?.addEventListener('click', () => {
+      setTagsExpanded(tagToggle.getAttribute('aria-expanded') !== 'true');
     });
 
     q?.addEventListener('input', apply);

@@ -52,6 +52,10 @@ const date = fmtDate(d.date);
         {d.difficulty && <span>{d.difficulty}</span>}
         {d.subfield && <span>{d.subfield}</span>}
         {date && <time datetime={date}>{date}</time>}
+        {/* 原文 .md 由 src/pages/notes/[id].md.ts 在构建时一并产出（opinion-1） */}
+        <a class="note-download" href={`/notes/${note.id}.md`} download={`${note.id}.md`}>
+          下载原文 .md
+        </a>
       </div>
       {
         d.tags.length > 0 && (

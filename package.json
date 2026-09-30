@@ -16,6 +16,7 @@
     "preview": "astro preview",
     "verify": "node scripts/verify-build.mjs",
     "test:frac": "node scripts/test-inline-dfrac.mjs",
+    "test:img": "node scripts/test-image-size.mjs",
     "check:math": "node scripts/check-math-delims.mjs",
     "check:bold": "node scripts/check-bold-render.mjs",
     "check:live": "node scripts/check-live.mjs",

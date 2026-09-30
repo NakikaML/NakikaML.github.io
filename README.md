@@ -142,6 +142,19 @@ draft: false
 
 放到 `public/notes-assets/`，然后在笔记里写 `![说明](/notes-assets/你的图.png)`。
 
+插图的几件事是**自动**的，不用手写 HTML：
+
+| 自动发生什么 | 谁在做 |
+| :--- | :--- |
+| 补 `loading="lazy"`，长文不会一进页面就下完整篇的图 | `scripts/rehype-image-figure.mjs` |
+| 从图片文件头读出宽高写进 `width`/`height`，图片没加载完也先占好位置（不抖） | 同上 |
+| 独占一段的图被包成 `<figure>`，右上角多一个「放大」按钮，点了全屏看原图 | 同上 + `BaseLayout.astro` 里的 `<dialog>` |
+
+图片说明（alt）会顺手当成全屏看时的图注，所以别写「图片1」这种，写「BFS 遍历过程（一）」。
+
+笔记详情页右上角还有一个「**下载原文 .md**」，下载的是这篇笔记的完整 Markdown
+（连 frontmatter 一起），由 `src/pages/notes/[id].md.ts` 在构建时产出。
+
 ---
 
 ## 部署与更新流程
@@ -188,6 +201,9 @@ Nakika-Personal-Website/
 ├── scripts/
 │   ├── sync-vault.mjs        Obsidian 同步管线（当前停用，代码保留）
 │   ├── verify-build.mjs      产物自检
+│   ├── rehype-code-meta.mjs  代码块：语言标签 + 复制按钮
+│   ├── rehype-image-figure.mjs 正文图片：懒加载 / 尺寸占位 / 放大按钮
+│   ├── test-image-size.mjs   上面那个插件的回归测试（含各图片格式的尺寸解析）
 │   ├── check-math-delims.mjs 公式定界符检查
 │   ├── check-live.mjs        线上站点可用性检查
 │   └── smoke-test.mjs        本地 HTTP 冒烟测试
@@ -213,7 +229,7 @@ Nakika-Personal-Website/
 │   └── pages/
 │       ├── index.astro       首页（只展示有内容的板块）
 │       ├── about.astro       关于我
-│       ├── notes/            笔记列表 + 详情
+│       ├── notes/            笔记列表 + 详情（外加详情页的可下载 .md 原文）
 │       ├── maps/             知识地图
 │       ├── blog/             博客
 │       ├── works/            作品集
@@ -327,18 +343,20 @@ includeFolders: {
 
 ## 已知问题与待办
 
-### 1. 笔记板块目前是空的
+### 1. 笔记板块仍在陆续补内容
 
-这是有意为之。首页和笔记页都会显示「正在重构中」的说明，不会出现空壳或报错。
+笔记已经上线（`src/content/notes/` 下有 DSA-1~8、CN-1），但都是重写过的公开版，会一篇篇加。
+笔记页的「目前还没有内容」空状态只在真的一篇都没有时才会出现。
 
-### 2. 作品集是空的
+### 2. 作品集只上线了精选
 
-`src/content/works/` 下只有三个 `draft: true` 的模板。
-填上 B站 作品链接、把 `draft` 改成 `false` 即可上线。
+`src/content/works/` 里仍留着 `draft: true` 的模板；已发布的作品由 `pnpm import:bili` 从 B站 拉取生成。
+填上链接、把 `draft` 改成 `false` 即可上线。
 
-### 3. `src/site.config.ts` 里的联系方式还没填全
+### 3. 联系方式（已填全）
 
-`bilibili` 是空的，页脚和关于页不会显示它。填上即可。
+`src/site.config.ts` 的 `links` 里 B站 / GitHub / 合作 QQ / 邮箱 / RSS 都已填好。
+合作 QQ 号要改时**同时改两处**：`links.qq` 的 `uin=` 和 `qqNumber`（前者是链接、后者是页面上显示的数字）。
 
 ### 4. 🚨 知识库里有明文 API 密钥，建议轮换
 

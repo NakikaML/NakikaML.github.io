@@ -9,6 +9,7 @@ import remarkCjkFriendly from 'remark-cjk-friendly';
 import rehypeKatex from 'rehype-katex';
 import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
 import rehypeCodeMeta from './scripts/rehype-code-meta.mjs';
+import rehypeImageFigure from './scripts/rehype-image-figure.mjs';
 import rehypeScriptMetrics from './scripts/rehype-script-metrics.mjs';
 
 // 上线域名。
@@ -154,6 +155,9 @@ export default defineConfig({
         // 把「同时有上下标」的盒子间距拉开一点，向 MathJax（Obsidian）的观感靠拢。
         // 必须排在 rehypeKatex 之后：它要改的是 KaTeX 算好的内联 top/height。
         rehypeScriptMetrics,
+        // 正文图片补 lazy / width / height，独占一段的图包成 <figure> + 放大按钮
+        // （bug-5 + opinion-9）。放最后：它只动 <img>，不想跟上面几个插件抢节点。
+        [rehypeImageFigure, { publicDir: fileURLToPath(new URL('./public', import.meta.url)) }],
       ],
       gfm: true,
     }),

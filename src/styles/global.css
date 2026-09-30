@@ -353,6 +353,105 @@ li > ul, li > ol { margin: 0.3rem 0; }
   background: var(--bg-soft);
 }
 
+/* 正文图片：外壳 + 右上角放大按钮（bug-5 / opinion-9）。
+   figure、按钮与 width/height 由 scripts/rehype-image-figure.mjs 生成，
+   点击后的全屏查看逻辑在 BaseLayout.astro（一个 <dialog> 管全站）。 */
+.prose figure.figure {
+  position: relative;
+  margin: 1.5rem 0;
+}
+.prose figure.figure img {
+  margin: 0 auto;
+}
+.prose img[data-zoomable] {
+  cursor: zoom-in;
+}
+.figure__zoom {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  /* 半透明底：图片是浅色或深色都能看清按钮 */
+  background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  cursor: zoom-in;
+  opacity: 0.62;
+  transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+}
+.figure:hover .figure__zoom,
+.figure__zoom:focus-visible {
+  opacity: 1;
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* 全屏看图：<dialog> 由 BaseLayout.astro 在首次点击时才创建 */
+dialog.img-zoom {
+  /* 宽高都交给内容（图片自带 94vw / 80vh 上限），但别让整体超出视口 */
+  max-width: none;
+  max-height: 96vh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+dialog.img-zoom::backdrop {
+  background: rgba(0, 0, 0, 0.82);
+}
+.img-zoom__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.img-zoom__img {
+  max-width: 94vw;
+  /* 留出上下余量：图太高时关闭按钮和上一行都别被挤到屏幕外 */
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius);
+  background: #fff;
+}
+.img-zoom__cap {
+  margin: 0;
+  max-width: 94vw;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: center;
+}
+/* alt 为空时不占位 */
+.img-zoom__cap:empty {
+  display: none;
+}
+/* 关闭按钮钉在视口右上角，而不是图片上方：
+   图片很高时（max-height: 80vh）「图片上方」可能已经在屏幕外了。
+   dialog 在 top layer，且祖先没有 transform，所以 fixed 就是相对视口定位。 */
+.img-zoom__close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.img-zoom__close:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
 .prose blockquote {
   margin: 1.5rem 0;
   padding: 0.75rem 1.25rem;
@@ -692,6 +791,36 @@ a.tag:hover {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
+}
+/* 「标签」一行默认只露出前几个，其余折叠起来（opinion-6）。
+   显式写死 display: none —— 踩过一次 [hidden] 被 display:flex 盖掉的坑（bug-3）。 */
+.filters [hidden] {
+  display: none;
+}
+.filters .filters__more {
+  border-style: dashed;
+  color: var(--text-faint);
+}
+.filters .filters__more:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* 笔记详情页的「下载原文 .md」（opinion-1） */
+.note-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+.note-download:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  text-decoration: none;
 }
 
 /* ------------------------------------------------- 面包屑/返回 */

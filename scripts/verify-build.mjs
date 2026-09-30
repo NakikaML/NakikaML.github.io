@@ -8,6 +8,8 @@
  *   3. 有没有残留的 Obsidian 双链 [[...]]
  *   4. 笔记引用的图片是否都存在
  *   4b. 根路径静态资源（作品封面等）是否都存在
+ *   4c. 每篇笔记是否都产出了可下载的 .md 原文、详情页是否链到了它
+ *   4d. 正文配图是否都带 lazy / width+height / 放大标记
  *   5. 产物体积构成
  *
  * 用法： node scripts/verify-build.mjs
@@ -190,6 +192,81 @@ if (missingAssets.length === 0) {
   missingAssets.slice(0, 10).forEach(([p, page]) => info(`${p}  ← 被 ${page} 引用`));
   info('提示：封面图要放在 public/ 下，cover 字段写 /works/xxx.png 才能被服务出去');
   failures++;
+}
+
+// ------------------------------------------- 4c. 笔记原文（.md）导出
+// 每篇笔记都应该有一份可下载的 Markdown 原文（opinion-1），
+// 由 src/pages/notes/[id].md.ts 这个静态端点产出。
+// 踩坑点：端点路由写成 [id].md.ts 时才输出 /notes/xxx.md；
+// 一旦 Astro 把它当成页面处理（或 build.format 把目录补进来），
+// 页面里的下载链接就会变成 404，而且构建本身不会报错 —— 所以在这里兜住。
+console.log('\n【4c】笔记原文（.md）导出');
+const notesDir = path.join(DIST, 'notes');
+const notePageDirs = fs.existsSync(notesDir)
+  ? fs
+      .readdirSync(notesDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && fs.existsSync(path.join(notesDir, e.name, 'index.html')))
+      .map((e) => e.name)
+  : [];
+const mdMissing = notePageDirs.filter((id) => !fs.existsSync(path.join(notesDir, `${id}.md`)));
+ok(`笔记详情页 ${notePageDirs.length} 篇，产出 .md 原文 ${notePageDirs.length - mdMissing.length} 份`);
+if (notePageDirs.length === 0) {
+  console.log('  ⚠ 没有找到笔记详情页，跳过（笔记板块目前为空？）');
+} else if (mdMissing.length === 0) {
+  const sample = fs.readFileSync(path.join(notesDir, `${notePageDirs[0]}.md`), 'utf8');
+  const hasFrontmatter = sample.startsWith('---');
+  ok(`每篇笔记都有对应的 /notes/<id>.md${hasFrontmatter ? '（含 frontmatter）' : ''}`);
+} else {
+  bad(`${mdMissing.length} 篇笔记缺少 .md 原文（页面上的「下载原文」会 404）：`);
+  mdMissing.slice(0, 8).forEach((id) => info(`/notes/${id}.md`));
+  failures++;
+}
+// 详情页里确实链到了这份原文
+if (notePageDirs.length > 0) {
+  const noLink = notePageDirs.filter((id) => {
+    const html = fs.readFileSync(path.join(notesDir, id, 'index.html'), 'utf8');
+    return !html.includes(`/notes/${id}.md`);
+  });
+  if (noLink.length === 0) ok('每篇笔记详情页都有「下载原文 .md」链接');
+  else {
+    bad(`${noLink.length} 篇笔记详情页没有下载链接：`);
+    noLink.slice(0, 8).forEach((id) => info(id));
+    failures++;
+  }
+}
+
+// ------------------------------------------- 4d. 正文图片优化（bug-5 / opinion-9）
+// 图片必须懒加载、必须有宽高（否则加载时会顶动正文）、必须有放大标记。
+console.log('\n【4d】正文图片优化与放大');
+let imgTotal = 0;
+let imgLazy = 0;
+let imgSized = 0;
+let imgZoomable = 0;
+for (const f of htmlFiles) {
+  const html = fs.readFileSync(f, 'utf8');
+  for (const m of html.matchAll(/<img\b[^>]*>/g)) {
+    const tag = m[0];
+    // 只统计正文配图（站点图标、头像、作品封面这些不该被要求 lazy）
+    if (!/\/notes-assets\//.test(tag)) continue;
+    imgTotal++;
+    if (/loading="lazy"/.test(tag)) imgLazy++;
+    if (/\swidth="\d+"/.test(tag) && /\sheight="\d+"/.test(tag)) imgSized++;
+    if (/data-zoomable|data-img-zoom/.test(tag)) imgZoomable++;
+  }
+}
+if (imgTotal === 0) {
+  console.log('  ⚠ 构建产物里没有正文配图，跳过');
+} else {
+  const report = (n, label, hint) => {
+    if (n === imgTotal) ok(`${imgTotal} 张正文配图全部${label}`);
+    else {
+      console.log(`  ⚠ ${imgTotal - n}/${imgTotal} 张正文配图没有${label}（${hint}）`);
+    }
+  };
+  report(imgLazy, ' lazy 懒加载', '见 scripts/rehype-image-figure.mjs');
+  report(imgSized, ' width/height 占位', '图片尺寸解析失败时只会退化成不写尺寸');
+  report(imgZoomable, '放大标记', '见 bug-5 / opinion-9');
+  if (imgLazy < imgTotal || imgZoomable < imgTotal) failures++;
 }
 
 // ------------------------------------------------------------ 5. 体积

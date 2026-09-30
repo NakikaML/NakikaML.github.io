@@ -141,5 +141,92 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
         }
       });
     </script>
+    <script>
+      // 正文图片点击放大（bug-5 / opinion-9）。
+      // 标记由 scripts/rehype-image-figure.mjs 生成：figure 里那个「放大」按钮带
+      // data-img-zoom，夹在文字里的图片则只有 data-zoomable（点图片本身即可）。
+      //
+      // <dialog> 全站只建一个、且首次用到才建：每张图各配一份隐藏的浮层
+      // 会让 dsa-6 这种 31 张图的页面白背一堆 DOM。
+      (() => {
+        let dialog = null;
+
+        function ensureDialog() {
+          if (dialog) return dialog;
+
+          dialog = document.createElement('dialog');
+          dialog.className = 'img-zoom';
+          dialog.setAttribute('aria-label', '放大查看图片');
+
+          const inner = document.createElement('div');
+          inner.className = 'img-zoom__inner';
+
+          const close = document.createElement('button');
+          close.type = 'button';
+          close.className = 'img-zoom__close';
+          close.setAttribute('data-img-zoom-close', '');
+          close.textContent = '关闭 ✕';
+
+          const big = document.createElement('img');
+          big.className = 'img-zoom__img';
+          big.alt = '';
+
+          // alt 顺手当图注显示：笔记里的 alt 本来就是「BFS 遍历过程（一）」这种说明
+          const cap = document.createElement('p');
+          cap.className = 'img-zoom__cap';
+
+          inner.append(close, big, cap);
+          dialog.append(inner);
+          document.body.append(dialog);
+
+          // 点遮罩（事件目标是 dialog 自己）关闭；Esc 由 <dialog> 原生处理
+          dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) dialog.close();
+          });
+          close.addEventListener('click', () => dialog.close());
+          // 关闭后清掉 src：原图可能有好几百 KB，别一直挂在 DOM 上
+          dialog.addEventListener('close', () => {
+            big.removeAttribute('src');
+          });
+
+          return dialog;
+        }
+
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          // 关闭按钮由 ensureDialog 里那两行单独管，别在这里二次处理
+          if (target.closest('[data-img-zoom-close]')) return;
+
+          const btn = target.closest('[data-img-zoom]');
+          // 点图片本身也能放大；但如果图片外面套着链接（[![alt](img)](url)），
+          // 点图应该走链接 —— 想让那种图放大就点右上角那个按钮。
+          const img =
+            !btn &&
+            target instanceof HTMLImageElement &&
+            target.matches('[data-zoomable]') &&
+            !target.closest('a')
+              ? target
+              : null;
+          if (!btn && !img) return;
+
+          const src = (btn?.getAttribute('data-img-zoom') || img?.getAttribute('src') || '').trim();
+          if (!src) return;
+
+          const d = ensureDialog();
+          const big = d.querySelector('.img-zoom__img');
+          const cap = d.querySelector('.img-zoom__cap');
+          const alt = btn?.getAttribute('data-img-alt') || img?.getAttribute('alt') || '';
+
+          if (big) {
+            big.src = src;
+            big.alt = alt;
+          }
+          if (cap) cap.textContent = alt;
+
+          d.showModal();
+        });
+      })();
+    </script>
   </body>
 </html>
