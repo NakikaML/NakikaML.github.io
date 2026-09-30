@@ -26,8 +26,13 @@ export const site = {
     email: 'nakika0511@outlook.com',
     bilibili: 'https://space.bilibili.com/451932330',
     github: 'https://github.com/NakikaML',
+    // 合作 QQ：走腾讯官方的「发起临时会话」入口，比 tencent:// 协议在浏览器里更稳
+    qq: 'https://wpa.qq.com/msgrd?v=3&uin=2829379261&site=qq&menu=yes',
     rss: '/rss.xml',
   },
+
+  /** 合作 QQ 号（只用于页面文字展示，链接见 links.qq） */
+  qqNumber: '2829379261',
 
   /** 顶栏导航 */
   nav: [

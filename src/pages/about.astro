@@ -136,6 +136,12 @@ const TABS = [
         <ul>
           {site.links.bilibili && <li>B 站：<a href={site.links.bilibili} target="_blank" rel="noopener">点这里</a></li>}
           {site.links.github && <li>GitHub：<a href={site.links.github} target="_blank" rel="noopener">点这里</a></li>}
+          {site.links.qq && (
+            <li>
+              合作 QQ：<a href={site.links.qq} target="_blank" rel="noopener">{site.qqNumber}</a>
+              <span style="color:var(--text-faint);font-size:0.875rem"> —— 配音、翻唱、视频等合作优先走这里</span>
+            </li>
+          )}
           {site.links.email && <li>邮箱：<a href={`mailto:${site.links.email}`}>{site.links.email}</a></li>}
         </ul>
 

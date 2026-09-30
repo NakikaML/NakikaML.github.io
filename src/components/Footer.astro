@@ -2,11 +2,12 @@
 import { site } from '../site.config';
 
 const year = new Date().getFullYear();
-const { email, bilibili, github, rss } = site.links;
+const { email, bilibili, github, qq, rss } = site.links;
 
 const socials = [
   bilibili && { href: bilibili, label: 'Bilibili' },
   github && { href: github, label: 'GitHub' },
+  qq && { href: qq, label: 'QQ' },
   email && { href: `mailto:${email}`, label: 'Email' },
   rss && { href: rss, label: 'RSS' },
 ].filter(Boolean) as { href: string; label: string }[];
