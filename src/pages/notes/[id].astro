@@ -1,25 +1,18 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import NoteCard from '../../components/NoteCard.astro';
-import {
-  allNotes,
-  siblings,
-  relatedNotes,
-  fmtDate,
-  noteHref,
-} from '../../utils/notes';
+import { allNotes, siblings, fmtDate, noteHref } from '../../utils/notes';
 import { buildToc, chapterOf, countToc } from '../../utils/toc';
 
 export async function getStaticPaths() {
   const notes = await allNotes();
   return notes.map((note) => ({
     params: { id: note.id },
-    props: { note, siblingsPair: siblings(notes, note), related: relatedNotes(notes, note, 4) },
+    props: { note, siblingsPair: siblings(notes, note) },
   }));
 }
 
-const { note, siblingsPair, related } = Astro.props;
+const { note, siblingsPair } = Astro.props;
 const { Content, headings } = await render(note);
 
 const d = note.data;
@@ -133,18 +126,7 @@ const date = fmtDate(d.date);
           )
         }
 
-        {
-          related.length > 0 && (
-            <section style="margin-top:3.5rem">
-              <h2 style="font-size:1.1rem;border:0;padding:0;margin-bottom:1rem">相关笔记</h2>
-              <div class="grid">
-                {related.map((r) => (
-                  <NoteCard note={r} />
-                ))}
-              </div>
-            </section>
-          )
-        }
+        {/* 笔记间跳转功能已按需求暂时下线（原「相关笔记」区块，见 bug及意见汇总.md opinion-10） */}
 
         {
           (siblingsPair?.prev || siblingsPair?.next) && (

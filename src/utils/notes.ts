@@ -102,7 +102,14 @@ export function siblings(notes: Note[], current: Note): { prev?: Note; next?: No
   return { prev: sameCat[idx + 1], next: sameCat[idx - 1] };
 }
 
-/** 按共享标签数找相关笔记 */
+/**
+ * 按共享标签数找相关笔记
+ *
+ * ⚠️ 当前未使用：笔记之间的跳转功能已按需求**暂时下线**
+ * （详情页底部的「相关笔记」区块已摘掉，见 bug及意见汇总.md opinion-10）。
+ * 函数本身留着没删，将来想恢复这个功能时，在 `src/pages/notes/[id].astro`
+ * 的 getStaticPaths 里把它算出来、再渲染一个卡片网格即可。
+ */
 export function relatedNotes(notes: Note[], current: Note, limit = 5): Note[] {
   const own = new Set(current.data.tags ?? []);
   if (own.size === 0) return [];
