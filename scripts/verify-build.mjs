@@ -51,7 +51,7 @@ const required = [
   ['关于我', 'about/index.html'],
   ['履历（跳转到 /about/#cv）', 'cv/index.html'],
   ['笔记列表', 'notes/index.html'],
-  ['知识地图', 'maps/index.html'],
+  ['知识图谱', 'notes/graph/index.html'],
   ['博客列表', 'blog/index.html'],
   ['作品集', 'works/index.html'],
   ['项目', 'projects/index.html'],
@@ -202,10 +202,28 @@ if (missingAssets.length === 0) {
 // 页面里的下载链接就会变成 404，而且构建本身不会报错 —— 所以在这里兜住。
 console.log('\n【4c】笔记原文（.md）导出');
 const notesDir = path.join(DIST, 'notes');
+/**
+ * 注意：dist/notes/ 下除了「一篇笔记一个目录」，还会有 **别的子路由**
+ * （目前是 /notes/graph/ 知识图谱）。那些不是笔记，没有也不该有 .md 原文，
+ * 所以这里以 src/content/notes/ 里的真实笔记文件为准来认定「哪些是笔记详情页」，
+ * 而不是把 notes/ 下每个带 index.html 的目录都当成笔记。
+ */
+const notesSrcDir = path.join(ROOT, 'src', 'content', 'notes');
+const noteIds = fs.existsSync(notesSrcDir)
+  ? fs
+      .readdirSync(notesSrcDir)
+      .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
+      .map((f) => f.slice(0, -3))
+  : [];
 const notePageDirs = fs.existsSync(notesDir)
   ? fs
       .readdirSync(notesDir, { withFileTypes: true })
-      .filter((e) => e.isDirectory() && fs.existsSync(path.join(notesDir, e.name, 'index.html')))
+      .filter(
+        (e) =>
+          e.isDirectory() &&
+          noteIds.includes(e.name) &&
+          fs.existsSync(path.join(notesDir, e.name, 'index.html'))
+      )
       .map((e) => e.name)
   : [];
 const mdMissing = notePageDirs.filter((id) => !fs.existsSync(path.join(notesDir, `${id}.md`)));

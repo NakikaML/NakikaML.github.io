@@ -60,14 +60,9 @@ export function noteSummary(note: Note, len = 110): string {
   return excerpt(note.body, len);
 }
 
-/** 只取普通笔记（排除 MOC 索引页） */
+/** 所有可阅读的笔记。历史上这里还过滤过 MOC 索引页，知识地图下线后已不需要。 */
 export async function contentNotes(): Promise<Note[]> {
-  return (await allNotes()).filter((n) => n.data.kind !== 'moc');
-}
-
-/** 只取 MOC 知识地图页 */
-export async function mapNotes(): Promise<Note[]> {
-  return (await allNotes()).filter((n) => n.data.kind === 'moc');
+  return allNotes();
 }
 
 /** 分类 → 篇数，按篇数倒序 */

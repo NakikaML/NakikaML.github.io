@@ -3,12 +3,11 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteCard from '../components/NoteCard.astro';
 import WorkCard from '../components/WorkCard.astro';
-import { contentNotes, mapNotes, countByCategory, byDateDesc, visible } from '../utils/notes';
+import { contentNotes, countByCategory, byDateDesc, visible } from '../utils/notes';
 import { projects } from '../data/projects';
 import { site } from '../site.config';
 
 const notes = await contentNotes();
-const maps = await mapNotes();
 // 开发服务器里包含草稿（卡片上会带「草稿」徽章），构建时草稿被剔除——见 utils/notes.ts
 const posts = visible(await getCollection('blog')).sort(byDateDesc);
 const works = visible(await getCollection('works')).sort(byDateDesc);
@@ -27,7 +26,6 @@ const recentPosts = posts.slice(0, 3);
 const hasNotes = notes.length > 0;
 const hasWorks = featuredWorks.length > 0;
 const hasPosts = recentPosts.length > 0;
-const hasMaps = maps.length > 0;
 
 // 统计条只显示非零项（笔记还在重构中时不显示「0 篇」这种尴尬数字）
 const stats = [
@@ -141,31 +139,6 @@ const stats = [
           <div class="grid grid--wide">
             {featuredWorks.map((work) => (
               <WorkCard work={work} />
-            ))}
-          </div>
-        </section>
-      )
-    }
-
-    <!-- ------------------------------------------------ 知识地图 -->
-    {
-      hasMaps && (
-        <section class="section">
-          <div class="section__head">
-            <h2>知识地图</h2>
-            <a href="/maps/">全部地图 →</a>
-          </div>
-          <p style="color:var(--text-muted);font-size:0.925rem;margin-top:-0.75rem">
-            按主题整理的学习路线，适合先看这个再决定读哪篇。
-          </p>
-          <div class="grid">
-            {maps.slice(0, 6).map((m) => (
-              <a class="card" href={`/notes/${m.id}/`}>
-                <h3 class="card__title">{m.data.title}</h3>
-                <div class="card__meta">
-                  <span class="tag tag--accent">{m.data.category}</span>
-                </div>
-              </a>
             ))}
           </div>
         </section>

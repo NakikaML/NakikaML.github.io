@@ -25,16 +25,33 @@ const hasNotes = notes.length > 0;
   }
 >
   <div class="wrap">
-    <div class="page-head">
-      <p class="page-head__kicker">Notes</p>
-      <h1>学习笔记</h1>
-      <p class="page-head__lede">
-        {
-          hasNotes
-            ? `共 ${notes.length} 篇。都是我重新整理、为公开阅读写过的内容，不是私人笔记的搬运。支持按分类筛选、按标签过滤和关键词搜索。`
-            : '这里会陆续放上我重构整理过的笔记。我的私人知识库不直接对外，放上来的每一篇都会重写一遍——把当时的速记、跳步和只有自己看得懂的缩写补成完整的讲解。'
-        }
-      </p>
+    <div class="page-head page-head--row">
+      <div>
+        <p class="page-head__kicker">Notes</p>
+        <h1>学习笔记</h1>
+        <p class="page-head__lede">
+          {
+            hasNotes
+              ? `共 ${notes.length} 篇。都是我重新整理、为公开阅读写过的内容，不是私人笔记的搬运。支持按分类筛选、按标签过滤和关键词搜索。`
+              : '这里会陆续放上我重构整理过的笔记。我的私人知识库不直接对外，放上来的每一篇都会重写一遍——把当时的速记、跳步和只有自己看得懂的缩写补成完整的讲解。'
+          }
+        </p>
+      </div>
+      {
+        hasNotes && (
+          <a class="graph-entry" href="/notes/graph/" title="把全部笔记按课程与标签连成一张网">
+            <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" fill="none"
+              stroke="currentColor" stroke-width="1.6">
+              <circle cx="5" cy="5" r="2.4" />
+              <circle cx="15" cy="7" r="2.4" />
+              <circle cx="8" cy="15" r="2.4" />
+              <path d="M7.2 6.1 12.8 6.7M6.2 7.2l1.3 5.4M13.8 9.1l-4.4 4.2" />
+            </svg>
+            知识图谱
+            <span class="graph-entry__count">{notes.length}</span>
+          </a>
+        )
+      }
     </div>
 
     {

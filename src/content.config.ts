@@ -27,8 +27,6 @@ const notes = defineCollection({
     description: z.string().default(''),
     slug: z.string().optional(),
     category: z.string().default('未分类'),
-    /** note = 普通笔记；moc = 知识地图（总览索引页） */
-    kind: z.string().default('note'),
     subject: z.string().default(''),
     subfield: z.string().default(''),
     topic: z.string().default(''),

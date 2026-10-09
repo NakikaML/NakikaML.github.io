@@ -16,7 +16,6 @@ const { note, siblingsPair } = Astro.props;
 const { Content, headings } = await render(note);
 
 const d = note.data;
-const isMap = d.kind === 'moc';
 
 // 类论文的层级目录：h2 → 1.1，h3 → 1.1.1，h4 是知识点（只罗列、不编号）。
 // 编号规则与树形结构见 src/utils/toc.ts；章号从标题里取（"…-2 线性表" → 2）。
@@ -33,7 +32,7 @@ const date = fmtDate(d.date);
     <nav class="breadcrumb" aria-label="面包屑">
       <a href="/">首页</a>
       <span>/</span>
-      <a href={isMap ? '/maps/' : '/notes/'}>{isMap ? '知识地图' : '笔记'}</a>
+      <a href="/notes/">笔记</a>
       <span>/</span>
       <a href={`/notes/?cat=${encodeURIComponent(d.category)}`}>{d.category}</a>
     </nav>

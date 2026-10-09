@@ -342,6 +342,51 @@ li > ul, li > ol { margin: 0.3rem 0; }
   max-width: 62ch;
 }
 
+/* 页头右侧放一个小入口（目前只有笔记库的「知识图谱」按钮用）。
+   窄屏时按钮换行到标题下面，不跟标题挤在一行。 */
+.page-head--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.page-head--row > div { min-width: 0; }
+
+.graph-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.graph-entry:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.graph-entry svg { flex: 0 0 auto; }
+.graph-entry__count {
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+.graph-entry:hover .graph-entry__count {
+  background: var(--bg-elevated);
+  color: var(--accent-text);
+}
+
 /* --------------------------------------------------- 文章正文 */
 .prose { font-size: 1rem; }
 .prose > *:first-child { margin-top: 0; }
@@ -1510,3 +1555,216 @@ a.tag:hover {
 .tabpanel[hidden] { display: none; }
 /* 切到「履历」这类以列表为主的 Tab 时，去掉第一个标题的上边距，视觉更贴 */
 .tabpanel > .prose > h2:first-child { margin-top: 0; }
+
+/* ================================================================
+   知识图谱（/notes/graph/）—— 手写力导引仿真，无第三方依赖
+   ================================================================ */
+.graph-page { margin-bottom: 4rem; }
+
+/* 宽屏：左侧筛选栏 + 右侧画布。窄屏自动堆叠（见文件末尾的媒体查询）。 */
+.graph-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.graph-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: sticky;
+  top: 5rem;
+}
+.graph-side__group h2 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 0.6rem;
+}
+.graph-side__list { display: flex; flex-direction: column; gap: 0.25rem; }
+.graph-side__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.graph-side__item:hover { background: var(--bg-soft); color: var(--text); }
+.graph-side__item.is-active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.graph-side__dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.graph-side__count {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.graph-side__hint {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
+/* ---------------------------------------------------------------- 画布 */
+.graph-main { min-width: 0; }
+.graph-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.graph-search {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+.graph-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.graph-btn {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.graph-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+.graph-btn.is-on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.graph-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.graph-stage {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  overflow: hidden;
+  touch-action: none;
+}
+.graph-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(420px, 62vh, 720px);
+  cursor: grab;
+}
+.graph-canvas.is-panning { cursor: grabbing; }
+.graph-canvas.is-dragging { cursor: grabbing; }
+
+/* 边：默认很淡，与选中节点相连时才亮起来 */
+.graph-link { stroke: var(--border-strong); stroke-opacity: 0.55; }
+.graph-link.is-lit { stroke: var(--accent); stroke-opacity: 0.9; }
+.graph-link.is-dim { stroke-opacity: 0.12; }
+
+/* 节点 */
+.graph-node { cursor: pointer; }
+.graph-node circle {
+  fill: var(--bg-elevated);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  transition: fill 0.12s;
+}
+.graph-node text {
+  fill: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--bg-soft);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.graph-node:hover circle { fill: var(--accent-soft); }
+.graph-node:hover text { fill: var(--text); }
+.graph-node.is-current circle { fill: var(--accent); stroke: var(--accent-hover); }
+.graph-node.is-current text { fill: var(--text); font-weight: 700; }
+.graph-node.is-hit circle { stroke: var(--red); stroke-width: 2.6; }
+.graph-node.is-dim { opacity: 0.25; }
+.graph-node--hard circle { stroke-dasharray: 3 2; }
+
+/* 悬停/选中时浮出的信息卡 */
+.graph-tip {
+  position: absolute;
+  z-index: 2;
+  max-width: 260px;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+.graph-tip[hidden] { display: none; }
+.graph-tip__title {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.graph-tip__meta {
+  margin: 0 0 0.35rem;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+}
+.graph-tip__desc {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+/* 空状态 / 提示条 */
+.graph-note {
+  margin: 0.75rem 0 0;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 860px) {
+  .graph-layout { grid-template-columns: minmax(0, 1fr); }
+  .graph-side { position: static; }
+  .graph-side__list { flex-direction: row; flex-wrap: wrap; }
+  .graph-side__item { width: auto; }
+  .graph-canvas { height: clamp(360px, 55vh, 520px); }
+}

@@ -15,7 +15,7 @@ const CHECKS = [
   { path: '/', expect: 'Nakika', label: '首页含站点名' },
   { path: '/about/', expect: '关于我' },
   { path: '/notes/', expect: '学习笔记', label: '页面正常' },
-  { path: '/maps/', expect: '知识地图' },
+  { path: '/notes/graph/', expect: '知识图谱' },
   { path: '/blog/', expect: '博客' },
   { path: '/works/', expect: '作品' },
   { path: '/projects/', expect: '项目' },

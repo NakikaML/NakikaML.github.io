@@ -13,9 +13,8 @@ const PATHS = [
   '/',
   '/about/',
   '/notes/',
-  '/maps/',
+  '/notes/graph/',
   '/blog/',
-  '/blog/why-i-built-this-site/',
   '/works/',
   '/projects/',
   '/rss.xml',
@@ -23,9 +22,8 @@ const PATHS = [
   '/favicon.svg',
   '/robots.txt',
   '/404.html',
-  '/notes/hm-6-微分方程/',
-  '/notes/cpp-1-cpp基础操作/',
-  '/notes/web-1-前端开发基础/',
+  '/notes/cpp-1-basics/',
+  '/notes/cn-2-physical-layer/',
 ];
 
 let failed = 0;

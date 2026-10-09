@@ -33,7 +33,7 @@ export const GET: APIRoute = async ({ site: astroSite }) => {
     }));
 
   const notes = (await getCollection('notes'))
-    .filter((n) => !n.data.draft && n.data.kind !== 'moc')
+    .filter((n) => !n.data.draft)
     .map((n) => ({
       title: n.data.title,
       description: `${n.data.category}${n.data.subfield ? ' · ' + n.data.subfield : ''}`,
