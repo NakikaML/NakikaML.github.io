@@ -199,13 +199,12 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
         <div class="graph-side__group">
           <h2>操作</h2>
           <div class="graph-side__list">
-            <button type="button" class="graph-btn" id="graph-collapse-all">全部收起</button>
-            <button type="button" class="graph-btn" id="graph-expand-all">全部展开</button>
             <button type="button" class="graph-btn" id="graph-tidy">重新排列</button>
             <button type="button" class="graph-btn" id="graph-fit">适应窗口</button>
           </div>
           <p class="graph-side__hint" style="margin-top:0.75rem">
-            虚线框 = <strong>预留课程</strong>（笔记还在安排中）或<strong>草稿章节</strong>，点它会提示、不会跳空页面。
+            点课程节点展开/收起该课的各章（一次只看一门，课程多了才不会糊成一团）。
+            <br />虚线框 = <strong>预留课程</strong>（笔记还在安排中）或<strong>草稿章节</strong>，点它会提示、不会跳空页面。
             <br />拖动节点可手动摆放，「重新排列」恢复整齐布局。
           </p>
         </div>
@@ -915,26 +914,6 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
         const btn = evt.target.closest?.('[data-course]');
         if (!btn || btn.disabled) return;
         toggleCourse(btn.dataset.course);
-      });
-
-      document.getElementById('graph-collapse-all')?.addEventListener('click', () => {
-        expanded.clear();
-        current = null;
-        rebuildLit();
-        syncSidebar();
-        relayout({ keepDragged: false });
-        render();
-        fit('keep');
-      });
-
-      document.getElementById('graph-expand-all')?.addEventListener('click', () => {
-        for (const c of expandable) expanded.add(c.id);
-        current = null;
-        rebuildLit();
-        syncSidebar();
-        relayout({ keepDragged: true });
-        render();
-        fit('keep');
       });
 
       document.getElementById('graph-tidy')?.addEventListener('click', () => {
