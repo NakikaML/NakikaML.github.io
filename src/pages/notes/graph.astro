@@ -742,11 +742,14 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
 
       function endPointer(evt) {
         if (dragging) {
-          const g = evt.target.closest?.('.graph-node');
-          // 位移很小才算点击；拖动过就不触发，免得想挪一下却被展开
-          if (dragging.moved < 5 && g?.dataset.id === dragging.node.id) {
-            activate(dragging.node);
-          }
+          // ⚠️ 这里**必须**用 `dragging.node` 判断，不能看 `evt.target`。
+          // 因为 pointerdown 里调了 setPointerCapture，浏览器会把后续的 pointerup
+          // 重新定向到**捕获元素（这个 svg）**上 —— 于是 evt.target 是 <svg> 而不是
+          // 那个 <g class="graph-node">，closest('.graph-node') 恒为 null，
+          // 点击就永远进不了 activate()。表现就是"点了没反应"。
+          // （合成 PointerEvent 直接派发到节点上会绕过捕获，所以那种测法测不出这个 bug。）
+          const n = dragging.node;
+          if (dragging.moved < 5) activate(n);
           dragging = null;
           svg.classList.remove('is-dragging');
         }
