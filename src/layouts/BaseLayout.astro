@@ -115,6 +115,38 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 
         try {
           const { default: mermaid } = await import('mermaid');
+
+          /**
+           * ⚠️ 必须先把用到的图表模块**静态注册**好，再交给 mermaid.run()。
+           *
+           * 为什么：mermaid v12 的 37 种图表全部是「懒加载模块」——
+           *   mermaid.core.mjs 里写的是 `import("./chunks/mermaid.core/flowDiagram-xxx.mjs")`，
+           *   要等 detectType 认不出类型时才在**运行时**去 import 那一个 chunk。
+           * 这套机制在 Vite 打包产物里是**静默失效**的：detectType 第一轮认不出类型 →
+           *   走懒加载 → 那一步失败 → render 抛错 → 被下面的 catch 吞掉 →
+           *   页面「稳定地」回退成灰色代码块，控制台之外看不出任何异常。
+           * 这里直接把这个 chunk 静态 import 进来并注册，detectType 第一轮就命中，
+           *   不再依赖任何运行时 import，所以渲染是确定的。
+           *
+           * 本站 23 张图**全部是 flowchart**（含 `graph` 写法），所以只注册这一个。
+           * 以后要加别的图型（sequence／class／state…），照抄下面两行、换掉 chunk 路径即可。
+           *
+           * 关于那串 hash：`flowDiagram-KWPJA3E3.mjs` 是 mermaid 内部的 chunk 名，
+           *   升级 mermaid 后可能变。届时构建会**直接报错**（import 解析不到）而不是悄悄坏掉，
+           *   把路径换成 node_modules/mermaid/dist/chunks/mermaid.core/ 下的新文件名即可。
+           */
+          const { diagram: flowDiagram } = await import(
+            'mermaid/dist/chunks/mermaid.core/flowDiagram-KWPJA3E3.mjs'
+          );
+          mermaid.registerExternalDiagrams([
+            {
+              id: 'flowchart-v2',
+              detector: (txt) => /^\s*(graph|flowchart)/.test(txt),
+              loader: async () => ({ id: 'flowchart-v2', diagram: flowDiagram }),
+              lazyLoad: false,
+            },
+          ]);
+
           const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           mermaid.initialize({
             startOnLoad: false,
@@ -125,7 +157,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
         } catch (err) {
           // 渲染失败：把原始代码块放回去，并换成一句能看懂的提示
           swapped.forEach(({ div, wrapper }) => div.replaceWith(wrapper));
-          console.warn('Mermaid 渲染失败，已回退为源码块', err);
+          // 把真正的报错信息也带出来——只打整个对象的话，控制台里往往只看到
+          // 「Promise {<rejected>}」或一个没用的 stack，排查时抓不住重点。
+          const detail =
+            err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+          console.warn(`Mermaid 渲染失败，已回退为源码块 —— ${detail}`, err);
         }
       })();
     </script>

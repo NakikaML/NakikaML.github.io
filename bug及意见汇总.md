@@ -45,6 +45,26 @@
         渲染失败时把原始代码块放回去（原来那版失败后只会留一片空白，还把源码弄丢了）。
         验收：用 headless Chrome 实际渲染 9 个含图页面（cpp-1/3/4/5/6/8/10/11/12），
         **23/23 张图**都产出 `<svg>` 且带 `data-processed="true"`，页面里 0 处残留 mermaid 源码块。
+- [ ] bug-7: mermaid **又**不渲染了 —— 页面上仍是一个灰色代码块，但**没有任何报错**（线上站点同样如此）。
+      根因在 mermaid v12 的**懒加载**：37 种图表都不在主包里，`mermaid.core.mjs` 写的是
+      `import("./chunks/mermaid.core/flowDiagram-xxx.mjs")`，要等 `detectType` 认不出类型时才在
+      **运行时**去 import 那个 chunk。所以渲染结果取决于「运行时那次动态 import 成不成功」——
+      bug-6 只修了「找不找得到代码块」，没修掉这条不确定的路径，于是它又犯了。
+      本地实测（Node + DOM 垫片，直接跑 `dist/_astro/` 里的产物）：
+      · `detectType('flowchart LR …')` 第一轮 → **`No diagram type detected`**（懒加载还没发生）；
+      · 先 `parse()` 一次把模块 import 进来 → `detectType` 才返回 `flowchart-v2`；
+      · 也就是说：**第一轮渲染必然踩在懒加载上**，那一步一失败就被 catch 吞掉、回退成源码块。
+      → 已修（`src/layouts/BaseLayout.astro`）：不再依赖运行时懒加载，改为**静态 import 图表模块并注册**——
+        `await import('mermaid/dist/chunks/mermaid.core/flowDiagram-KWPJA3E3.mjs')` 拿到 `diagram`，
+        再用 `mermaid.registerExternalDiagrams([{ id:'flowchart-v2', detector:/^\s*(graph|flowchart)/, loader, lazyLoad:false }])`
+        注册，`detectType` 第一轮即可命中。本站 23 张图**全部是 flowchart**（含 `graph` 写法），只注册这一个。
+        ⚠️ 那串 hash 是 mermaid 的内部 chunk 名，升级 mermaid 后可能变；届时**构建会直接报错**（import 解析不到），
+        而不是又变成「悄悄不渲染」，照提示换成新文件名即可。
+        顺手把 catch 里的日志改成带上真正的 `err.message`（原来只打整个对象，控制台里抓不住重点）。
+      → 待复核：本机没有可用的浏览器（也无 playwright/puppeteer），**这次没能像 bug-6 那样用 headless Chrome 复验**。
+        已确认的是：静态 chunk 确实进了产物、注册后第一轮 `detectType` 返回 `flowchart-v2`、
+        主 bundle 里已含 FlowDB 实现、`pnpm release` 全绿。**请在浏览器里刷新确认一次**；
+        若仍不出图，控制台现在会打出「Mermaid 渲染失败，已回退为源码块 —— <具体原因>」，把那行内容发我即可定位。
 
 # 用户提出的意见/我的灵感及想法
 
@@ -98,4 +118,16 @@
         `<dialog>` 全站只建一个、首次点击才建 —— 否则 dsa-6 这种 31 张图的页面要白背 31 份浮层 DOM。
         细节：图片外面套着链接时（`[![alt](img)](url)`），点图走链接、想放大点右上角按钮，
         免得一次点击既跳转又弹浮层。
-- [ ] opinion-10: 
+- [x] opinion-10: 笔记之间暂时不要跳转 —— 去掉笔记库里的「链接」
+      → 已做，改动两处：
+        ① **正文里的站内笔记链接**：`[C++程序设计基础-6 指针](/notes/cpp-6-pointers/)` → `C++程序设计基础-6 指针`
+           （纯文字，点了不跳）。共拆掉 **53 处，涉及 11 篇 CPP 笔记**（DSA 那 8 篇原文本来就是字面，没有链接）。
+           拆完顺手把「标题＋空格＋汉字」的断口收干净（**20 处**，如 `…基础-6 指针 里展开` → `…基础-6 指针里展开`；
+           标题内部的空格、以及标题以拉丁字符结尾时的中英混排间距都没有动）。
+        ② **详情页底部的「相关笔记」自动推荐区块**：整块摘掉（`src/pages/notes/[id].astro`）。
+        `relatedNotes()` 留在 `src/utils/notes.ts` 里没删，函数注释写明了它是「当前未使用」以及怎么恢复。
+      → **保留的**：「上一篇 / 下一篇」同分类导航、本页目录（TOC）、面包屑与标签跳
+        `/notes/?cat=…` / `?tag=…` —— 后两类是「进列表页」，不是笔记之间跳转，按确认保留。
+      → **恢复办法**：正文把链接照原样写回 `[标题](/notes/slug/)`；
+        「相关笔记」把 `[id].astro` 里 getStaticPaths 的 `related` 与底部那段区块还原即可（函数一直在）。
+
