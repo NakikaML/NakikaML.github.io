@@ -33,14 +33,27 @@ export interface Course {
   /** 展开后显示在课程头上的说明 */
   note?: string;
   chapters: Chapter[];
+  /**
+   * true = **预留课程**：笔记还在规划中，暂时没有任何章节。
+   * 它在图上照常出现（好把学习路线画完整），但**不能展开**，
+   * 悬停/点击会提示"笔记还在安排中"。等笔记上线后把这里改成 false 并补上 chapters 即可。
+   */
+  planned?: boolean;
 }
 
 /**
- * 课程之间的依赖：`a` 依赖 `b` 表示"学完 b 再学 a"。
- * 目前三门课相互独立，所以这里是空的 —— 留成显式字段是为了
- * 以后真有跨课程先修时（比如「操作系统」依赖「数据结构」）有个地方写。
+ * 课程之间的依赖：`[后学, 先学]`，表示"学完后学之前，先学先学"。
+ * 图上画成从 `先学` 指向 `后学` 的箭头。
+ *
+ * ⚠️ 这里**只列显式声明的关系**；同一条链上相邻的两门课不会自动连边，
+ * 想要箭头就写在这里（写少了就是图上看不到，不会报错）。
  */
-export const courseDeps: Array<[string, string]> = [];
+export const courseDeps: Array<[string, string]> = [
+  ['数据结构与算法', 'C++程序设计基础'],
+  ['计算机网络', '数据结构与算法'],
+  ['计算机系统基础', '数据结构与算法'],
+  ['JavaWeb开发', 'Java程序设计基础'],
+];
 
 /**
  * 各课程的笔记顺序与依赖。
@@ -59,8 +72,8 @@ export const courses: Course[] = [
       { id: 'cpp-5-arrays', prereq: ['cpp-4-functions'] },
       { id: 'cpp-6-pointers', prereq: ['cpp-4-functions'] },
       { id: 'cpp-7-structs', prereq: ['cpp-4-functions'] },
-      { id: 'cpp-8-oop', prereq: ['cpp-6-pointers', 'cpp-7-structs'] },
       { id: 'cpp-9-file-io', prereq: ['cpp-4-functions'] },
+      { id: 'cpp-8-oop', prereq: ['cpp-6-pointers', 'cpp-7-structs'] },
       { id: 'cpp-10-templates', prereq: ['cpp-8-oop'] },
       { id: 'cpp-11-stl', prereq: ['cpp-10-templates'] },
       { id: 'cpp-12-modern-cpp', prereq: ['cpp-11-stl'] },
@@ -91,6 +104,26 @@ export const courses: Course[] = [
       { id: 'cn-5-transport-layer', prereq: ['cn-4-network-layer'] },
       { id: 'cn-6-application-layer', prereq: ['cn-5-transport-layer'] },
     ],
+  },
+
+  // ------------------------------------------------ 以下为预留课程（笔记规划中）
+  {
+    id: '计算机系统基础',
+    note: '计算机组成、操作系统与体系结构方向的整理计划',
+    chapters: [],
+    planned: true,
+  },
+  {
+    id: 'Java程序设计基础',
+    note: 'Java 语法与面向对象基础（先修，笔记规划中）',
+    chapters: [],
+    planned: true,
+  },
+  {
+    id: 'JavaWeb开发',
+    note: 'Servlet / Spring 方向的 Web 开发笔记（规划中）',
+    chapters: [],
+    planned: true,
   },
 ];
 

@@ -8,73 +8,61 @@ import { courses, courseDeps, draftTitles, shortTitle } from '../../data/curricu
  * ============================================================
  * 一张**有向**的依赖图：箭头表示「先学 → 后学」。
  *
- * 为什么不做成标签关系网：标签是无向的，笔记一多每个节点都会被扯上好几根线，
+ * 为什么不做标签关系网：标签是无向的，笔记一多每个节点都会被扯上好几根线，
  * 图会迅速变成一团毛线；而依赖是稀疏的、有向的、有因果的，正好也是读者真正
  * 需要的那条信息 —— 该按什么顺序学。
  *
- * 形态：
- *   · 每门课是一个「课程节点」；点击展开成该课的各章笔记，再点收起。
- *   · 一次只展开一门（可「全部展开」），未展开的课缩成一个节点。
- *   · 章与章之间、课程与课程之间都按 src/data/curriculum.ts 里的依赖画箭头。
- *
- * 零第三方依赖：布局是手算的网格（课程成列、同课程内按依赖深度排纵向位置），
- * 拖动/自适应时再跑一小段「位置约束松弛」（边当弹簧拉近 + 节点间最短距离推开），
- * 既不会散架，也不会互相压住。
+ * 布局的两条硬约束（踩过的坑，别再动）：
+ *   ① **课程节点的位置必须固定**。展开／收起绝不能挪动课程节点本身 ——
+ *      否则"点一下展开"之后它就跳走了，用户按原位置再点会点空，
+ *      表现就是"打不开也收不起来"。所以课程节点按**序号槽位**定位，
+ *      与「展开了几门课」完全无关。
+ *   ② 章节固定在**自己课程节点的正下方**一列，只沿纵向排；横向不许乱跑。
  */
 
 const notes = await contentNotes();
 const published = new Map(notes.map((n) => [n.id, n]));
 
-/** 只保留「已发布 或 有兜底标题」的笔记，避免图上出现无标题的空节点 */
-const titleOf = (id) =>
-  published.get(id)?.data.title ?? draftTitles[id] ?? '';
+const titleOf = (id) => published.get(id)?.data.title ?? draftTitles[id] ?? '';
 
 interface GNode {
   id: string;
   kind: 'course' | 'note';
   label: string;
   course: string;
-  /** 课程节点才有 */
-  count?: number;
-  noteText?: string;
-  /** 笔记节点才有 */
+  count: number;
+  live: number;
+  planned: boolean;
+  noteText: string;
   href?: string;
-  draft?: boolean;
-  /** 章在课内的学习次序（1 起）；课程节点为 0 */
+  draft: boolean;
   rank: number;
   prereq: string[];
-  x: number;
-  y: number;
-  row: number;
 }
 
 const nodes: GNode[] = [];
-const edges: Array<{ s: string; t: string; cross: boolean }> = [];
-
-/** 章 id → 课程 id，供跨课程依赖解析 */
+const edges: Array<{ s: string; t: string }> = [];
 const courseOfNote = new Map<string, string>();
 
 for (const c of courses) {
   const usable = c.chapters.filter((ch) => titleOf(ch.id));
-  if (!usable.length) continue;
+  for (const ch of usable) courseOfNote.set(ch.id, c.id);
 
   for (const ch of usable) {
-    courseOfNote.set(ch.id, c.id);
-    const dep = (ch.prereq ?? []).filter((p) => courseOfNote.has(p) || titleOf(p));
-    const n: GNode = {
+    nodes.push({
       id: ch.id,
       kind: 'note',
       label: shortTitle(titleOf(ch.id), c.id),
       course: c.id,
+      count: 0,
+      live: 0,
+      planned: false,
+      noteText: '',
       href: published.has(ch.id) ? `/notes/${ch.id}/` : undefined,
       draft: !published.has(ch.id),
-      rank: 0, // 下面按依赖深度重排后回填
-      prereq: dep,
-      x: 0,
-      y: 0,
-      row: 0,
-    };
-    nodes.push(n);
+      rank: 0,
+      prereq: (ch.prereq ?? []).filter((p) => courseOfNote.has(p) || titleOf(p)),
+    });
   }
 
   nodes.push({
@@ -83,12 +71,12 @@ for (const c of courses) {
     label: c.id,
     course: c.id,
     count: usable.length,
+    live: usable.filter((ch) => published.has(ch.id)).length,
+    planned: !!c.planned,
     noteText: c.note ?? '',
+    draft: false,
     rank: 0,
     prereq: [],
-    x: 0,
-    y: 0,
-    row: 0,
   });
 }
 
@@ -96,13 +84,13 @@ const byId = new Map(nodes.map((n) => [n.id, n]));
 
 /**
  * 课内排序：按**依赖深度**（最长前驱链）分层，同层内保持 curriculum.ts 里的书写顺序。
- * 这样纵向位置就天然保证「先修在上、后继在下」，而不用手写序号。
+ * 纵向位置因此天然满足「先修在上、后继在下」，不用手写序号。
  */
 for (const c of courses) {
   const ids = nodes.filter((n) => n.kind === 'note' && n.course === c.id).map((n) => n.id);
   if (!ids.length) continue;
   const inSet = new Set(ids);
-  const depth = new Map<string, number>();
+  const depth = new Map();
   const calc = (id, seen = new Set()) => {
     if (depth.has(id)) return depth.get(id);
     if (seen.has(id)) return 0; // 环保护：数据写错也不至于死循环
@@ -114,7 +102,6 @@ for (const c of courses) {
     return d;
   };
   for (const id of ids) calc(id);
-
   const order = new Map(ids.map((id, i) => [id, i]));
   [...ids]
     .sort((a, b) => depth.get(a) - depth.get(b) || order.get(a) - order.get(b))
@@ -124,7 +111,7 @@ for (const c of courses) {
     });
 }
 
-/** 课程头 → 本课第一层（无课内先修的章）的边 */
+/** 课程头 → 本课无课内先修的章；以及章与章之间的先修边 */
 for (const c of courses) {
   const hdr = `course:${c.id}`;
   if (!byId.has(hdr)) continue;
@@ -132,32 +119,18 @@ for (const c of courses) {
   const inIds = new Set(inCourse.map((n) => n.id));
   for (const n of inCourse) {
     const inside = n.prereq.filter((p) => inIds.has(p));
-    if (!inside.length) edges.push({ s: hdr, t: n.id, cross: false });
-    for (const p of inside) edges.push({ s: p, t: n.id, cross: false });
+    if (!inside.length) edges.push({ s: hdr, t: n.id });
+    for (const p of inside) edges.push({ s: p, t: n.id });
   }
 }
 
-/** 跨课程的先修边：源笔记在别的课里 → 连到那门课的课程节点（收起时也画得出来） */
-for (const n of nodes) {
-  if (n.kind !== 'note') continue;
-  const inCourse = new Set(
-    nodes.filter((x) => x.kind === 'note' && x.course === n.course).map((x) => x.id)
-  );
-  for (const p of n.prereq) {
-    if (inCourse.has(p)) continue;
-    const target = courseOfNote.has(p) ? `course:${courseOfNote.get(p)}` : null;
-    if (target && byId.has(target)) edges.push({ s: target, t: n.id, cross: true });
+/** 课程之间的先修：显式写在 courseDeps 里，箭头 先学 → 后学 */
+for (const [after, before] of courseDeps) {
+  if (byId.has(`course:${after}`) && byId.has(`course:${before}`)) {
+    edges.push({ s: `course:${before}`, t: `course:${after}` });
   }
 }
 
-/** 课程之间的依赖 */
-for (const [a, b] of courseDeps) {
-  if (byId.has(`course:${a}`) && byId.has(`course:${b}`)) {
-    edges.push({ s: `course:${b}`, t: `course:${a}`, cross: true });
-  }
-}
-
-/** 画图只需要这几项，顺手减小内联 JSON 的体积 */
 const payload = {
   nodes: nodes.map((n) => ({
     id: n.id,
@@ -165,28 +138,37 @@ const payload = {
     label: n.label,
     course: n.course,
     count: n.count,
+    live: n.live,
+    planned: n.planned,
     noteText: n.noteText,
     href: n.href,
     draft: n.draft,
     rank: n.rank,
+    // 客户端要用它决定「树里谁是父节点」与「哪些边是旁支」——
+    // 漏掉这个字段会让脚本在 `.filter` 上直接抛错（踩过一次）
+    prereq: n.prereq,
   })),
   edges,
   courses: courses
     .filter((c) => byId.has(`course:${c.id}`))
-    .map((c) => ({
-      id: c.id,
-      total: nodes.filter((n) => n.kind === 'note' && n.course === c.id).length,
-      live: nodes.filter((n) => n.kind === 'note' && n.course === c.id && !n.draft).length,
-    })),
+    .map((c) => {
+      const chs = nodes.filter((n) => n.kind === 'note' && n.course === c.id);
+      return {
+        id: c.id,
+        total: chs.length,
+        live: chs.filter((n) => !n.draft).length,
+        planned: !!c.planned,
+      };
+    }),
 };
 
-const publishedCount = notes.length;
 const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
+const plannedCount = payload.courses.filter((c) => c.planned).length;
 ---
 
 <BaseLayout
   title="知识图谱"
-  description={`把 ${publishedCount} 篇已发布笔记按「先学 → 后学」的依赖连成一张有向图，点击课程可展开每一章。`}
+  description={`把 ${notes.length} 篇已发布笔记按「先学 → 后学」的依赖连成一张有向图，点击课程可展开每一章。`}
 >
   <div class="wrap">
     <nav class="breadcrumb" aria-label="面包屑">
@@ -202,7 +184,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       <h1>知识图谱</h1>
       <p class="page-head__lede">
         箭头方向是<strong>学习的先后顺序</strong>：指着谁，就表示「先学完它，再学这个」。
-        点课程节点可以展开这门课的各章，再点收起；点某一章直接进那篇笔记。
+        点课程节点展开这门课的各章，再点收起；点某一章直接进那篇笔记。
         悬停或点击任一章，会把它<strong>整条先修链</strong>一起点亮。
       </p>
     </div>
@@ -217,13 +199,13 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         <div class="graph-side__group">
           <h2>操作</h2>
           <div class="graph-side__list">
-            <button type="button" class="graph-btn" id="graph-expand-all">全部展开</button>
             <button type="button" class="graph-btn" id="graph-collapse-all">全部收起</button>
+            <button type="button" class="graph-btn" id="graph-expand-all">全部展开</button>
             <button type="button" class="graph-btn" id="graph-tidy">重新排列</button>
             <button type="button" class="graph-btn" id="graph-fit">适应窗口</button>
           </div>
           <p class="graph-side__hint" style="margin-top:0.75rem">
-            虚线节点 = 该篇还是草稿、尚未发布；点它会提示，不会跳到空页面。
+            虚线框 = <strong>预留课程</strong>（笔记还在安排中）或<strong>草稿章节</strong>，点它会提示、不会跳空页面。
             <br />拖动节点可手动摆放，「重新排列」恢复整齐布局。
           </p>
         </div>
@@ -240,9 +222,9 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
           />
           <span class="graph-legend">
             <span class="graph-legend__item">
-              <svg width="26" height="10" aria-hidden="true">
-                <line x1="1" y1="5" x2="19" y2="5" stroke="#d78b34" stroke-width="1.6" />
-                <path d="M19 1.6 25 5l-6 3.4z" fill="#d78b34" />
+              <svg width="30" height="10" aria-hidden="true">
+                <line x1="1" y1="5" x2="21" y2="5" stroke="#d78b34" stroke-width="1.6" />
+                <path d="M21 1.6 29 5l-8 3.4z" fill="#d78b34" />
               </svg>
               先学 → 后学
             </span>
@@ -254,7 +236,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
             class="graph-canvas"
             id="graph-canvas"
             role="img"
-            aria-label={`${totalChapters} 章笔记按先修关系连成的有向图`}
+            aria-label={`${totalChapters} 章笔记与 ${payload.courses.length} 门课程按先修关系连成的有向图`}
           >
             <defs>
               <marker
@@ -291,6 +273,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         <p class="graph-note">
           这张图反映的是<strong>教学上的先后依赖</strong>，不是正文里的互相引用——
           顺序来自 <code>src/data/curriculum.ts</code>，想调整先后只改那个文件。
+          {plannedCount > 0 && `其中 ${plannedCount} 门是预留课程，笔记还在规划中。`}
         </p>
       </div>
     </div>
@@ -299,9 +282,6 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
   <script type="application/json" id="graph-data" set:html={JSON.stringify(payload)} />
 
   <script>
-    /* ------------------------------------------------------------ 依赖图
-       布局思路：课程成列、同课程内按依赖深度排纵向位置（手算网格），
-       拖动或尺寸变化时再跑一小段「约束松弛」把重叠推开 —— 不引入任何物理引擎。 */
     (() => {
       const raw = document.getElementById('graph-data')?.textContent;
       if (!raw) return;
@@ -317,54 +297,213 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       const searchEl = document.getElementById('graph-search');
       const SVGNS = 'http://www.w3.org/2000/svg';
 
-      const NODE_H = 30;
-      const NODE_GAP = 14;
-      const ROW_H = NODE_H + NODE_GAP;
+      /* 节点尺寸：统一固定，矩形重叠判定才可靠 */
+      const NH = 30; // 节点高
+      const HEAD_W = 132; // 课程节点宽
+      const CH_W = 122; // 章节节点宽
+      const ROW = 52; // 层级纵向步距
+      const HEAD_Y = 44; // 所有课程头都在这一行
+      const CH_TOP = HEAD_Y + 54; // 章节起始 y
+      const MIN_COL = 172; // 列最小间距
+      const SLOT = 148; // 树里相邻叶子的横向步距
 
-      let W = 760;
-      let H = 560;
+      let W = 900;
+      let H = 640;
 
-      /* ---------------------------------------------------------- 状态 */
       const nodes = data.nodes.map((n) => ({
         ...n,
         x: 0,
         y: 0,
-        /** 目标位置（网格算出来的），拖动过之后就不再跟随 */
-        tx: 0,
-        ty: 0,
+        homeX: 0,
+        homeY: 0,
         dragged: false,
       }));
       const byId = new Map(nodes.map((n) => [n.id, n]));
       const courseIds = data.courses.map((c) => c.id);
+      const plannedSet = new Set(data.courses.filter((c) => c.planned).map((c) => c.id));
 
-      /* ---------------------------------------------------------- 展开状态 */
-      // 默认展开章最多的那门课，其余收起 —— 一次只看一门，图才稀疏。
-      // ⚠️ 必须在建 `edges` 之前定好：边的起点要不要落到"课程节点"上取决于它。
-      const biggest = [...data.courses].sort((a, b) => b.total - a.total)[0];
+      /* 展开状态：默认展开章最多的那门（一次看一门，图才稀疏） */
+      const expandable = data.courses.filter((c) => !c.planned && c.total > 0);
+      const biggest = [...expandable].sort((a, b) => b.total - a.total)[0];
       const expanded = new Set(biggest ? [biggest.id] : []);
 
       const isVisible = (n) => n.kind === 'course' || expanded.has(n.course);
       const visibleNodes = () => nodes.filter(isVisible);
+      const nodeW = (n) => (n.kind === 'course' ? HEAD_W : CH_W);
+
+      /** 课程间箭头的横向车道 y（每条 +16，互不重叠） */
+      let COURSE_LANE_Y = 0;
+      let courseLaneSeq = 0;
+
+      /* ---------------------------------------------------------- 定位
+         ⚠️ 两条硬约束，改之前先读：
+         ① **课程节点位置固定**：按序号槽位定位（`colAt(slot)`），与展开状态无关。
+            否则"点一下展开"之后它就跳走，用户按原位再点会点空 —— 这就是 bug-9。
+         ② **课程内按树排列，不按一条竖列排**。竖列会让"跳过中间节点的边"
+            （如 函数 → 结构体）直接从 数组/指针 的方块里穿过去，读图会被误导。
+            所以：按父子关系把章节摆成树 —— 叶子从左到右占槽位、父节点居于子树中间。
+         `fit('keep')` 时只做横向居中，纵向与缩放不动，屏幕位置因此全程稳定。 */
+      function layout() {
+        const n = Math.max(1, courseIds.length);
+        W = Math.max(W, n * MIN_COL); // 列多就把逻辑画布撑宽
+        const colAt = (i) => (W * (i + 1)) / (n + 1);
+        const bandW = W / n;
+        const vis = visibleNodes();
+
+        for (const cid of courseIds) {
+          const slot = courseIds.indexOf(cid);
+          const cx = colAt(slot);
+          const head = byId.get(`course:${cid}`);
+          if (head) {
+            head.homeX = cx;
+            head.homeY = HEAD_Y;
+          }
+          const chapters = vis.filter((x) => x.kind === 'note' && x.course === cid);
+          if (!chapters.length) continue;
+
+          const ids = new Set(chapters.map((c) => c.id));
+          const map = new Map(chapters.map((c) => [c.id, c]));
+
+          // 父子关系：取「排序最靠前的那个课内先修」当主父节点；
+          // 无课内先修的挂在课程头上。其余先修仍会画成虚线边（见 render）。
+          const kids = new Map();
+          const depth = new Map();
+          for (const c of chapters) {
+            const ins = c.prereq.filter((p) => ids.has(p));
+            const parent = ins.length ? map.get(ins[0]) : head;
+            const key = parent ? parent.id : '__root__';
+            if (!kids.has(key)) kids.set(key, []);
+            kids.get(key).push(c);
+          }
+          for (const list of kids.values()) list.sort((a, b) => a.rank - b.rank);
+
+          // 叶子从左到右占槽位，父节点落在子树跨度中点
+          const leaf = new Map();
+          let k = 0;
+          const place = (node) => {
+            const ch = kids.get(node.id) ?? [];
+            if (!ch.length) {
+              const pos = k++;
+              leaf.set(node.id, { min: pos, max: pos, pos });
+              return leaf.get(node.id);
+            }
+            const spans = ch.map(place);
+            const span = {
+              min: Math.min(...spans.map((s) => s.min)),
+              max: Math.max(...spans.map((s) => s.max)),
+              pos: 0,
+            };
+            span.pos = (span.min + span.max) / 2;
+            leaf.set(node.id, span);
+            return span;
+          };
+
+          const roots = (kids.get('__root__') ?? []).slice().sort((a, b) => a.rank - b.rank);
+          const rootSpans = roots.map(place);
+          const total =
+            rootSpans.length > 1
+              ? Math.max(...rootSpans.map((s) => s.max)) - Math.min(...rootSpans.map((s) => s.min))
+              : 0;
+
+          // 槽位步距：能放下就居中，放不下就压到 bandW 内
+          const step = total > 0 ? Math.min(SLOT, (bandW - 40) / total) : 0;
+          const span = total * step;
+          const baseX = cx - span / 2;
+
+          for (const c of chapters) {
+            const sp = leaf.get(c.id);
+            c.homeX = total > 0 ? baseX + sp.pos * step : cx;
+          }
+
+          // 纵向按「从根到该节点的最长路径」分层，保证先修一定在上面
+          const depthOf = (node, seen = new Set()) => {
+            if (depth.has(node.id)) return depth.get(node.id);
+            if (seen.has(node.id)) return 0;
+            seen.add(node.id);
+            const ins = (map.get(node.id)?.prereq ?? []).filter((p) => ids.has(p));
+            const d = ins.length ? Math.max(...ins.map((p) => depthOf(map.get(p), seen))) + 1 : 1;
+            depth.set(node.id, d);
+            return d;
+          };
+          for (const c of chapters) depthOf(c);
+          for (const c of chapters) c.homeY = CH_TOP + (depth.get(c.id) - 1) * ROW;
+        }
+
+        // 应用（被拖过的节点保持用户摆的位置）
+        for (const node of vis) if (!node.dragged) {
+          node.x = node.homeX;
+          node.y = node.homeY;
+        }
+
+        // 课程之间的箭头走**自己的通道**：绕到所有内容下方，
+        // 再各自用一条横向车道升上去接目标课程。这样它们不会从别的课程节点上压过去。
+        const deepest = Math.max(
+          HEAD_Y,
+          ...vis.filter((x) => x.kind === 'note').map((x) => x.y)
+        );
+        COURSE_LANE_Y = deepest + 46;
+      }
+
+      /** 兜底：同一层里若有重叠，只沿纵向错开一点 */
+      function separate() {
+        const vis = visibleNodes();
+        const byRow = new Map();
+        for (const n of vis) {
+          const key = `${n.course}|${Math.round(n.y)}`;
+          if (!byRow.has(key)) byRow.set(key, []);
+          byRow.get(key).push(n);
+        }
+        for (const list of byRow.values()) {
+          list.sort((a, b) => a.x - b.x);
+          for (let i = 1; i < list.length; i++) {
+            const a = list[i - 1];
+            const b = list[i];
+            const need = (nodeW(a) + nodeW(b)) / 2 + 10;
+            if (b.x - a.x < need) b.x = a.x + need;
+          }
+        }
+      }
+
+      function relayout({ keepDragged = true } = {}) {
+        if (!keepDragged) for (const n of nodes) n.dragged = false;
+        layout();
+        separate();
+      }
 
       /* ---------------------------------------------------------- 选中 / 搜索 */
       const lit = new Set();
       let current = null;
       let keyword = '';
 
-      /**
-       * 边在**构建期**是按「笔记 → 笔记」给的；收起的课程里那些源节点不在画面上，
-       * 于是把起点上移到那门课的课程节点 —— 这样跨课程的先修关系依然看得见。
-       */
+      // 边：收起课程里的源节点上移到该课的课程节点，跨课依赖才画得出来。
+      // 一个章节有多个课内先修时，只有「主父节点」（layout 里用的那个）画实线，
+      // 其余画虚线 —— 否则树会被额外连线搞乱，读者也分不清哪条是主干。
+      const primaryParent = new Map();
+      for (const node of nodes) {
+        if (node.kind !== 'note') continue;
+        const inCourse = nodes.filter(
+          (x) => x.kind === 'note' && x.course === node.course
+        );
+        const ids = new Set(inCourse.map((x) => x.id));
+        const ins = node.prereq.filter((p) => ids.has(p));
+        primaryParent.set(node.id, ins.length ? ins[0] : `course:${node.course}`);
+      }
+
       const edges = data.edges
         .map((e) => {
           const s = byId.get(e.s);
           const t = byId.get(e.t);
           if (!s || !t) return null;
+          const cross = s.course !== t.course;
           const src =
-            s.kind === 'note' && s.course !== t.course && !expanded.has(s.course)
+            s.kind === 'note' && cross && !expanded.has(s.course)
               ? byId.get(`course:${s.course}`)
               : s;
-          return { s: src, t, cross: !!e.cross };
+          const primary =
+            t.kind === 'note' &&
+            primaryParent.get(t.id) &&
+            primaryParent.get(t.id) === s.id;
+          return { s: src, t, cross, primary: cross || primary };
         })
         .filter((e) => e && e.s && e.t && e.s !== e.t);
 
@@ -377,123 +516,13 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         nextOf.get(e.s.id).push(e.t.id);
       }
 
-      /* ---------------------------------------------------------- 手算布局 */
-      /**
-       * 网格：
-       *   · 每门课一列，列宽按可见节点数分配（展开的课分得宽）；
-       *   · 列内：课程头在最上，各章按 rank 自上而下；
-       *   · 未展开的课只占一个课程节点。
-       * 目标位置写进 n.tx / n.ty，实际位置 n.x / n.y 由松弛过程去逼近。
-       */
-      function computeLayout() {
-        const vis = visibleNodes();
-        const cols = courseIds
-          .map((cid) => {
-            const list = vis.filter((n) => n.course === cid);
-            return { cid, list, weight: expanded.has(cid) ? Math.max(1, list.length) : 0.8 };
-          })
-          .filter((c) => c.list.length);
-
-        // 列宽与列中心：展开的课宽一些
-        const totalW = Math.max(1, cols.reduce((s, c) => s + c.weight, 0));
-        let acc = 0;
-        for (const c of cols) {
-          const share = c.weight / totalW;
-          c.cx = (acc + share / 2) * W;
-          acc += share;
-          for (const n of c.list) {
-            n.col = c.cx;
-            // 同课程内按 rank 排纵向位置；课程头固定在最上
-            const rank = n.kind === 'course' ? 0 : n.rank;
-            n.row = rank;
-          }
-        }
-
-        // 纵向：所有课程头对齐在顶部，其下各章按 rank 顺排
-        const top = 54;
-        for (const n of vis) {
-          n.tx = n.col;
-          n.ty = top + n.row * ROW_H;
-        }
-      }
-
-      /** 目标位置：默认取网格；被拖动过的节点用自己拖到的位置 */
-      function targetOf(n) {
-        return n.dragged ? { x: n.x, y: n.y } : { x: n.tx, y: n.ty };
-      }
-
-      /**
-       * 约束松弛：
-       *   1) 每个节点被自己的目标位置"拴住"（弹簧）
-       *   2) 有向边把两端拉近一点（别离太远）
-       *   3) 任何两个节点靠得太近就沿连心线推开（解决重叠，尤其是逐字变长时）
-       * 只跑几次，够用且稳定，不会把网格搅乱。
-       */
-      function relax(iterations = 260) {
-        const vis = visibleNodes();
-        const minDx = 140;
-        const minDy = ROW_H - 4;
-        for (let it = 0; it < iterations; it++) {
-          const k = 1 - it / iterations; // 逐轮减弱，末段基本静止
-          // 拴住目标位置
-          for (const n of vis) {
-            const t = targetOf(n);
-            n.x += (t.x - n.x) * 0.22 * k;
-            n.y += (t.y - n.y) * 0.22 * k;
-          }
-          // 边拉近
-          for (const e of edges) {
-            if (!isVisible(e.s) || !isVisible(e.t)) continue;
-            const dx = e.t.x - e.s.x;
-            const dy = e.t.y - e.s.y;
-            const d = Math.max(1, Math.hypot(dx, dy));
-            const want = 96;
-            const f = ((d - want) / d) * 0.06 * k;
-            e.s.x += dx * f;
-            e.s.y += dy * f;
-            e.t.x -= dx * f;
-            e.t.y -= dy * f;
-          }
-          // 推开重叠
-          for (let i = 0; i < vis.length; i++) {
-            for (let j = i + 1; j < vis.length; j++) {
-              const a = vis[i];
-              const b = vis[j];
-              let dx = b.x - a.x;
-              let dy = b.y - a.y;
-              if (Math.abs(dx) >= minDx || Math.abs(dy) >= minDy) continue;
-              const ox = (minDx - Math.abs(dx)) / 2;
-              const oy = (minDy - Math.abs(dy)) / 2;
-              const sx = dx === 0 ? 1 : Math.sign(dx);
-              const sy = dy === 0 ? 1 : Math.sign(dy);
-              a.x -= ox * sx * 0.5;
-              b.x += ox * sx * 0.5;
-              a.y -= oy * sy * 0.5;
-              b.y += oy * sy * 0.5;
-            }
-          }
-        }
-      }
-
-      function seedFromGrid() {
-        computeLayout();
-        for (const n of visibleNodes()) {
-          if (n.dragged) continue;
-          n.x = n.tx;
-          n.y = n.ty;
-        }
-        relax();
-      }
-
-      /* ---------------------------------------------------------- 渲染 */
       function rebuildLit() {
         lit.clear();
         if (!current) return;
         lit.add(current);
         const up = [current];
         while (up.length) {
-          const id = up.pop();
-          for (const p of prereqOf.get(id) ?? []) {
+          for (const p of prereqOf.get(up.pop()) ?? []) {
             if (!lit.has(p) && byId.has(p)) {
               lit.add(p);
               up.push(p);
@@ -502,8 +531,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         }
         const down = [current];
         while (down.length) {
-          const id = down.pop();
-          for (const nx of nextOf.get(id) ?? []) {
+          for (const nx of nextOf.get(down.pop()) ?? []) {
             if (!lit.has(nx) && byId.has(nx)) {
               lit.add(nx);
               down.push(nx);
@@ -512,95 +540,115 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         }
       }
 
+      /* ---------------------------------------------------------- 渲染 */
       function render() {
         const vis = visibleNodes();
-        const seen = new Set(vis.map((n) => n.id));
-
         linkLayer.replaceChildren();
         nodeLayer.replaceChildren();
+        courseLaneSeq = 0; // 每次重画都从第一条车道开始，避免越画越靠下
 
         for (const e of edges) {
-          if (!seen.has(e.s.id) || !seen.has(e.t.id)) continue;
+          if (!isVisible(e.s) || !isVisible(e.t)) continue;
           const isLit = current && lit.has(e.s.id) && lit.has(e.t.id);
           const path = document.createElementNS(SVGNS, 'path');
-          // 轻微弧线：同列里上下相邻的两点用直线，跨列时弯一点才看得出方向
-          const dx = e.t.x - e.s.x;
-          const dy = e.t.y - e.s.y;
-          const bend = Math.abs(dx) < 6 ? 0 : Math.min(38, Math.abs(dx) * 0.18);
-          const mx = (e.s.x + e.t.x) / 2 + (bend ? Math.sign(dx) * bend : 0);
-          const my = (e.s.y + e.t.y) / 2;
-          const x1 = e.s.x;
-          const y1 = e.s.y + (e.s.kind === 'course' ? 15 : 15);
-          const x2 = e.t.x;
-          const y2 = e.t.y - 15;
-          path.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+
+          if (e.cross && e.s.kind === 'course' && e.t.kind === 'course') {
+            // 课程 → 课程：走下方专属车道（见 layout 里的 COURSE_LANE_Y）。
+            // 起点从**本课程头下沿**出发、终点接**目标课程头下沿**，箭头朝上进入 ——
+            // 这样横向段完全在所有课程节点之下，不会从中间的课程节点上压过去。
+            const lane = COURSE_LANE_Y + courseLaneSeq++ * 16;
+            const x1 = e.s.x;
+            const y1 = e.s.y + NH / 2;
+            const x2 = e.t.x;
+            const y2 = e.t.y + NH / 2 + 7;
+            path.setAttribute('d', `M${x1},${y1} C${x1},${lane} ${x2},${lane} ${x2},${y2}`);
+            path.setAttribute('marker-end', isLit ? 'url(#graph-arrow-lit)' : 'url(#graph-arrow)');
+          } else {
+            const x1 = e.s.x;
+            const y1 = e.s.y + NH / 2;
+            const x2 = e.t.x;
+            const y2 = e.t.y - NH / 2;
+            const dx = x2 - x1;
+            const bend = Math.abs(dx) < 8 ? 0 : Math.max(-52, Math.min(52, dx * 0.24));
+            path.setAttribute(
+              'd',
+              bend === 0
+                ? `M${x1},${y1} L${x2},${y2}`
+                : `M${x1},${y1} Q${x1 + bend},${(y1 + y2) / 2} ${x2},${y2}`
+            );
+          }
           path.setAttribute('fill', 'none');
           path.setAttribute(
             'class',
-            'graph-link' + (isLit ? ' is-lit' : current ? ' is-dim' : '')
+            'graph-link' +
+              (e.primary ? '' : ' graph-link--secondary') +
+              (isLit ? ' is-lit' : current ? ' is-dim' : '')
           );
           path.setAttribute('marker-end', isLit ? 'url(#graph-arrow-lit)' : 'url(#graph-arrow)');
           linkLayer.appendChild(path);
         }
 
-        for (const n of vis) {
+        for (const node of vis) {
           const g = document.createElementNS(SVGNS, 'g');
           const cls = ['graph-node'];
-          if (n.kind === 'course') cls.push('graph-node--course');
-          if (n.draft) cls.push('graph-node--draft');
-          if (current === n.id) cls.push('is-current');
-          if (current && !lit.has(n.id)) cls.push('is-dim');
-          const kw = keyword;
-          if (kw && n.label.toLowerCase().includes(kw)) cls.push('is-hit');
+          if (node.kind === 'course') cls.push('graph-node--course');
+          if (node.planned) cls.push('graph-node--planned');
+          if (node.draft) cls.push('graph-node--draft');
+          if (current === node.id) cls.push('is-current');
+          if (current && !lit.has(node.id)) cls.push('is-dim');
+          if (keyword && node.label.toLowerCase().includes(keyword)) cls.push('is-hit');
           g.setAttribute('class', cls.join(' '));
-          g.setAttribute('transform', `translate(${n.x},${n.y})`);
-          g.dataset.id = n.id;
+          g.setAttribute('transform', `translate(${node.x},${node.y})`);
+          g.dataset.id = node.id;
 
+          const w = nodeW(node);
           const rect = document.createElementNS(SVGNS, 'rect');
-          const w = nodeWidth(n);
           rect.setAttribute('x', String(-w / 2));
-          rect.setAttribute('y', String(-NODE_H / 2));
+          rect.setAttribute('y', String(-NH / 2));
           rect.setAttribute('width', String(w));
-          rect.setAttribute('height', String(NODE_H));
+          rect.setAttribute('height', String(NH));
           rect.setAttribute('rx', '8');
           g.appendChild(rect);
 
           const text = document.createElementNS(SVGNS, 'text');
           text.setAttribute('text-anchor', 'middle');
           text.setAttribute('y', '4');
-          text.textContent = n.label;
+          text.textContent = node.label;
           g.appendChild(text);
 
-          if (n.kind === 'course') {
+          if (node.kind === 'course') {
             const badge = document.createElementNS(SVGNS, 'text');
             badge.setAttribute('class', 'graph-node__badge');
             badge.setAttribute('text-anchor', 'middle');
-            badge.setAttribute('y', String(-NODE_H / 2 - 8));
-            badge.textContent = expanded.has(n.course)
-              ? `${n.count} 章（点击收起）`
-              : `${n.count} 章（点击展开）`;
+            badge.setAttribute('y', String(-NH / 2 - 7));
+            badge.textContent = node.planned
+              ? '预留课程 · 待更新'
+              : expanded.has(node.course)
+                ? `${node.count} 章 · 点击收起`
+                : `${node.count} 章 · 点击展开`;
             g.appendChild(badge);
           }
           nodeLayer.appendChild(g);
         }
       }
 
-      /** 节点宽度按字数估：中文约 13px/字 */
-      function nodeWidth(n) {
-        const base = n.kind === 'course' ? 150 : 0;
-        const w = Math.max(base, n.label.length * 13.5 + 26);
-        return Math.min(w, n.kind === 'course' ? 220 : 190);
-      }
-
-      /* ---------------------------------------------------------- 视图变换 */
+      /* ---------------------------------------------------------- 视图
+         ⚠️ 这里是最容易把「点击」搞坏的地方，改之前先读这段：
+         课程节点在图坐标里的位置是固定的（见 layout），但只要 fit() 重新算
+         缩放与平移，它在**屏幕**上就会跳走 —— 用户按原位再点就点空，
+         表现就是「打不开也收不起来」。所以：
+           · fit(mode:'initial') 只在首次进入与手动点「适应窗口」时用，锚定顶部；
+           · 展开/收起**不重新 fit**，只把横向平移居中一下，纵向与缩放保持不动。
+         */
       let scale = 1;
       let tx = 0;
       let ty = 0;
-      const applyView = () => {
+      const applyView = () =>
         viewport.setAttribute('transform', `translate(${tx},${ty}) scale(${scale})`);
-      };
 
-      function fit(padding = 48) {
+      const PADDING = 56;
+
+      function fit(mode = 'keep') {
         const vis = visibleNodes();
         if (!vis.length) return;
         let minX = Infinity;
@@ -608,23 +656,36 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         let maxX = -Infinity;
         let maxY = -Infinity;
         for (const n of vis) {
-          const hw = nodeWidth(n) / 2;
+          const hw = nodeW(n) / 2;
           minX = Math.min(minX, n.x - hw);
           maxX = Math.max(maxX, n.x + hw);
-          minY = Math.min(minY, n.y - NODE_H / 2 - 14);
-          maxY = Math.max(maxY, n.y + NODE_H / 2 + 4);
+          minY = Math.min(minY, n.y - NH / 2 - 16);
+          maxY = Math.max(maxY, n.y + NH / 2 + 4);
         }
         const w = Math.max(1, maxX - minX);
-        const h = Math.max(1, maxY - minY);
-        scale = Math.min((W - padding * 2) / w, (H - padding * 2) / h, 1.5);
-        tx = (W - w * scale) / 2 - minX * scale;
-        ty = (H - h * scale) / 2 - minY * scale;
+
+        if (mode === 'initial') {
+          // 初始视野：优先保证左右别压线，但缩到一定限度就不再缩（再小就看不清也点不准）。
+          // 纵向**锚定顶部**——内容是往下长的，居中会把下面的空间挤没。
+          const bw = Math.max(1, maxX - minX);
+          scale = Math.min(1.3, Math.max(0.58, (W - PADDING * 2) / bw));
+          tx = (W - bw * scale) / 2 - minX * scale;
+        } else {
+          // 保持缩放与纵向位置不变，只把横向居中 —— 屏幕上的纵向位置因此完全不动
+          const bw = Math.max(1, maxX - minX);
+          tx = (W - bw * scale) / 2 - minX * scale;
+        }
+        // 顶部对齐：所有课程头都在同一行，锚住它，展开时下面的内容才有地方长
+        ty = PADDING - minY * scale;
         applyView();
       }
 
       const toLocal = (evt) => {
         const r = svg.getBoundingClientRect();
-        return { x: ((evt.clientX - r.left) / r.width) * W, y: ((evt.clientY - r.top) / r.height) * H };
+        return {
+          x: ((evt.clientX - r.left) / r.width) * W,
+          y: ((evt.clientY - r.top) / r.height) * H,
+        };
       };
       const toGraph = (p) => ({ x: (p.x - tx) / scale, y: (p.y - ty) / scale });
 
@@ -635,8 +696,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       svg.addEventListener('pointerdown', (evt) => {
         const g = evt.target.closest?.('.graph-node');
         if (g && byId.has(g.dataset.id)) {
-          const n = byId.get(g.dataset.id);
-          dragging = { node: n, moved: 0 };
+          dragging = { node: byId.get(g.dataset.id), moved: 0 };
           svg.setPointerCapture(evt.pointerId);
           svg.classList.add('is-dragging');
           return;
@@ -651,10 +711,12 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
           const p = toGraph(toLocal(evt));
           const n = dragging.node;
           dragging.moved += Math.hypot(p.x - n.x, p.y - n.y);
-          n.x = p.x;
-          n.y = p.y;
-          n.dragged = true;
-          relax(40);
+          // 课程节点不许拖走：位置稳定是"点得中"的前提（只有章节能手动摆）
+          if (n.kind !== 'course') {
+            n.x = p.x;
+            n.y = p.y;
+            n.dragged = true;
+          }
           render();
           return;
         }
@@ -673,7 +735,8 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       function endPointer(evt) {
         if (dragging) {
           const g = evt.target.closest?.('.graph-node');
-          if (dragging.moved < 4 && g?.dataset.id === dragging.node.id) {
+          // 位移很小才算点击；拖动过就不触发，免得想挪一下却被展开
+          if (dragging.moved < 5 && g?.dataset.id === dragging.node.id) {
             activate(dragging.node);
           }
           dragging = null;
@@ -689,19 +752,27 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       svg.addEventListener('pointercancel', endPointer);
       svg.addEventListener('pointerleave', hideTip);
 
-      /** 单击节点：课程 → 展开/收起；章节 → 选中这条链；有链接的连点两次才跳 */
+      /** 单击：课程 → 展开/收起；章节 → 选中链条，再点一次才跳 */
       function activate(n) {
         if (n.kind === 'course') {
-          if (expanded.has(n.course)) expanded.delete(n.course);
-          else expanded.add(n.course);
-          // 收起某课时，把它下面被拖过的节点也复位，免得再展开时位置很怪
-          for (const x of nodes) if (x.course === n.course) x.dragged = false;
+          if (n.planned) {
+            flashTip(n, '这门课的笔记还在安排数量与路线，暂时没有内容可以展开');
+            return;
+          }
+          if (expanded.has(n.course)) {
+            expanded.delete(n.course);
+          } else {
+            // 一次只展开一门：先把别的收起来。图始终稀疏，位置也稳定。
+            for (const cid of [...expanded]) if (cid !== n.course) expanded.delete(cid);
+            for (const x of nodes) if (x.course !== n.course) x.dragged = false;
+            expanded.add(n.course);
+          }
           current = null;
           rebuildLit();
           syncSidebar();
-          seedFromGrid();
+          relayout({ keepDragged: true });
           render();
-          fit();
+          fit('keep'); // 不重新缩放，课程节点的屏幕位置保持不变
           return;
         }
         if (current === n.id) {
@@ -721,7 +792,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         showTip(n, null, extra);
         flashTimer = window.setTimeout(() => {
           if (!dragging) hideTip();
-        }, 2200);
+        }, 2600);
       }
 
       svg.addEventListener(
@@ -730,7 +801,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
           evt.preventDefault();
           const p = toLocal(evt);
           const before = toGraph(p);
-          scale = Math.min(3, Math.max(0.35, scale * (evt.deltaY < 0 ? 1.12 : 0.89)));
+          scale = Math.min(3, Math.max(0.3, scale * (evt.deltaY < 0 ? 1.12 : 0.89)));
           const after = toGraph(p);
           tx += (after.x - before.x) * scale;
           ty += (after.y - before.y) * scale;
@@ -741,20 +812,22 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
 
       /* ---------------------------------------------------------- 信息卡 */
       function showTip(n, at, extra) {
-        const p = n.kind === 'course' ? { x: n.x, y: n.y } : { x: n.x, y: n.y };
-        const screen = { x: p.x * scale + tx, y: p.y * scale + ty };
+        const screen = { x: n.x * scale + tx, y: n.y * scale + ty };
         const box = stage.getBoundingClientRect();
         tip.innerHTML = '';
 
         const t = document.createElement('p');
         t.className = 'graph-tip__title';
-        t.textContent = n.kind === 'course' ? n.label : n.label;
+        t.textContent = n.label;
         const m = document.createElement('p');
         m.className = 'graph-tip__meta';
-        m.textContent =
-          n.kind === 'course'
-            ? `${n.course} · 共 ${n.count} 章`
-            : `${n.course} · 第 ${n.rank} 章${n.draft ? ' · 草稿未发布' : ''}`;
+        if (n.kind === 'course') {
+          m.textContent = n.planned
+            ? `${n.course} · 预留课程`
+            : `${n.course} · 共 ${n.count} 章${n.live !== n.count ? `（已发布 ${n.live}）` : ''}`;
+        } else {
+          m.textContent = `${n.course} · 第 ${n.rank} 章${n.draft ? ' · 草稿未发布' : ''}`;
+        }
         tip.append(t, m);
 
         const d = document.createElement('p');
@@ -762,9 +835,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
         if (extra) d.textContent = extra;
         else if (n.kind === 'course') d.textContent = n.noteText || '点击展开这门课的各章';
         else {
-          const pre = (prereqOf.get(n.id) ?? [])
-            .map((id) => byId.get(id)?.label)
-            .filter(Boolean);
+          const pre = (prereqOf.get(n.id) ?? []).map((id) => byId.get(id)?.label).filter(Boolean);
           d.textContent = pre.length ? `先修：${pre.join('、')}` : '入门章节，没有先修要求';
         }
         tip.appendChild(d);
@@ -782,6 +853,12 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       }
 
       /* ---------------------------------------------------------- 侧栏 */
+      function courseColor(id) {
+        const palette = ['#d78b34', '#4f9a76', '#c9402e', '#7a6bb5', '#3f8fb0', '#c2486f'];
+        const i = courseIds.indexOf(id);
+        return palette[(i < 0 ? 0 : i) % palette.length];
+      }
+
       function syncSidebar() {
         const host = document.getElementById('graph-courses');
         if (!host) return;
@@ -791,6 +868,7 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
           btn.type = 'button';
           btn.className = 'graph-side__item' + (expanded.has(c.id) ? ' is-active' : '');
           btn.dataset.course = c.id;
+          btn.disabled = !!c.planned;
           const dot = document.createElement('span');
           dot.className = 'graph-side__dot';
           dot.style.background = courseColor(c.id);
@@ -798,62 +876,63 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
           name.textContent = c.id;
           const count = document.createElement('span');
           count.className = 'graph-side__count';
-          count.textContent = `${c.total}`;
+          count.textContent = c.planned ? '待更新' : String(c.total);
           btn.append(dot, name, count);
           host.appendChild(btn);
         }
       }
 
-      function courseColor(id) {
-        const palette = ['#d78b34', '#4f9a76', '#c9402e', '#7a6bb5', '#3f8fb0', '#c2486f'];
-        const i = courseIds.indexOf(id);
-        return palette[(i < 0 ? 0 : i) % palette.length];
+      /** 切换某门课的展开状态：一次只留一门 */
+      function toggleCourse(id) {
+        if (plannedSet.has(id)) return;
+        if (expanded.has(id)) {
+          expanded.delete(id);
+        } else {
+          for (const cid of [...expanded]) if (cid !== id) expanded.delete(cid);
+          for (const x of nodes) if (x.course !== id) x.dragged = false;
+          expanded.add(id);
+        }
+        current = null;
+        rebuildLit();
+        syncSidebar();
+        relayout({ keepDragged: true });
+        render();
+        fit('keep');
       }
 
       document.getElementById('graph-courses')?.addEventListener('click', (evt) => {
         const btn = evt.target.closest?.('[data-course]');
-        if (!btn) return;
-        const id = btn.dataset.course;
-        if (expanded.has(id)) expanded.delete(id);
-        else expanded.add(id);
-        for (const x of nodes) if (x.course === id) x.dragged = false;
-        current = null;
-        rebuildLit();
-        syncSidebar();
-        seedFromGrid();
-        render();
-        fit();
-      });
-
-      document.getElementById('graph-expand-all')?.addEventListener('click', () => {
-        for (const c of data.courses) expanded.add(c.id);
-        current = null;
-        rebuildLit();
-        syncSidebar();
-        seedFromGrid();
-        render();
-        fit();
+        if (!btn || btn.disabled) return;
+        toggleCourse(btn.dataset.course);
       });
 
       document.getElementById('graph-collapse-all')?.addEventListener('click', () => {
         expanded.clear();
-        for (const x of nodes) x.dragged = false;
         current = null;
         rebuildLit();
         syncSidebar();
-        seedFromGrid();
+        relayout({ keepDragged: false });
         render();
-        fit();
+        fit('keep');
+      });
+
+      document.getElementById('graph-expand-all')?.addEventListener('click', () => {
+        for (const c of expandable) expanded.add(c.id);
+        current = null;
+        rebuildLit();
+        syncSidebar();
+        relayout({ keepDragged: true });
+        render();
+        fit('keep');
       });
 
       document.getElementById('graph-tidy')?.addEventListener('click', () => {
-        for (const x of nodes) x.dragged = false;
-        seedFromGrid();
+        relayout({ keepDragged: false });
         render();
-        fit();
+        fit('keep');
       });
 
-      document.getElementById('graph-fit')?.addEventListener('click', () => fit());
+      document.getElementById('graph-fit')?.addEventListener('click', () => fit('initial'));
 
       let searchTimer = 0;
       searchEl?.addEventListener('input', () => {
@@ -865,29 +944,29 @@ const totalChapters = payload.nodes.filter((n) => n.kind === 'note').length;
       });
 
       /* ---------------------------------------------------------- 尺寸 */
+      // 只更新几何与坐标，**不改视野** —— 是否 fit 交给调用方决定，
+      // 否则窗口一变就把用户当前的缩放/平移冲掉了。
       function resize() {
         const r = svg.getBoundingClientRect();
-        W = Math.max(320, r.width);
+        W = Math.max(360, r.width);
         H = Math.max(300, r.height);
         svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-        fit();
+        relayout({ keepDragged: true });
       }
 
       /* ---------------------------------------------------------- 启动 */
       resize();
-      seedFromGrid();
       syncSidebar();
       render();
-      fit();
+      fit('initial');
 
       let rt = 0;
       window.addEventListener('resize', () => {
         clearTimeout(rt);
         rt = window.setTimeout(() => {
           resize();
-          seedFromGrid();
           render();
-          fit();
+          fit('keep');
         }, 150);
       });
     })();

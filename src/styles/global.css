@@ -1795,3 +1795,20 @@ a.tag:hover {
   .graph-side__item { width: auto; }
   .graph-canvas { height: clamp(380px, 58vh, 540px); }
 }
+
+/* 预留课程（笔记还在规划中）：虚线 + 更淡，且不响应展开 */
+.graph-node--planned rect {
+  fill: transparent;
+  stroke-dasharray: 5 4;
+  stroke: var(--border-strong);
+}
+.graph-node--planned text { fill: var(--text-faint); font-weight: 600; }
+.graph-node--planned .graph-node__badge { fill: var(--text-faint); }
+
+/* 侧栏里禁用的课程项（预留课程） */
+.graph-side__item:disabled { cursor: not-allowed; opacity: 0.62; }
+.graph-side__item:disabled:hover { background: none; color: var(--text-muted); }
+
+/* 非主干的先修边（一个章节有多个课内先修时，只保留一条实线主干）：
+   画成虚线，免得树被额外连线搞乱、也分不清哪条才是主线 */
+.graph-link--secondary { stroke-dasharray: 4 4; stroke-opacity: 0.5; }
