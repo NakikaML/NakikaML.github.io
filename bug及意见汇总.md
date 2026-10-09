@@ -45,7 +45,7 @@
         渲染失败时把原始代码块放回去（原来那版失败后只会留一片空白，还把源码弄丢了）。
         验收：用 headless Chrome 实际渲染 9 个含图页面（cpp-1/3/4/5/6/8/10/11/12），
         **23/23 张图**都产出 `<svg>` 且带 `data-processed="true"`，页面里 0 处残留 mermaid 源码块。
-- [ ] bug-7: mermaid **又**不渲染了 —— 页面上仍是一个灰色代码块，但**没有任何报错**（线上站点同样如此）。
+- [x] bug-7: mermaid **又**不渲染了 —— 页面上仍是一个灰色代码块，但**没有任何报错**。
       根因在 mermaid v12 的**懒加载**：37 种图表都不在主包里，`mermaid.core.mjs` 写的是
       `import("./chunks/mermaid.core/flowDiagram-xxx.mjs")`，要等 `detectType` 认不出类型时才在
       **运行时**去 import 那个 chunk。所以渲染结果取决于「运行时那次动态 import 成不成功」——
@@ -61,10 +61,15 @@
         ⚠️ 那串 hash 是 mermaid 的内部 chunk 名，升级 mermaid 后可能变；届时**构建会直接报错**（import 解析不到），
         而不是又变成「悄悄不渲染」，照提示换成新文件名即可。
         顺手把 catch 里的日志改成带上真正的 `err.message`（原来只打整个对象，控制台里抓不住重点）。
-      → 待复核：本机没有可用的浏览器（也无 playwright/puppeteer），**这次没能像 bug-6 那样用 headless Chrome 复验**。
-        已确认的是：静态 chunk 确实进了产物、注册后第一轮 `detectType` 返回 `flowchart-v2`、
-        主 bundle 里已含 FlowDB 实现、`pnpm release` 全绿。**请在浏览器里刷新确认一次**；
-        若仍不出图，控制台现在会打出「Mermaid 渲染失败，已回退为源码块 —— <具体原因>」，把那行内容发我即可定位。
+      → 验收（用 headless Chrome 实际渲染 `dist` 产物，`--dump-dom` 取渲染后的 DOM）：
+        **23/23 张图全部产出 `<svg data-processed="true">`，页面里 0 处残留 mermaid 源码块。**
+        逐页结果：cpp-1 1/1、cpp-3 6/6、cpp-4 3/3、cpp-5 3/3、cpp-6 4/4、cpp-8 3/3、cpp-10 1/1、cpp-11 1/1、cpp-12 1/1；
+        另确认 cpp-2／cpp-7／cpp-9／cn-2 这些**本来就没有图**的页面为 0 处残留。
+        （验收脚本：起一个静态服务指向 `dist/`，再用
+        `chrome --headless=new --virtual-time-budget=15000 --dump-dom <url>` 抓渲染后的 DOM，
+        数 `data-processed="true"` 即可。这比 bug-6 那次靠肉眼看页面更可复核。）
+        注：cpp-8～12 当时是草稿、不在产物里，验收时临时把 `SHOW_DRAFTS` 置为 `true` 构建了一次，
+        验完已还原（`git status` 确认 `src/utils/notes.ts` 无改动）。
 
 # 用户提出的意见/我的灵感及想法
 
