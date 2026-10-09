@@ -14,23 +14,34 @@ const socials = [
 ---
 
 <footer class="site-footer">
-  <div class="wrap site-footer__inner">
-    <div>
-      © {year} {site.author}
-      <span aria-hidden="true"> · </span>
-      <span>Built with Astro</span>
+  <div class="wrap">
+    <div class="site-footer__inner">
+      <div>
+        © {year} {site.author}
+        <span aria-hidden="true"> · </span>
+        <span>Built with Astro</span>
+      </div>
+
+      {
+        socials.length > 0 && (
+          <nav aria-label="社交链接" style="display:flex;gap:1rem;flex-wrap:wrap">
+            {socials.map((s) => (
+              <a href={s.href} rel="me noopener" target="_blank">
+                {s.label}
+              </a>
+            ))}
+          </nav>
+        )
+      }
     </div>
 
-    {
-      socials.length > 0 && (
-        <nav aria-label="社交链接" style="display:flex;gap:1rem;flex-wrap:wrap">
-          {socials.map((s) => (
-            <a href={s.href} rel="me noopener" target="_blank">
-              {s.label}
-            </a>
-          ))}
-        </nav>
-      )
-    }
+    {/*
+      来源说明（opinion-12）。放在页脚、全站可见，措辞尽量短。
+      单独占一行并压低对比度：它要"在场"，但不该抢页脚的视线。
+    */}
+    <p class="site-footer__note">
+      笔记与博客均为个人学习整理，不保证无误；文中图示部分为自绘、部分来自网络与课程资料，
+      仅供学习交流使用。若涉及版权问题请<a href={`mailto:${email}`}>告诉我</a>，我会尽快删除或替换。
+    </p>
   </div>
 </footer>

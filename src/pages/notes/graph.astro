@@ -203,7 +203,7 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
             <button type="button" class="graph-btn" id="graph-fit">适应窗口</button>
           </div>
           <p class="graph-side__hint" style="margin-top:0.75rem">
-            点课程节点展开/收起该课的各章（一次只看一门，课程多了才不会糊成一团）。
+            点课程节点展开/收起该课的各章。
             <br />虚线框 = <strong>预留课程</strong>（笔记还在安排中）或<strong>草稿章节</strong>，点它会提示、不会跳空页面。
             <br />拖动节点可手动摆放，「重新排列」恢复整齐布局。
           </p>
@@ -270,8 +270,7 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
         </div>
 
         <p class="graph-note">
-          这张图反映的是<strong>教学上的先后依赖</strong>，不是正文里的互相引用——
-          顺序来自 <code>src/data/curriculum.ts</code>，想调整先后只改那个文件。
+          这张图反映的是<strong>教学上的先后依赖</strong>，不是正文里的互相引用。
           {plannedCount > 0 && `其中 ${plannedCount} 门是预留课程，笔记还在规划中。`}
         </p>
       </div>

@@ -1829,3 +1829,16 @@ a.tag:hover {
   -webkit-user-select: none;
 }
 .graph-node text { pointer-events: none; }
+
+/* 页脚来源说明（opinion-12）：单独一行、压低对比度 —— 它要在场，但不抢视线 */
+.site-footer__note {
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  max-width: 68ch;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  line-height: 1.85;
+}
+.site-footer__note a { color: var(--text-muted); text-decoration: underline; }
+.site-footer__note a:hover { color: var(--accent-text); }
