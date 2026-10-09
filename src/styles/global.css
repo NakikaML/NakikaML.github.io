@@ -1812,3 +1812,20 @@ a.tag:hover {
 /* 非主干的先修边（一个章节有多个课内先修时，只保留一条实线主干）：
    画成虚线，免得树被额外连线搞乱、也分不清哪条才是主线 */
 .graph-link--secondary { stroke-dasharray: 4 4; stroke-opacity: 0.5; }
+
+/* 图谱拖动时不要选中文本（bug-8）。
+   ① 画布整体禁止选中：在节点上按住一拖会框选到页面文字，指针事件随之不可靠，节点就拖不动了；
+   ② 节点标签单独再禁一次 user-select，并关掉指针事件 —— 否则拖到文字上时
+      指针事件的 target 会变成 <text>，拖动体验会抖。
+   SVG 里 text 不继承父级的 user-select，所以必须单独写 `.graph-node text`。 */
+.graph-canvas,
+.graph-stage {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.graph-node,
+.graph-node text {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.graph-node text { pointer-events: none; }

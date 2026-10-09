@@ -694,6 +694,9 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
       let panning = null;
 
       svg.addEventListener('pointerdown', (evt) => {
+        // 阻止浏览器默认的「按下开始框选文字」：不拦的话在节点上按住一拖，
+        // 页面文字会被选中，指针事件也随之变得不可靠（拖不动节点的元凶）。
+        evt.preventDefault();
         const g = evt.target.closest?.('.graph-node');
         if (g && byId.has(g.dataset.id)) {
           dragging = { node: byId.get(g.dataset.id), moved: 0 };
@@ -706,7 +709,12 @@ const plannedCount = payload.courses.filter((c) => c.planned).length;
         svg.classList.add('is-panning');
       });
 
+      // 兜一层：拖着走的过程中也不许选中（某些浏览器只靠 pointerdown 还不够）
+      svg.addEventListener('selectstart', (evt) => evt.preventDefault());
+      svg.addEventListener('dragstart', (evt) => evt.preventDefault());
+
       svg.addEventListener('pointermove', (evt) => {
+        if (dragging || panning) evt.preventDefault();
         if (dragging) {
           const p = toGraph(toLocal(evt));
           const n = dragging.node;
