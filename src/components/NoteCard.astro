@@ -1,6 +1,6 @@
 ---
 import type { Note } from '../utils/notes';
-import { noteHref, fmtDate, noteSummary } from '../utils/notes';
+import { noteHref, fmtDate, noteSummary, noteUpdated } from '../utils/notes';
 
 interface Props {
   note: Note;
@@ -10,6 +10,9 @@ interface Props {
 
 const { note, showExcerpt = false, showCategory = true } = Astro.props;
 const date = fmtDate(note.data.date);
+// 回头改过的笔记显示「更新于 X」（opinion-11）——列表页一眼能看出哪几篇是新的。
+// 没更新过的还是只显示日期，不额外加字。
+const updated = noteUpdated(note);
 const desc = showExcerpt ? noteSummary(note) : '';
 const hasCategory = showCategory && note.data.category && note.data.category !== '未分类';
 ---
@@ -22,6 +25,15 @@ const hasCategory = showCategory && note.data.category && note.data.category !==
     {note.data.draft && <span class="badge badge--draft">草稿</span>}
     {hasCategory && <span class="tag tag--accent">{note.data.category}</span>}
     {note.data.difficulty && <span>{note.data.difficulty}</span>}
-    {date && <span>{date}</span>}
+    {
+      updated ? (
+        <span class="card__updated" title={date ? `发布于 ${date}` : undefined}>
+          <span aria-hidden="true">↻</span>
+          <time datetime={updated}>更新于 {updated}</time>
+        </span>
+      ) : (
+        date && <span>{date}</span>
+      )
+    }
   </div>
 </a>

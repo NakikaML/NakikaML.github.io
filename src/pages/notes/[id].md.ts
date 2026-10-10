@@ -40,11 +40,13 @@ function buildFrontmatter(data: Note['data']): string {
   if (data.description) lines.push(`description: ${yamlString(data.description)}`);
   if (data.slug) lines.push(`slug: ${yamlString(data.slug)}`);
   lines.push(`category: ${yamlString(data.category)}`);
-  lines.push(`kind: ${yamlString(data.kind)}`);
   for (const key of ['subject', 'subfield', 'topic', 'difficulty'] as const) {
     if (data[key]) lines.push(`${key}: ${yamlString(data[key])}`);
   }
   if (data.date) lines.push(`date: ${yamlString(data.date)}`);
+  // 「最后更新」（opinion-11）也要带出去：读者把原文下载回本地，
+  // 得能看出这篇是什么时候修订过的，跟页面上看到的一致。
+  if (data.updated) lines.push(`updated: ${yamlString(data.updated)}`);
   if (data.sourcePath) lines.push(`sourcePath: ${yamlString(data.sourcePath)}`);
   if (data.url) lines.push(`url: ${yamlString(data.url)}`);
   if (data.tags.length > 0) {

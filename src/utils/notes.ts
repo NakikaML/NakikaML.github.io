@@ -23,6 +23,48 @@ export function byDateDesc<T extends { data: { date?: string | Date } }>(a: T, b
 }
 
 /**
+ * 这篇笔记的「最后更新」日期（opinion-11），没有则返回 ''。
+ * ==========================================================
+ * 判定很严格：frontmatter 里写了 `updated`，**并且它确实比 `date` 晚**，
+ * 才算「更新过」。理由两条：
+ *   · 把 updated 写成和 date 同一天（或更早）时，页面会多出一行「更新于 X」，
+ *     但读者一点信息都没得到 —— 两天日期一样，纯属噪音；
+ *   · 页面上出现「更新于」就等于向读者承诺「这篇比标注的日期新」，
+ *     宁可不显示，也不能虚标。
+ * 日期都是 `YYYY-MM-DD`，字符串比较就等价于时间比较，不用再转 Date。
+ */
+export function noteUpdated(note: Note): string {
+  const updated = fmtDate(note.data.updated);
+  if (!updated) return '';
+  const created = fmtDate(note.data.date);
+  return created && updated <= created ? '' : updated;
+}
+
+/**
+ * 「最近更新」的排序键：取 updated 与 date 里更晚的那个。
+ *
+ * 为什么不直接把 allNotes() 改成按 updated 排序：那个顺序同时被
+ * 「同分类上一篇/下一篇」（siblings）和章序目录用着，一改就会把
+ * DSA-1→DSA-8 这种阅读顺序打乱。所以只给「最近更新」这类展示位单独排。
+ */
+function updatedKey(note: Note): number {
+  const t = (d?: string | Date) => (d ? new Date(d).getTime() : 0);
+  const updated = t(note.data.updated);
+  const created = t(note.data.date);
+  return updated > created ? updated : created;
+}
+
+/** 按「最后更新」倒序（未更新过的用原日期参与排序） */
+function byUpdatedDesc(a: Note, b: Note): number {
+  return updatedKey(b) - updatedKey(a);
+}
+
+/** 首页「最近更新」用：按最后更新时间倒序取前 n 篇 */
+export function recentNotes(notes: Note[], limit = 6): Note[] {
+  return [...notes].sort(byUpdatedDesc).slice(0, limit);
+}
+
+/**
  * 草稿可见性开关 —— 只在开发服务器里显示草稿
  * ============================================================
  * `astro dev`（pnpm dev）时 `import.meta.env.DEV` 为 **true**：

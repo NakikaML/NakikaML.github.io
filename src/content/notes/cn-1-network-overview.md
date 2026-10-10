@@ -7,6 +7,7 @@ subfield: 计算机网络
 topic: 计算机网络概论
 difficulty: 基础
 date: "2026-09-26"
+updated: "2026-09-28"
 tags: [计算机网络, 网络基础, 交换技术, 网络拓扑, 性能指标, OSI, TCP/IP]
 draft: false
 featured: false

@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { allNotes, siblings, fmtDate, noteHref } from '../../utils/notes';
+import { allNotes, siblings, fmtDate, noteHref, noteUpdated } from '../../utils/notes';
 import { buildToc, chapterOf, countToc } from '../../utils/toc';
 
 export async function getStaticPaths() {
@@ -25,6 +25,8 @@ const tocCount = countToc(toc);
 const hasToc = tocCount > 2;
 
 const date = fmtDate(d.date);
+// 「最后更新」（opinion-11）：只有 updated 比 date 晚才算数，见 utils/notes.ts
+const updated = noteUpdated(note);
 ---
 
 <BaseLayout title={d.title} description={`${d.category} · ${d.title}`} ogType="article">
@@ -45,7 +47,17 @@ const date = fmtDate(d.date);
         <span class="tag tag--accent">{d.category}</span>
         {d.difficulty && <span>{d.difficulty}</span>}
         {d.subfield && <span>{d.subfield}</span>}
-        {date && <time datetime={date}>{date}</time>}
+        {/* 创建时间 + 最后更新时间（opinion-11）。两个都写清楚「发布于 / 更新于」，
+            免得读者把更新日期当成首发日期，也免得以为标注过日期就再没改过。 */}
+        {date && <time datetime={date}>发布于 {date}</time>}
+        {
+          updated && (
+            <span class="note-updated">
+              <span class="badge badge--update">已更新</span>
+              <time datetime={updated}>更新于 {updated}</time>
+            </span>
+          )
+        }
         {/* 原文 .md 由 src/pages/notes/[id].md.ts 在构建时一并产出（opinion-1） */}
         <a class="note-download" href={`/notes/${note.id}.md`} download={`${note.id}.md`}>
           下载原文 .md

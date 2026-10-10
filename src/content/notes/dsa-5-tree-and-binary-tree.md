@@ -7,6 +7,7 @@ subfield: 数据结构与算法
 topic: 树和二叉树
 difficulty: 中等
 date: "2026-09-29"
+updated: "2026-09-30"
 tags: [数据结构与算法, 树与二叉树, 遍历, 线索二叉树, 哈夫曼树, 并查集]
 draft: false
 featured: false

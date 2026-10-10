@@ -41,6 +41,21 @@ const notes = defineCollection({
       (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v),
       z.string().default('')
     ),
+    /**
+     * 最后更新日期（opinion-11）。**跟 date 一样兼容加不加引号。**
+     *
+     * `date` 是「这篇写给哪个时间点」（很多时候是课程章序的锚点），
+     * `updated` 是「我最后一次补充/订正它是什么时候」。只有 updated 比 date 晚，
+     * 页面上才会多出一行「更新于 X」——读者因此能看出这篇是回头改过的，
+     * 而不是「标注了日期就再没动过」。
+     *
+     * 没写过就留空（默认），页面表现跟以前完全一样。
+     * 手改一行，或者 `pnpm stamp <笔记>` 让它帮你写（scripts/stamp-updated.mjs），都行。
+     */
+    updated: z.preprocess(
+      (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v),
+      z.string().default('')
+    ),
     sourcePath: z.string().default(''),
     url: z.string().default(''),
     tags: z.array(z.string()).default([]),

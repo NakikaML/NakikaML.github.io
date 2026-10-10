@@ -7,6 +7,7 @@ subfield: C++程序设计基础
 topic: C++基础入门
 difficulty: 基础
 date: "2026-09-30"
+updated: "2026-10-08"
 tags: [C++, C++基础, 编译与链接, 算法特性, 命名空间, 标识符命名]
 draft: false
 featured: false

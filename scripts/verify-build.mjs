@@ -10,6 +10,8 @@
  *   4b. 根路径静态资源（作品封面等）是否都存在
  *   4c. 每篇笔记是否都产出了可下载的 .md 原文、详情页是否链到了它
  *   4d. 正文配图是否都带 lazy / width+height / 放大标记
+ *   4e. 声明了「最后更新」（updated）的笔记，详情页是否真的显示了「更新于」
+ *   4f. 产物 CSS 是否关掉了编程连字（`!=` 不会被画成 `≠`）
  *   5. 产物体积构成
  *
  * 用法： node scripts/verify-build.mjs
@@ -285,6 +287,60 @@ if (imgTotal === 0) {
   report(imgSized, ' width/height 占位', '图片尺寸解析失败时只会退化成不写尺寸');
   report(imgZoomable, '放大标记', '见 bug-5 / opinion-9');
   if (imgLazy < imgTotal || imgZoomable < imgTotal) failures++;
+}
+
+// ------------------------------------------- 4e. 「最后更新」字段（opinion-11）
+// frontmatter 里写了 updated 的笔记，详情页必须真的显示「更新于 X」——否则字段写了等于没写，
+// 而且不会报任何错。这里是构建产物层面唯一的兜底：字段有、字就得在页面上。
+console.log('\n【4e】「最后更新」字段（opinion-11）');
+/** 从手写原文的 frontmatter 里取一个 YYYY-MM-DD 标量 */
+function fmDate(src, key) {
+  const end = src.indexOf('\n---', 3);
+  const fm = src.startsWith('---') && end > 0 ? src.slice(4, end) : '';
+  const m = fm.match(new RegExp(`^${key}:\\s*["']?(\\d{4}-\\d{2}-\\d{2})`, 'm'));
+  return m ? m[1] : '';
+}
+const declaredUpdates = [];
+for (const id of noteIds) {
+  const src = fs.readFileSync(path.join(notesSrcDir, `${id}.md`), 'utf8');
+  const date = fmDate(src, 'date');
+  const updated = fmDate(src, 'updated');
+  // 跟 utils/notes.ts 的 noteUpdated 保持同一条判定：不比 date 晚就当没更新
+  if (!updated || (date && updated <= date)) continue;
+  declaredUpdates.push({ id, updated });
+}
+if (declaredUpdates.length === 0) {
+  console.log('  ⚠ 没有笔记声明最后更新（frontmatter 加 updated: YYYY-MM-DD 即可标记修订）');
+} else {
+  const notShown = declaredUpdates.filter(({ id, updated }) => {
+    const page = path.join(notesDir, id, 'index.html');
+    if (!fs.existsSync(page)) return true;
+    return !fs.readFileSync(page, 'utf8').includes(`更新于 ${updated}`);
+  });
+  if (notShown.length === 0) {
+    ok(`${declaredUpdates.length} 篇笔记声明了最后更新，详情页都显示了「更新于」`);
+    info(declaredUpdates.map(({ id, updated }) => `${updated}  ${id}`).join('\n    '));
+  } else {
+    bad(`${notShown.length} 篇声明了 updated 却没在页面上显示：`);
+    notShown.slice(0, 8).forEach(({ id, updated }) => info(`${id}（frontmatter 写的是 ${updated}）`));
+    info('提示：updated 必须比 date 晚才会显示，见 src/utils/notes.ts 的 noteUpdated()');
+    failures++;
+  }
+}
+
+// ------------------------------------------- 4f. 代码不启用编程连字（bug-10）
+// 等宽编程字体默认会把 `!=` 合成 `≠`、`>=` 合成 `≥`，读者看着像源码被改了字符。
+// 这里只保证「关连字」那条规则确实进了产物 —— 规则被谁删掉时能立刻发现。
+// （渲染层面的验收靠人眼 + headless Chrome 对照，见 README「踩过的坑」#11。）
+console.log('\n【4f】代码不启用编程连字（bug-10）');
+const cssFiles = all.filter((f) => f.endsWith('.css'));
+const ligOff = cssFiles.some((f) => /font-variant-ligatures:\s*none/.test(fs.readFileSync(f, 'utf8')));
+if (ligOff) {
+  ok('产物 CSS 有关闭编程连字的规则（font-variant-ligatures: none）');
+} else {
+  bad('产物 CSS 里找不到关闭连字的规则 —— 代码里的 != 可能又被画成 ≠');
+  info('修复见 src/styles/global.css 的「代码里关掉编程连字」一节');
+  failures++;
 }
 
 // ------------------------------------------------------------ 5. 体积

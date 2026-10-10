@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteCard from '../components/NoteCard.astro';
 import WorkCard from '../components/WorkCard.astro';
-import { contentNotes, countByCategory, byDateDesc, visible } from '../utils/notes';
+import { contentNotes, countByCategory, byDateDesc, visible, recentNotes } from '../utils/notes';
 import { projects } from '../data/projects';
 import { site } from '../site.config';
 
@@ -13,7 +13,9 @@ const posts = visible(await getCollection('blog')).sort(byDateDesc);
 const works = visible(await getCollection('works')).sort(byDateDesc);
 
 const cats = countByCategory(notes);
-const latestNotes = notes.slice(0, 6);
+// 这块叫「最近更新」，就得真的按最后更新时间排（opinion-11）：
+// 补写过旧笔记的话，它会重新冒到前面来，而不是永远压在首发日期那一列里。
+const latestNotes = recentNotes(notes, 6);
 // 精选优先：标了 featured 的排前面，不足 3 件时用最新作品补齐。
 // （以前是「有精选就只显示精选」，只标 1 件时首页就只剩一张孤零零的卡）
 // 一件都没标时，结果与旧的兜底行为一致：最新 3 件。

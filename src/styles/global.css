@@ -125,6 +125,28 @@
 /* --------------------------------------------------------- 重置 */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* -------------------------------------------- 代码里关掉编程连字
+ * JetBrains Mono / Cascadia Code / Fira Code 这类等宽字体带「编程连字」：
+ * 它们会把 `!=` 画成 `≠`、`>=` 画成 `≥`、`->` 画成 `→`、`<=` 画成 `≤`。
+ *
+ * 对正文是锦上添花，对**代码是错**的：读者看到 `≠` 会以为源码里写的就是 `≠`，
+ * 而复制出来又是 `!=` ——「看到的」和「拿到的」对不上，教别人写代码时尤其致命。
+ * （本项目踩过：cpp-10 的 `if (maxIdx != i)` 在浏览器里显示成了 `if (maxIdx ≠ i)`，
+ *   一度以为是构建管线改了字符，见 README「踩过的坑」#11。）
+ *
+ * 注意 `calt` 必须一起关：这几个字体的连字主要挂在 calt（上下文替代）上，
+ * 只关 liga 在部分字体里不生效。
+ */
+pre,
+code,
+kbd,
+samp,
+.code-block,
+.code-block__lang {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0, "calt" 0, "dlig" 0, "hlig" 0;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -1183,6 +1205,30 @@ a.tag:hover {
   color: var(--warn-text);
   border: 1px dashed color-mix(in srgb, var(--warn) 45%, transparent);
 }
+/* 「已更新」徽章（opinion-11）：绿色 = 「这篇被回头补过」，跟“草稿/出错”的红系分开 */
+.badge--update {
+  background: var(--green-soft);
+  color: var(--green-text);
+  border: 1px solid color-mix(in srgb, var(--green) 32%, transparent);
+}
+
+/* 笔记卡片上的「↻ 更新于 X」：列表页一眼看出哪几篇是新的。
+   没更新过的卡片仍然是朴素的一串日期，不会满屏都是绿色。 */
+.card__updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  color: var(--green-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 详情页页头的「已更新 更新于 X」：徽章与日期绑成一组，换行时不会拆散 */
+.note-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.note-updated time { font-variant-numeric: tabular-nums; }
 
 /* 开发模式提示条：只在 `pnpm dev` 时出现，提醒「现在看到的包含未发布内容」 */
 .dev-hint {
