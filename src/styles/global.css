@@ -1608,84 +1608,20 @@ a.tag:hover {
    ================================================================ */
 .graph-page { margin-bottom: 4rem; }
 
-/* 宽屏：左栏筛选 + 右侧画布；窄屏堆叠（见文件末尾的媒体查询） */
-.graph-layout {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.graph-side {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  position: sticky;
-  top: 5rem;
-}
-.graph-side__group h2 {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin: 0 0 0.6rem;
-}
-.graph-side__list { display: flex; flex-direction: column; gap: 0.25rem; }
-.graph-side__item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.4rem 0.55rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--text-muted);
-  font: inherit;
-  font-size: 0.875rem;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.graph-side__item:hover { background: var(--bg-soft); color: var(--text); }
-.graph-side__item.is-active {
-  background: var(--accent-soft);
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  color: var(--accent-text);
-  font-weight: 600;
-}
-.graph-side__dot {
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-.graph-side__count {
-  margin-left: auto;
-  color: var(--text-faint);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-}
-.graph-side__hint {
-  margin: 0;
-  color: var(--text-faint);
-  font-size: 0.78rem;
-  line-height: 1.8;
-}
+/* 一条窄工具栏 + 一张大画布。
+   原来左侧那栏「课程列表 / 操作」已经去掉 —— 课程列表本来就是图上点一下就能做的事，
+   去掉之后画布能占满整行（这一版排版需要横向空间：课程按依赖分列、每列还要装下章节树）。 */
+.graph-layout { display: flex; flex-direction: column; }
 
 /* ---------------------------------------------------------------- 画布 */
-.graph-main { min-width: 0; }
 .graph-bar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 0.55rem;
   margin-bottom: 0.75rem;
 }
 .graph-search {
-  flex: 1 1 200px;
+  flex: 1 1 auto;
   min-width: 0;
   padding: 0.45rem 0.7rem;
   border: 1px solid var(--border-strong);
@@ -1700,29 +1636,22 @@ a.tag:hover {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
-.graph-legend {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--text-faint);
-  font-size: 0.78rem;
-}
-.graph-legend__item { display: inline-flex; align-items: center; gap: 0.3rem; }
-
-.graph-btn {
+/* 「适应窗口」：贴着搜索框右侧的小按钮，不抢视线 */
+.graph-fit {
   flex: 0 0 auto;
-  padding: 0.45rem 0.75rem;
+  white-space: nowrap;
+  padding: 0.42rem 0.7rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-muted);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.12s;
 }
-.graph-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+.graph-fit:hover { border-color: var(--accent); color: var(--accent-text); }
 
 .graph-stage {
   position: relative;
@@ -1735,11 +1664,10 @@ a.tag:hover {
 .graph-canvas {
   display: block;
   width: 100%;
-  height: clamp(440px, 64vh, 760px);
+  height: clamp(520px, 72vh, 900px);
   cursor: grab;
 }
-.graph-canvas.is-panning,
-.graph-canvas.is-dragging { cursor: grabbing; }
+.graph-canvas.is-panning { cursor: grabbing; }
 
 /* 边：默认很淡的灰，只有点亮的先修链才变主题色 */
 .graph-link {
@@ -1747,6 +1675,8 @@ a.tag:hover {
   stroke-opacity: 0.7;
   stroke-width: 1.4;
 }
+/* 课程级箭头：略粗一点 —— 它是这张图的骨架（.is-lit 的 2px 会覆盖它，见下） */
+.graph-link--course { stroke-width: 1.6; }
 .graph-link.is-lit { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
 .graph-link.is-dim { stroke-opacity: 0.18; }
 
@@ -1769,6 +1699,27 @@ a.tag:hover {
   font-size: 10px;
   font-weight: 500;
 }
+
+/* 章号角标：挂在节点左侧的小方块 + 数字。
+   shortTitle() 刻意把「第 N 章」从标签里剥掉了（序号由位置表达），
+   但位置只看得出「在第几层」，看不出「同层里谁先谁后」—— 角标把顺序补回来。 */
+.graph-node__chip {
+  fill: var(--bg-soft);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+.graph-node__num {
+  fill: var(--text-faint);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.graph-node.is-current .graph-node__chip {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+.graph-node.is-current .graph-node__num { fill: var(--accent-text); }
 .graph-node:hover rect { fill: var(--accent-soft); stroke: var(--accent); }
 .graph-node:hover text { fill: var(--text); }
 
@@ -1835,11 +1786,7 @@ a.tag:hover {
 }
 
 @media (max-width: 860px) {
-  .graph-layout { grid-template-columns: minmax(0, 1fr); }
-  .graph-side { position: static; }
-  .graph-side__list { flex-direction: row; flex-wrap: wrap; }
-  .graph-side__item { width: auto; }
-  .graph-canvas { height: clamp(380px, 58vh, 540px); }
+  .graph-canvas { height: clamp(400px, 62vh, 560px); }
 }
 
 /* 预留课程（笔记还在规划中）：虚线 + 更淡，且不响应展开 */
@@ -1851,18 +1798,15 @@ a.tag:hover {
 .graph-node--planned text { fill: var(--text-faint); font-weight: 600; }
 .graph-node--planned .graph-node__badge { fill: var(--text-faint); }
 
-/* 侧栏里禁用的课程项（预留课程） */
-.graph-side__item:disabled { cursor: not-allowed; opacity: 0.62; }
-.graph-side__item:disabled:hover { background: none; color: var(--text-muted); }
+/* 注：章节先修**不分主干/旁支**，全部是同样的实线肘形。
+   早期版本把「建树用的那个父节点」画实线、其余画虚线，读起来像在说「这条前置是次要的」——
+   前置就是前置，没有主次；多条先修自然汇到同一个节点上（竖直段重叠，视觉上就收成一条）。 */
 
-/* 非主干的先修边（一个章节有多个课内先修时，只保留一条实线主干）：
-   画成虚线，免得树被额外连线搞乱、也分不清哪条才是主线 */
-.graph-link--secondary { stroke-dasharray: 4 4; stroke-opacity: 0.5; }
-
-/* 图谱拖动时不要选中文本（bug-8）。
-   ① 画布整体禁止选中：在节点上按住一拖会框选到页面文字，指针事件随之不可靠，节点就拖不动了；
-   ② 节点标签单独再禁一次 user-select，并关掉指针事件 —— 否则拖到文字上时
-      指针事件的 target 会变成 <text>，拖动体验会抖。
+/* 画布上不要选中文本：
+   ① 画布整体禁止选中 —— 平移时按住一拖会框选到页面文字，指针事件随之不可靠；
+   ② 节点标签单独再禁一次 user-select，并关掉指针事件 —— 否则指针落在文字上时
+      事件的 target 会变成 <text>，悬停信息卡与点击判定都会抖
+      （以前节点可拖动时这是 bug-8 的成因，现在节点不可拖，但这两条依然要留）。
    SVG 里 text 不继承父级的 user-select，所以必须单独写 `.graph-node text`。 */
 .graph-canvas,
 .graph-stage {
