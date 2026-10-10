@@ -63,7 +63,7 @@ export const courseDeps: Array<[string, string]> = [
 export const courses: Course[] = [
   {
     id: 'C++程序设计基础',
-    note: '从语法骨架到现代 C++，一条主线走完',
+    note: '从语法基础骨架到现代 C++',
     chapters: [
       { id: 'cpp-1-basics' },
       { id: 'cpp-2-data-types-and-operators', prereq: ['cpp-1-basics'] },
@@ -85,7 +85,7 @@ export const courses: Course[] = [
     chapters: [
       { id: 'dsa-1-introduction' },
       { id: 'dsa-2-linear-list', prereq: ['dsa-1-introduction'] },
-      { id: 'dsa-3-stack-and-queue', prereq: ['dsa-2-linear-list'] },
+      { id: 'dsa-3-stack-and-queue', prereq: ['dsa-2-linear-list', 'cpp-7-structs'] },
       { id: 'dsa-4-string-array-generalized-list', prereq: ['dsa-2-linear-list'] },
       { id: 'dsa-5-tree-and-binary-tree', prereq: ['dsa-3-stack-and-queue'] },
       { id: 'dsa-6-graph', prereq: ['dsa-3-stack-and-queue'] },

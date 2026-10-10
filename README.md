@@ -6,8 +6,9 @@
 
 **技术栈**：Astro 7 静态站点 + 一套自检脚本 + GitHub Actions 自动部署。
 
-> **当前状态**：内容已全部改为手写，笔记/博客/作品板块暂时为空（等你自己写）。
-> 仓库刚重建过，**代码尚未推送** —— 推送到 `main` 后线上地址即恢复。
+> **当前状态**：笔记（数据结构与算法 / C++程序设计基础 / 计算机网络 三门课）与作品集都已上线，
+> 推送到 `main` 即自动部署；博客还是空的（只有模板），等你自己写。
+> 内容全部手写，不从 Obsidian 搬运。（篇数用 `pnpm stamp` 看，或直接看站点。）
 
 > 📖 **想改网站上的文字，看 [`编辑指南.md`](编辑指南.md)** ——
 > 那份文件列出了「网站上哪句话在哪个文件里」，不用懂编程也能改。
@@ -58,6 +59,7 @@ pnpm preview      # 预览构建产物
 | `pnpm verify` | 检查产物：页面齐全 / 公式渲染 / 图片完整 / 体积构成 |
 | `pnpm check:math` | 检查公式定界符合法性 |
 | `pnpm check:live` | 检查线上站点 13 个关键点 |
+| `pnpm stamp` | 列/写笔记的「最后更新」日期（见下方「最后更新」一节） |
 | `pnpm sync` | 从 Obsidian 同步（当前白名单为空，输出 0 篇） |
 | `pnpm sync:dry` | 同步演练，不写任何文件 |
 | `node scripts/smoke-test.mjs` | 对本地运行中的站点跑 HTTP 冒烟测试 |
@@ -93,6 +95,7 @@ title: JVM 内存模型到底在讲什么
 description: 一句话摘要，显示在卡片上。不填会从正文自动截取。
 category: 计算机科学          # 会出现在筛选按钮里
 date: "2026-09-22"           # 加引号更保险
+updated: "2026-10-05"        # 可选：回头补充/订正过才填，见下
 tags: [Java, JVM]
 draft: true                  # ← 改成 false 才会发布
 ---
@@ -100,9 +103,33 @@ draft: true                  # ← 改成 false 才会发布
 正文正常写 Markdown。
 ```
 
-其他可用字段：`kind`（`note` 默认 / `moc` 知识地图）、`difficulty`、`featured`（首页精选）。
+其他可用字段：`difficulty`（难度）、`featured`（首页精选）、`subject` / `subfield` / `topic`（分层归类的细粒度字段）。
 
 **笔记文件名就是 URL**，用英文小写 + 连字符最稳（如 `jvm-memory-model.md`）。
+
+#### 最后更新（opinion-11）
+
+`date` 是「这篇写给哪个时间点」，`updated` 是「我最后一次补充/订正它是什么时候」。
+两者都填、且 `updated` 比 `date` 晚时，页面才会多出更新标记：
+
+| 位置 | 没更新过 | 更新过 |
+| :--- | :--- | :--- |
+| 笔记详情页页头 | `发布于 2026-09-22` | `发布于 2026-09-22` ＋ `已更新 更新于 2026-10-05` |
+| 笔记卡片（列表/首页） | `2026-09-22` | `↻ 更新于 2026-10-05`（绿色） |
+| 首页「最近更新」排序 | 按 `date` | 按 `updated`（补写过的旧笔记会重新冒到前面） |
+
+所以改完一篇旧笔记、打上 `updated`，读者就能看出这篇是新的，而不是以为标过日期就再没动过。
+
+```bash
+pnpm stamp                                  # 只看：列出每篇的 date / updated 现状
+pnpm stamp cpp-1-basics                     # 写上今天的日期
+pnpm stamp cpp-1-basics 2026-10-05          # 或指定日期
+pnpm stamp cpp-1-basics --unset             # 摘掉这个字段
+```
+
+> `updated` 不比 `date` 晚时**不会显示**（判定见 `src/utils/notes.ts` 的 `noteUpdated`），
+> 避免出现「标了个没信息量的更新日期」。`pnpm stamp` 会直接拦住这种写法。
+> 构建时由 `pnpm verify` 的第 4e 项兜底：字段写了却没渲染出来会报错。
 
 > 🚫 **笔记之间暂时不做跳转**：正文里不要写指向其他笔记的链接（`[文字](/notes/xxx/)`），
 > 直接写标题字面就行（例如「见 C++程序设计基础-6 指针」）；笔记详情页底部也不会出现「相关笔记」。
@@ -114,7 +141,7 @@ draft: true                  # ← 改成 false 才会发布
 ### ✍️ 加一篇博客
 
 在 `src/content/blog/` 新建 `.md`，格式与笔记类似，字段为
-`title` / `description` / `date` / `tags` / `draft`。
+`title` / `description` / `date` / `updated`（可选，同笔记的「最后更新」）/ `tags` / `draft`。
 
 ### 🎙️ 加一个作品
 
@@ -205,7 +232,8 @@ Nakika-Personal-Website/
 │
 ├── scripts/
 │   ├── sync-vault.mjs        Obsidian 同步管线（当前停用，代码保留）
-│   ├── verify-build.mjs      产物自检
+│   ├── verify-build.mjs      产物自检（含「最后更新」字段是否真的渲染出来）
+│   ├── stamp-updated.mjs     给笔记打「最后更新」日期（pnpm stamp）
 │   ├── rehype-code-meta.mjs  代码块：语言标签 + 复制按钮
 │   ├── rehype-image-figure.mjs 正文图片：懒加载 / 尺寸占位 / 放大按钮
 │   ├── test-image-size.mjs   上面那个插件的回归测试（含各图片格式的尺寸解析）
@@ -254,8 +282,8 @@ Nakika-Personal-Website/
 
 ### 为什么停用
 
-笔记是写给自己的，直接搬运对读者没有价值。详见博客文章
-《[为什么我要做一个个人网站](/blog/why-i-built-this-site/)》。
+笔记是写给自己的 —— 跳步、自造缩写、只在本篇成立的上下文，直接搬上来读者看到的是天书。
+所以每一篇放上网站的都重写过（这也是笔记板块更新慢的原因）。
 
 ### 想重新开启时
 
@@ -344,19 +372,38 @@ includeFolders: {
 - **修复**：schema 用 `z.preprocess` 兼容两种写法（Date 自动转成 `YYYY-MM-DD` 字符串）。
   模板里也改成了加引号的写法。
 
+### 11. 代码里的 `!=` 显示成 `≠`（编程连字，不是字符被改）
+
+- **现象**：笔记里 `if (maxIdx != i)` 在页面上显示成 `if (maxIdx ≠ i)`，像是构建管线改了字符。
+- **真相**：**字符一直是 `!=`**（源文件与产物 HTML 里的 `!=` 数量逐篇核对一致；复制出来也是 `!=`）。
+  是**字体连字**在骗眼睛 —— 等宽编程字体（JetBrains Mono / Cascadia Code / Fira Code）默认会把
+  `!=` 合成 `≠`、`>=` 合成 `≥`、`->` 合成 `→`。本机装了 Cascadia Code，而 `--font-mono` 的第一个
+  候选 JetBrains Mono 没装，于是代码就落到了 Cascadia Code 上。
+- **修复**：`global.css` 里对 `pre / code / kbd / samp / .code-block` 关掉连字
+  （`font-variant-ligatures: none` + `font-feature-settings: "liga" 0, "clig" 0, "calt" 0, ...`）。
+  **`calt` 必须一起关** —— 这几个字体的连字主要挂在 calt（上下文替代）上，只关 `liga` 不生效。
+- **验收方式**（不是靠肉眼猜）：把截图里的那段代码 + 站点真实 CSS 拼成一个临时 HTML，
+  用 headless Chrome 渲染 A/B 两组 —— 关连字组显示 `!=`，强制打开连字组显示 `≠`。
+- **注意**：这只修网站。**Obsidian 的阅读视图有自己的字体设置**，那边的连字要去
+  `设置 → 外观 → 等宽字体` 里处理，跟本站无关。
+
 ---
 
 ## 已知问题与待办
 
 ### 1. 笔记板块仍在陆续补内容
 
-笔记已经上线（`src/content/notes/` 下有 DSA-1~8、CN-1），但都是重写过的公开版，会一篇篇加。
+`src/content/notes/` 下的都是重写过的公开版（DSA-1~8、CPP、CN-1~2），会继续一篇篇加。
+**还没写完的仍是 `draft: true`** —— 只有 `pnpm dev` 里看得到，写完把 `draft` 改成 `false` 即可上线。
+想确认当前哪几篇还是草稿：看 `pnpm dev` 列表页顶部的提示条，或搜 frontmatter 里的 `draft: true`。
 笔记页的「目前还没有内容」空状态只在真的一篇都没有时才会出现。
 
-### 2. 作品集只上线了精选
+### 2. 作品集
 
-`src/content/works/` 里仍留着 `draft: true` 的模板；已发布的作品由 `pnpm import:bili` 从 B站 拉取生成。
-填上链接、把 `draft` 改成 `false` 即可上线。
+`src/content/works/` 里的作品已按 `date` 倒序发布，封面图在 `public/works/`。
+`_模板-*.md` 是给人复制用的模板，以下划线开头，任何模式下都不会出现在网站上。
+以后再从 B站 拉新投稿：`pnpm import:bili`（读根目录的 `bili-works*.json`），
+跑完记得扫一眼它生成的 `bili-import-report.md` 核对 `type` 猜得对不对。
 
 ### 3. 联系方式（已填全）
 
