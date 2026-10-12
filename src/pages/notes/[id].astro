@@ -2,17 +2,23 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { allNotes, siblings, fmtDate, noteHref, noteUpdated } from '../../utils/notes';
+import { courseSeries } from '../../utils/course-series';
 import { buildToc, chapterOf, countToc } from '../../utils/toc';
 
 export async function getStaticPaths() {
   const notes = await allNotes();
   return notes.map((note) => ({
     params: { id: note.id },
-    props: { note, siblingsPair: siblings(notes, note) },
+    props: {
+      note,
+      siblingsPair: siblings(notes, note),
+      // 页尾的「同课程笔记」（opinion-8）：同课程全系列 + 高亮自己，数据来自 curriculum.ts
+      series: courseSeries(notes, note),
+    },
   }));
 }
 
-const { note, siblingsPair } = Astro.props;
+const { note, siblingsPair, series } = Astro.props;
 const { Content, headings } = await render(note);
 
 const d = note.data;
@@ -137,7 +143,49 @@ const updated = noteUpdated(note);
           )
         }
 
-        {/* 笔记间跳转功能已按需求暂时下线（原「相关笔记」区块，见 bug及意见汇总.md opinion-10） */}
+        {/* 页尾「同课程笔记」（opinion-8）：按课程体系列全系列并高亮当前这篇。
+            顺序与章名都来自 src/data/curriculum.ts，这里只负责渲染。
+            （原来的标签「相关笔记」已按 opinion-10 摘掉，别再走回头路。） */}
+        {
+          series && (
+            <nav class="series" aria-label="同课程笔记">
+              <div class="series__head">
+                <span class="series__title">同课程笔记</span>
+                <span class="series__meta">
+                  {series.course} · 共 {series.items.length} 篇
+                </span>
+              </div>
+              <ol class="series__list">
+                {series.items.map((item) => (
+                  <li
+                    class:list={[
+                      'series__item',
+                      item.current && 'is-current',
+                      !item.href && 'is-pending',
+                    ]}
+                    data-note-id={item.id}
+                    aria-current={item.current ? 'page' : undefined}
+                  >
+                    {item.href && !item.current ? (
+                      <a class="series__link" href={item.href}>
+                        <span class="series__num">{item.chapter}</span>
+                        <span class="series__name">{item.label}</span>
+                      </a>
+                    ) : (
+                      <span class="series__link">
+                        <span class="series__num">{item.chapter}</span>
+                        <span class="series__name">{item.label}</span>
+                        <span class={item.current ? 'series__now' : 'series__todo'}>
+                          {item.current ? '当前' : '待发布'}
+                        </span>
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )
+        }
 
         {
           (siblingsPair?.prev || siblingsPair?.next) && (

@@ -105,6 +105,9 @@ draft: true                  # ← 改成 false 才会发布
 
 其他可用字段：`difficulty`（难度）、`featured`（首页精选）、`subject` / `subfield` / `topic`（分层归类的细粒度字段）。
 
+> `subfield` 写课程名（如 `数据结构与算法`）时，这篇笔记就归到那门课里 ——
+> 页尾的「同课程笔记」列表按它分组（见 `bug及意见汇总.md` 的 opinion-8）。
+
 **笔记文件名就是 URL**，用英文小写 + 连字符最稳（如 `jvm-memory-model.md`）。
 
 #### 最后更新（opinion-11）
@@ -131,10 +134,15 @@ pnpm stamp cpp-1-basics --unset             # 摘掉这个字段
 > 避免出现「标了个没信息量的更新日期」。`pnpm stamp` 会直接拦住这种写法。
 > 构建时由 `pnpm verify` 的第 4e 项兜底：字段写了却没渲染出来会报错。
 
-> 🚫 **笔记之间暂时不做跳转**：正文里不要写指向其他笔记的链接（`[文字](/notes/xxx/)`），
-> 直接写标题字面就行（例如「见 C++程序设计基础-6 指针」）；笔记详情页底部也不会出现「相关笔记」。
-> 想恢复这个功能看 `bug及意见汇总.md` 的 opinion-10。
-> 「上一篇 / 下一篇」、本页目录、分类与标签跳转**都还在**。
+> 🚫 **正文里不要手写指向别的笔记的链接**（`[文字](/notes/xxx/)`）——直接写标题字面就行
+> （例如「见 C++程序设计基础-6 指针」），要跳转由页面上的导航负责。
+>
+> ✅ **页尾的「同课程笔记」（opinion-8）** 会自动把整门课列出来并高亮正在读的这一篇：
+> 课程顺序、章名、哪些章还没写，全部来自 `src/data/curriculum.ts`（与知识图谱同一份数据）。
+> 所以想让它出现在课程列表里 → 把那篇挂进对应课程的 `chapters`；
+> 挂进去但还没写的章会显示成灰色的「待发布」。
+> 「上一篇 / 下一篇」、本页目录、分类与标签跳转也都在。
+> （当初摘掉的是**按标签算**的那块「相关笔记」，见 opinion-10。）
 
 > ⚠️ **写多行公式时把 `$$` 单独放一行。**
 
@@ -232,7 +240,7 @@ Nakika-Personal-Website/
 │
 ├── scripts/
 │   ├── sync-vault.mjs        Obsidian 同步管线（当前停用，代码保留）
-│   ├── verify-build.mjs      产物自检（含「最后更新」字段是否真的渲染出来）
+│   ├── verify-build.mjs      产物自检（最后更新字段 / 同课程笔记列表 / 图片与链接…）
 │   ├── stamp-updated.mjs     给笔记打「最后更新」日期（pnpm stamp）
 │   ├── rehype-code-meta.mjs  代码块：语言标签 + 复制按钮
 │   ├── rehype-image-figure.mjs 正文图片：懒加载 / 尺寸占位 / 放大按钮
@@ -255,7 +263,9 @@ Nakika-Personal-Website/
 │   │   ├── blog/             ✍️ 手写博客
 │   │   └── works/            ✍️ 手写作品（含三个模板）
 │   ├── data/projects.ts      ✍️ 项目数据
+│   ├── data/curriculum.ts    ✍️ 课程顺序与先修（知识图谱 + 页尾「同课程笔记」共用）
 │   ├── utils/notes.ts        共用工具函数
+│   ├── utils/course-series.ts 页尾「同课程笔记」列表（opinion-8）
 │   ├── layouts/BaseLayout.astro
 │   ├── components/           Header / Footer / 卡片
 │   ├── styles/global.css     全站样式

@@ -12,6 +12,7 @@
  *   4d. 正文配图是否都带 lazy / width+height / 放大标记
  *   4e. 声明了「最后更新」（updated）的笔记，详情页是否真的显示了「更新于」
  *   4f. 产物 CSS 是否关掉了编程连字（`!=` 不会被画成 `≠`）
+ *   4g. 笔记页尾的「同课程笔记」列表是否真的渲染出来、高亮自己、且没有死链（opinion-8）
  *   5. 产物体积构成
  *
  * 用法： node scripts/verify-build.mjs
@@ -341,6 +342,93 @@ if (ligOff) {
   bad('产物 CSS 里找不到关闭连字的规则 —— 代码里的 != 可能又被画成 ≠');
   info('修复见 src/styles/global.css 的「代码里关掉编程连字」一节');
   failures++;
+}
+
+// ------------------------------------------- 4g. 页尾「同课程笔记」（opinion-8）
+// 每篇笔记的页尾都该按 curriculum.ts 列出同课程全系列、并高亮自己。这块整块消失、高亮错行、
+// 链接指向没构建出来的笔记，构建本身都不会报错，所以在这里逐页兜住：
+//   ① 同 subfield 有 ≥2 篇的笔记，页尾必须真有这块列表；
+//   ② 高亮（aria-current="page"）正好一行，且就是这一页自己；
+//   ③ 列表里的链接必须都指向已构建的笔记（不能是死链）；
+//   ④ 同一门课的其他已上线笔记都得在列表里（漏挂 / 漏渲染都能看出来）；
+//   ⑤ 表头写的「共 N 篇」要和实际行数一致。
+console.log('\n【4g】页尾「同课程笔记」（opinion-8）');
+/** 从手写原文的 frontmatter 里取一个纯文本标量 */
+function fmText(src, key) {
+  const end = src.indexOf('\n---', 3);
+  const fm = src.startsWith('---') && end > 0 ? src.slice(4, end) : '';
+  const m = fm.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  return m ? m[1].trim().replace(/^["']|["']$/g, '') : '';
+}
+const builtPages = new Set(notePageDirs);
+const bySubfield = new Map();
+for (const id of notePageDirs) {
+  const src = fs.readFileSync(path.join(notesSrcDir, `${id}.md`), 'utf8');
+  const subfield = fmText(src, 'subfield');
+  if (!subfield) continue;
+  if (!bySubfield.has(subfield)) bySubfield.set(subfield, []);
+  bySubfield.get(subfield).push(id);
+}
+const noBlock = [];
+const wrongCurrent = [];
+const deadSeriesLinks = [];
+const notListed = [];
+const countMismatch = [];
+let seriesPages = 0;
+for (const [course, ids] of bySubfield) {
+  if (ids.length < 2) continue; // 这门课只有一篇：没有「其他笔记」可列，页面本来就不该有这块
+  for (const id of ids) {
+    const page = path.join(notesDir, id, 'index.html');
+    const html = fs.readFileSync(page, 'utf8');
+    const block = (html.match(/<nav class="series"[\s\S]*?<\/nav>/) ?? [''])[0];
+    if (!block) {
+      noBlock.push(`${id}（${course}）`);
+      continue;
+    }
+    seriesPages++;
+
+    const marks = [...block.matchAll(/<li[^>]*data-note-id="([^"]+)"[^>]*aria-current="page"/g)].map(
+      (m) => m[1]
+    );
+    if (marks.length !== 1 || marks[0] !== id) {
+      wrongCurrent.push(`${id} → ${marks.length ? marks.join('、') : '没有任何一行高亮'}`);
+    }
+
+    const rowIds = new Set([...block.matchAll(/data-note-id="([^"]+)"/g)].map((m) => m[1]));
+    const missing = ids.filter((other) => !rowIds.has(other));
+    if (missing.length > 0) notListed.push(`${id} 的列表里缺 ${missing.join('、')}`);
+
+    for (const link of block.matchAll(/href="\/notes\/([^/"]+)\//g)) {
+      if (!builtPages.has(link[1])) deadSeriesLinks.push(`${id} → /notes/${link[1]}/`);
+    }
+
+    const meta = (block.match(/series__meta">([^<]*)</) ?? [])[1] ?? '';
+    const declared = Number((meta.match(/共\s*(\d+)\s*篇/) ?? [])[1]);
+    if (!Number.isFinite(declared) || declared !== rowIds.size) {
+      countMismatch.push(`${id} → 表头「${meta}」，实际 ${rowIds.size} 行`);
+    }
+  }
+}
+if (seriesPages === 0) {
+  console.log('  ⚠ 没有找到带「同课程笔记」的笔记详情页，跳过');
+} else {
+  const problems = [
+    [noBlock, '笔记页尾没有「同课程笔记」列表', '同 subfield 只有一篇时本来就不渲染这块，检查 curriculum.ts 的 chapters'],
+    [wrongCurrent, '高亮行不对', '高亮的一行必须正好是这一页自己'],
+    [notListed, '漏掉了同课程的笔记', '同 subfield 的笔记没挂进 curriculum.ts 会被兜底补上，不该缺'],
+    [deadSeriesLinks, '列表里是死链', 'href 只在笔记已上线时才会生成（见 utils/course-series.ts）'],
+    [countMismatch, '表头篇数与实际行数不一致', '见 src/pages/notes/[id].astro 的 series__meta'],
+  ];
+  let broken = 0;
+  for (const [list, label, hint] of problems) {
+    if (list.length === 0) continue;
+    broken += list.length;
+    bad(`${list.length} 处${label}：`);
+    list.slice(0, 8).forEach(info);
+    info(`提示：${hint}`);
+  }
+  if (broken === 0) ok(`${seriesPages} 篇笔记的页尾列表都在，且各自高亮了自己`);
+  else failures++;
 }
 
 // ------------------------------------------------------------ 5. 体积

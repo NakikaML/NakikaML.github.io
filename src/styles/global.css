@@ -920,6 +920,86 @@ a.tag:hover {
 }
 .note-head__meta .tag-row { margin-top: 0.15rem; }
 
+/* ------------------------------------- 同课程笔记（opinion-8） */
+/*
+ * 页尾的课程系列列表：按 curriculum.ts 的顺序把整门课列出来，当前这篇高亮。
+ * 视觉上刻意做得像「章节清单」而不是「推荐卡片」——它讲的是顺序，不是相关度。
+ */
+.series {
+  margin-top: 3.5rem;
+  padding: 1.1rem 1.15rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+}
+.series__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+.series__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.series__meta { font-size: 0.78rem; color: var(--text-faint); }
+.series__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* 每行都是「章号 | 章名 | 状态角标」三栏，章号用等宽数字，扫一眼就能对齐 */
+.series__link {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr auto;
+  align-items: baseline;
+  gap: 0.65rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+a.series__link { transition: background 0.15s, color 0.15s; }
+a.series__link:hover {
+  background: var(--bg-elevated);
+  color: var(--accent-text);
+  text-decoration: none;
+}
+.series__num {
+  text-align: right;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.series__name { line-height: 1.5; }
+/* 当前这篇：浅金底 + 左侧色条。用 inset 阴影不用 border —— 不然整行会比其他行矮/胖 2px */
+.series__item.is-current .series__link {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.series__now {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-text);
+}
+/* 还没写的章节：灰行、不可点，标明「待发布」而不是留一个死链 */
+.series__item.is-pending .series__link { color: var(--text-faint); }
+.series__item.is-pending .series__num { opacity: 0.72; }
+.series__todo {
+  padding: 0.05rem 0.45rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
 /* --------------------------------------------- 上一篇/下一篇 */
 .prev-next {
   display: grid;

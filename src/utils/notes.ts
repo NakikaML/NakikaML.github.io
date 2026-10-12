@@ -142,10 +142,10 @@ export function siblings(notes: Note[], current: Note): { prev?: Note; next?: No
 /**
  * 按共享标签数找相关笔记
  *
- * ⚠️ 当前未使用：笔记之间的跳转功能已按需求**暂时下线**
- * （详情页底部的「相关笔记」区块已摘掉，见 bug及意见汇总.md opinion-10）。
- * 函数本身留着没删，将来想恢复这个功能时，在 `src/pages/notes/[id].astro`
- * 的 getStaticPaths 里把它算出来、再渲染一个卡片网格即可。
+ * ⚠️ 当前未使用，而且**不要**用它去填页尾：「相关笔记」这个按标签算的区块
+ * 已按需求摘掉（见 bug及意见汇总.md opinion-10）；页尾现在放的是按课程体系
+ * 渲染的「同课程笔记」（opinion-8，见 utils/course-series.ts）——那讲的是顺序，不是相关度。
+ * 函数本身留着没删，将来真想恢复标签推荐时再用。
  */
 export function relatedNotes(notes: Note[], current: Note, limit = 5): Note[] {
   const own = new Set(current.data.tags ?? []);
