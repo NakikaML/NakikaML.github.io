@@ -303,7 +303,10 @@ function fmDate(src, key) {
   return m ? m[1] : '';
 }
 const declaredUpdates = [];
-for (const id of noteIds) {
+// 只查**真的产出了页面**的笔记（= 已发布）。`draft: true` 的笔记本来就不进产物，
+// 拿它们的 frontmatter 去要求「页面上必须有『更新于』」是错的判定 ——
+// 数学那 11 篇草稿在转正之前会让这一项永远红着（踩过）。
+for (const id of notePageDirs) {
   const src = fs.readFileSync(path.join(notesSrcDir, `${id}.md`), 'utf8');
   const date = fmDate(src, 'date');
   const updated = fmDate(src, 'updated');

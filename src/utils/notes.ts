@@ -14,12 +14,24 @@ export function workAnchor(work: Work): string {
   return work.data.url || `/works/#${work.id}`;
 }
 
-/** 按日期倒序，没有日期的排最后，其次按标题 */
-export function byDateDesc<T extends { data: { date?: string | Date } }>(a: T, b: T): number {
+/**
+ * 同一天发布的笔记，按标题的**自然顺序**排（`…-2` 排在 `…-10` 前面）。
+ *
+ * 为什么需要它：同一天上线的一批笔记 date 完全相同，`byDateDesc` 原本对这种情况返回 0，
+ * 顺序就退化成「文件名的字典序」—— `hm-1, hm-10, hm-11, hm-2, …`，读者一眼看到第 10 章
+ * 排在第 2 章前面。用带 `numeric: true` 的排序器兜住，篇目顺序就永远是对的。
+ */
+const TITLE_ORDER = new Intl.Collator('zh-Hans-CN', { numeric: true, sensitivity: 'base' });
+
+/** 按日期倒序，没有日期的排最后；同一天按标题的自然顺序 */
+export function byDateDesc<T extends { data: { date?: string | Date; title?: string } }>(
+  a: T,
+  b: T
+): number {
   const da = a.data.date ? new Date(a.data.date).getTime() : 0;
   const db = b.data.date ? new Date(b.data.date).getTime() : 0;
   if (da !== db) return db - da;
-  return 0;
+  return TITLE_ORDER.compare(a.data.title ?? '', b.data.title ?? '');
 }
 
 /**

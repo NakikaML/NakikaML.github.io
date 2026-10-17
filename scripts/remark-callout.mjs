@@ -111,9 +111,23 @@ function splitTitle(raw, type) {
   return { chip: `${m[1]} ${m[2]}`, rest: rest.trim() };
 }
 
+/**
+ * 标题是**纯文本**：`$…$` 在本插件之前就已被 remark-math 拆成 math 节点，
+ * 到这里只剩 TeX 源码（`\frac{0}{0}`），而标题不会再解析公式 ——
+ * 于是 `:::example 例 1 · 基本的 $\frac{0}{0}$ 型` 会显示成「基本的 \frac{0}{0} 型」。
+ * 这条警告就是为了别再靠肉眼发现：标题里请写纯文字。
+ */
+function warnTexTitle(rest, file, position) {
+  if (!rest) return;
+  if (/\\[a-zA-Z]+|[\^_]\s*\{|[{}]/.test(rest)) {
+    warnAt(file, { position }, `callout 标题里有公式源码（标题不解析公式）：「${rest}」`);
+  }
+}
+
 /** 组装 callout 的 mdast 节点 */
-function buildCallout({ type, title }, children, position) {
+function buildCallout({ type, title }, children, position, file) {
   const { chip, rest } = splitTitle(title, type);
+  warnTexTitle(rest, file, position);
 
   const head = [part('span', ['callout__chip'], [text(chip)])];
   if (rest) head.push(part('span', ['callout__title'], [text(rest)]));
@@ -391,7 +405,7 @@ function transform(children, file) {
 
     const alias = parseAlias(node, file);
     if (alias) {
-      out.push(buildCallout(alias, transform(alias.body, file), alias.position));
+      out.push(buildCallout(alias, transform(alias.body, file), alias.position, file));
       i++;
       continue;
     }
@@ -400,7 +414,7 @@ function transform(children, file) {
     if (open) {
       const close = findClose(children, i + 1, node, file);
       const inner = transform(children.slice(i + 1, close.contentEnd), file);
-      out.push(buildCallout(open, inner, node.position));
+      out.push(buildCallout(open, inner, node.position, file));
       i = close.resume;
       continue;
     }

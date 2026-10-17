@@ -11,10 +11,12 @@
  *   · 它是**手写的教学判断**，不是从正文里能推出来的东西。
  * 想改顺序 / 加一篇新笔记，只改下面的数组即可，代码不用动。
  *
- * 三件事：
- *   1. courses      —— 课程列表 + 每门课的笔记顺序 + 依赖关系
- *   2. courseDeps   —— 课程与课程之间的依赖（跨课程「先修」）
- *   3. draftTitles  —— 还没发布的笔记的标题（页尾列表里显示成「待发布」）
+ * 四件事：
+ *   1. disciplines  —— **学科分野**（计算机科学 / 数学 …）。图上按分野分成上下两带，
+ *                      配色也按分野走（同一个分野同一个色系，见 opinion-18）
+ *   2. courses      —— 课程列表 + 每门课的笔记顺序 + 依赖关系（必须写上所属分野）
+ *   3. courseDeps   —— 课程与课程之间的依赖（跨课程「先修」）
+ *   4. draftTitles  —— 还没发布的笔记的标题（页尾列表里显示成「待发布」）
  *
  * ⚠️ 关于 draftTitles：`id` 必须与 `src/content/notes/<id>.md` 的文件名一致。
  *    图谱与页尾列表用的都是「已发布笔记」的真实标题；这里只是给**尚未发布**
@@ -28,6 +30,15 @@
 export interface Chapter {
   /** 笔记 id，必须等于 src/content/notes/<id>.md 的文件名 */
   id: string;
+  /**
+   * 展开后它在图上摆在哪一格：`[列, 行]`（列可以带小数，行从 1 开始）。
+   *
+   * ⚠️ **填了就锁定位置**：这门课的章节图完全按这里摆，不再由算法自动排序。
+   * 适合「我就是要这个形状」的图（高等数学那 11 章就是照着作者手画的图钉死的）。
+   * 不填 = 交给自动布局（按依赖深度分层 + 重心排序）。
+   * 同一门课里要么全填、要么全不填 —— 混着填会有一半节点没位置。
+   */
+  at?: [number, number];
   /**
    * 先修笔记的 id 列表：写在这里表示「要先学它们」。
    *
@@ -48,6 +59,25 @@ export interface Chapter {
 export interface Course {
   /** 课程名，与笔记 frontmatter 的 subfield 保持一致 */
   id: string;
+  /**
+   * 所属**学科分野**：`disciplines[].key`（见下）。
+   * 省略时按 `计算机科学`（`cs`）处理 —— 早期数据没写这一项。
+   * 这个字段决定三件事：① 图上这门课落在哪条分野带里；
+   * ② 课程头的配色（一个分野一个色系，见 global.css 的 `--disc-*`）；
+   * ③ 课程之间的先修箭头只在本分野内画（跨分野的先修请改布局，不要硬画）。
+   */
+  discipline?: string;
+  /**
+   * 这门课在**全局列网格**里摆哪一格：`[列, 行]`，都从 0 起。
+   *
+   * ⚠️ **列是全图共用的**（不是每条带各排各的）：同一个列号在两条带里落在同一条竖线上。
+   *    所以「离散数学」正好在「C++程序设计基础」的**正上方** —— 它那条跨带虚线才能
+   *    与 C++ 的箭头并成同一支（作者 2026-10 的草图就是这么画的）。
+   * 列 = 学习的先后（左先右后），行 = 带内并行的两条路线（0 是上面那一行，行号只在本带内有效）。
+   * 填了就**钉死**：布局不再按依赖深度分列，只照抄这个格子；
+   * 不填 = 退回老算法（列 = 依赖深度、行 = 0），临时加一门课也不会掉出图。
+   */
+  at?: [number, number];
   /** 展开后显示在课程头上的说明 */
   note?: string;
   chapters: Chapter[];
@@ -57,6 +87,42 @@ export interface Course {
    * 悬停/点击会提示"笔记还在安排中"。等笔记上线后把这里改成 false 并补上 chapters 即可。
    */
   planned?: boolean;
+}
+
+/**
+ * 学科分野 —— 知识图谱最外一层的分组（opinion-18）。
+ * ============================================================
+ * 一门课属于哪个分野，就在 `courses` 里写 `discipline: '<key>'`。
+ * 图的排版、配色、图例全部按这里的顺序与 key 走，**改顺序就改这里**：
+ *   · 图上每个分野一条横向底带，分野之间留空档，带内按依赖分列；
+ *   · 配色写在 `src/styles/global.css` 的 `--disc-<key>-*`（浅色 / 深色两套）；
+ *   · 新增分野 = 这里加一项 + global.css 补三行色值，代码不用动。
+ */
+export interface Discipline {
+  /** ASCII 键：CSS 的 `--disc-<key>-*` 与图上 `data-disc` 都用它 */
+  key: string;
+  /** 图上显示的名字 */
+  label: string;
+  /** 图例 / 分野带上的一句话说明（可选） */
+  note?: string;
+}
+
+export const disciplines: Discipline[] = [
+  {
+    key: 'cs',
+    label: '计算机科学',
+    note: '从语言基础到数据结构、系统与网络',
+  },
+  {
+    key: 'math',
+    label: '数学',
+    note: '高等数学 / 线性代数 / 概率论与数理统计 / 离散数学 —— 从连续到离散',
+  },
+];
+
+/** 取一门课的所属分野（没写就是计算机科学） */
+export function disciplineOf(course: Course): string {
+  return course.discipline?.trim() || 'cs';
 }
 
 /**
@@ -74,16 +140,38 @@ export const courseDeps: Array<[string, string]> = [
   ['计算机网络', '数据结构与算法'],
   ['计算机系统基础', '数据结构与算法'],
   ['JavaWeb开发', 'Java程序设计基础'],
+  // 跨分野：离散数学是数据结构与算法的先修（集合与关系 → 图论/逻辑，正是 DSA 的地基）。
+  // 它在图上画成一条跨带连线，不参与两条带内部的「列」计算。
+  ['数据结构与算法', '离散数学'],
+
+  // 数学分野的内部路线：高数 → 统概、高数 → 离散、线代 → 离散
+  ['概率论与数理统计', '高等数学'],
+  ['离散数学', '高等数学'],
+  ['离散数学', '线性代数'],
 ];
 
 /**
  * 各课程的笔记顺序与依赖。
  * 数组顺序只在**同一层级**（依赖深度相同）时用来决定上下次序，
  * 真正的纵向位置由 prereq 算出来 —— 所以顺序写反了也不会画错，只是同层内可能上下颠倒。
+ *
+ * 课程头在**全局列网格**里的位置由 `at: [列, 行]` 决定（作者 2026-10 的草图）：
+ * 列号全图共用，所以同一个列号在两条带里落在同一条竖线上。
+ *
+ *        第 0 列              第 1 列                 第 2 列              第 3 列
+ *                          ┌ Java程序设计基础              JavaWeb开发          计算机系统基础
+ *                          │ C++程序设计基础               数据结构与算法       计算机网络
+ *   高等数学 ┐            │
+ *   线性代数 ┴────────────┴ 离散数学 / 概率论与数理统计
+ *
+ * 关键一点：**离散数学与 C++ 同列**，所以「离散数学 → 数据结构与算法」那条虚线
+ * 竖直抬上去以后，正好落进「C++ → 数据结构与算法」那支箭头的竖轨里，两条合成一支。
  */
 export const courses: Course[] = [
   {
     id: 'C++程序设计基础',
+    discipline: 'cs',
+    at: [1, 1],
     note: '从语法基础骨架到现代 C++',
     chapters: [
       { id: 'cpp-1-basics' },
@@ -102,6 +190,8 @@ export const courses: Course[] = [
   },
   {
     id: '数据结构与算法',
+    discipline: 'cs',
+    at: [2, 1],
     note: '从线性结构到树、图与查找排序',
     chapters: [
       { id: 'dsa-1-introduction' },
@@ -116,6 +206,8 @@ export const courses: Course[] = [
   },
   {
     id: '计算机网络',
+    discipline: 'cs',
+    at: [3, 1],
     note: '自下而上走一遍五层模型',
     chapters: [
       { id: 'cn-1-network-overview' },
@@ -130,19 +222,96 @@ export const courses: Course[] = [
   // ------------------------------------------------ 以下为预留课程（笔记规划中）
   {
     id: '计算机系统基础',
+    discipline: 'cs',
+    at: [3, 0],
     note: '计算机组成、操作系统与体系结构方向的整理计划',
     chapters: [],
     planned: true,
   },
   {
     id: 'Java程序设计基础',
+    discipline: 'cs',
+    at: [1, 0],
     note: 'Java 语法与面向对象基础（先修，笔记规划中）',
     chapters: [],
     planned: true,
   },
   {
     id: 'JavaWeb开发',
+    discipline: 'cs',
+    at: [2, 0],
     note: 'Servlet / Spring 方向的 Web 开发笔记（规划中）',
+    chapters: [],
+    planned: true,
+  },
+
+  // ================================================ 数学分野
+  // 四门课的全局路线（写在下面对应的 courseDeps 里）：
+  //     高等数学 → 概率论与数理统计
+  //     高等数学 → 离散数学
+  //     线性代数 → 离散数学
+  {
+    id: '高等数学',
+    discipline: 'math',
+    at: [0, 0],
+    note: '一元微积分 → 空间解析几何 → 多元微积分 → 曲线曲面积分与级数',
+    /**
+     * ⚠️ 这 11 章的位置是**照作者手画的草图钉死的**（`at: [列, 行]`），不走自动布局：
+     *      1
+     *      2        7
+     *      4        3
+     *      6   5        8
+     *           11            9
+     *                        10
+     * 改动前先想清楚：这是「作者认可的排版」，不是算法算出来的。
+     */
+    chapters: [
+      { id: 'hm-1-functions-and-limits', at: [2.3, 1] },
+      { id: 'hm-2-derivatives-and-differentials', at: [1.45, 2], prereq: ['hm-1-functions-and-limits'] },
+      { id: 'hm-7-vectors-and-analytic-geometry', at: [3.8, 2], prereq: ['hm-1-functions-and-limits'] },
+      { id: 'hm-4-indefinite-integral', at: [0.45, 3], prereq: ['hm-2-derivatives-and-differentials'] },
+      {
+        id: 'hm-3-mean-value-theorems',
+        at: [2.45, 3],
+        prereq: ['hm-2-derivatives-and-differentials'],
+      },
+      { id: 'hm-6-differential-equations', at: [0, 4], prereq: ['hm-4-indefinite-integral'] },
+      { id: 'hm-5-definite-integral', at: [1.1, 4], prereq: ['hm-4-indefinite-integral'] },
+      {
+        id: 'hm-8-multivariable-calculus',
+        at: [3.2, 4],
+        prereq: ['hm-3-mean-value-theorems', 'hm-7-vectors-and-analytic-geometry'],
+      },
+      {
+        id: 'hm-9-multiple-integrals',
+        at: [3.4, 5],
+        prereq: ['hm-5-definite-integral', 'hm-8-multivariable-calculus'],
+      },
+      { id: 'hm-11-infinite-series', at: [1.0, 5], prereq: ['hm-5-definite-integral'] },
+      { id: 'hm-10-line-and-surface-integrals', at: [3.35, 6], prereq: ['hm-9-multiple-integrals'] },
+    ],
+  },
+  {
+    id: '线性代数',
+    discipline: 'math',
+    at: [0, 1],
+    note: '矩阵与线性方程组、向量空间、特征值与二次型（笔记规划中）',
+    chapters: [],
+    planned: true,
+  },
+  {
+    id: '概率论与数理统计',
+    discipline: 'math',
+    at: [1, 1],
+    note: '随机变量与分布、数字特征、参数估计与假设检验（先修：高等数学；笔记规划中）',
+    chapters: [],
+    planned: true,
+  },
+  {
+    id: '离散数学',
+    discipline: 'math',
+    at: [1, 0],
+    note: '集合与关系、图论、数理逻辑 —— 数学与计算机的交汇（先修：高等数学 + 线性代数；笔记规划中）',
     chapters: [],
     planned: true,
   },
@@ -159,6 +328,21 @@ export const draftTitles: Record<string, string> = {
   'cn-4-network-layer': '计算机网络-4 网络层',
   'cn-5-transport-layer': '计算机网络-5 运输层',
   'cn-6-application-layer': '计算机网络-6 应用层',
+
+  // 高等数学 11 章：目前全部是 `draft: true`（等作者审阅后转正）。
+  // 留着这些兜底标题，构建出来的线上图谱/页尾也能把整条路线画完、显示成灰色的「待发布」；
+  // 某一章转正之后，这条就自动改用 frontmatter 里的真实标题，删掉也无害。
+  'hm-1-functions-and-limits': '高等数学-1 函数与极限',
+  'hm-2-derivatives-and-differentials': '高等数学-2 导数与微分',
+  'hm-3-mean-value-theorems': '高等数学-3 微分中值定理与导数的应用',
+  'hm-4-indefinite-integral': '高等数学-4 不定积分',
+  'hm-5-definite-integral': '高等数学-5 定积分',
+  'hm-6-differential-equations': '高等数学-6 微分方程',
+  'hm-7-vectors-and-analytic-geometry': '高等数学-7 向量代数与空间解析几何',
+  'hm-8-multivariable-calculus': '高等数学-8 多元函数微分学',
+  'hm-9-multiple-integrals': '高等数学-9 重积分',
+  'hm-10-line-and-surface-integrals': '高等数学-10 曲线积分与曲面积分',
+  'hm-11-infinite-series': '高等数学-11 无穷级数',
 };
 
 /**

@@ -52,6 +52,18 @@
   --brand-from: #c9402e;
   --brand-to: #9c3d15;
 
+  /* 学科分野色系（opinion-18）：知识图谱里「一个学科一个色系」。
+     每个分野三档 —— soft = 课程头实底 / line = 描边与图例圆点 / text = 课程头上的字。
+     新增分野：这里加三行 + 深色模式里再加三行，`src/data/curriculum.ts` 的 disciplines 里
+     加一项（key 必须与这里 `--disc-<key>-*` 的后缀一致），代码不用动。
+     `cs`（计算机科学）沿用主题暖橙金，`math`（数学）用青碧绿 —— 两者色相分开，深浅也分开。 */
+  --disc-cs-soft: #fdf1de;
+  --disc-cs-line: #d78b34;
+  --disc-cs-text: #8f5715;
+  --disc-math-soft: #e8f4ed;
+  --disc-math-line: #4f9a76;
+  --disc-math-text: #2f7355;
+
   /* 语义色：警示改用绯朱红，比橙黄更符合直觉；旧名字保持有效 */
   --warn: var(--red);
   --warn-soft: var(--red-soft);
@@ -113,6 +125,14 @@
 
     --brand-from: #f2705a;
     --brand-to: #b8502c;
+
+    /* 学科分野色系（深色）：soft 压到接近底色的深调，line / text 提亮 —— 与浅色同一套语义 */
+    --disc-cs-soft: #33250f;
+    --disc-cs-line: #e8a44e;
+    --disc-cs-text: #f0b968;
+    --disc-math-soft: #122b23;
+    --disc-math-line: #43b98d;
+    --disc-math-text: #6fd6ac;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.34);
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.40);
@@ -1812,6 +1832,42 @@ a.series__link:hover {
 }
 .graph-fit:hover { border-color: var(--accent); color: var(--accent-text); }
 
+/* 图例（opinion-18）：一个学科一个小圆点 + 名字。
+   放在搜索框与「适应窗口」之间 —— 它解释的是整张图的配色，位置要靠近图。 */
+.graph-legend {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.graph-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.graph-legend__item i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.graph-legend__item[data-disc='cs'] i { background: var(--disc-cs-line); }
+.graph-legend__item[data-disc='math'] i { background: var(--disc-math-line); }
+
+@media (max-width: 720px) {
+  /* 窄屏：图例折到工具栏第二行（搜索框与按钮留在第一行） */
+  .graph-bar { flex-wrap: wrap; }
+  .graph-legend { order: 3; flex: 1 0 100%; justify-content: flex-start; }
+}
+
 .graph-stage {
   position: relative;
   border: 1px solid var(--border);
@@ -1836,8 +1892,33 @@ a.series__link:hover {
 }
 /* 课程级箭头：略粗一点 —— 它是这张图的骨架（.is-lit 的 2px 会覆盖它，见下） */
 .graph-link--course { stroke-width: 1.6; }
+/* 跨分野的课（如「离散数学 → 数据结构与算法」）：用虚线区别于带内先修，
+   告诉读者「这条是跨学科的，不是同一门课里的顺序」。虚线在这里不代表草稿。 */
+.graph-link--cross {
+  stroke-dasharray: 6 4;
+  stroke-width: 1.7;
+}
 .graph-link.is-lit { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
 .graph-link.is-dim { stroke-opacity: 0.18; }
+
+/* 学科分野底带（opinion-18）：**一条带 = 一个学科**。
+   只上极淡的分野色 + 一圈同色细边，章节节点和箭头仍然压在它上面 ——
+   它负责回答「这几门课是一伙的」，不该比节点本身更抢眼。 */
+.graph-band {
+  stroke-width: 1;
+  fill-opacity: 0.06;
+  stroke-opacity: 0.22;
+}
+.graph-band[data-disc='cs'] { fill: var(--disc-cs-line); stroke: var(--disc-cs-line); }
+.graph-band[data-disc='math'] { fill: var(--disc-math-line); stroke: var(--disc-math-line); }
+.graph-band__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  fill: var(--text-muted);
+}
+.graph-band__label[data-disc='cs'] { fill: var(--disc-cs-text); }
+.graph-band__label[data-disc='math'] { fill: var(--disc-math-text); }
 
 /* 节点：圆角矩形 */
 .graph-node { cursor: pointer; }
@@ -1889,6 +1970,21 @@ a.series__link:hover {
   stroke-width: 1.6;
 }
 .graph-node--course text { fill: var(--accent-text); font-weight: 700; }
+
+/* 课程头按**学科分野**上色（opinion-18）：一个分野一个色系。
+   选择器比 `.graph-node--course rect` 更具体，所以写在它后面才生效；
+   悬停时不再换成主题色（那会抹掉「这门课属于哪个学科」），改成加粗描边做反馈。 */
+.graph-node--course[data-disc='cs'] rect { fill: var(--disc-cs-soft); stroke: var(--disc-cs-line); }
+.graph-node--course[data-disc='cs'] text { fill: var(--disc-cs-text); }
+.graph-node--course[data-disc='math'] rect { fill: var(--disc-math-soft); stroke: var(--disc-math-line); }
+.graph-node--course[data-disc='math'] text { fill: var(--disc-math-text); }
+.graph-node--course[data-disc]:hover rect { stroke-width: 2.4; }
+.graph-node--course[data-disc]:hover text { fill: var(--text); }
+
+/* 正在展开的课程头：描边加重一档，说明「下面那棵章节树是它的」——
+   树挂在课程行下方、横向还可能为了留在带内而偏一点，没有这个提示容易认错爹。 */
+.graph-node--course.is-open rect { stroke-width: 2.8; }
+.graph-node--course.is-open text { font-weight: 800; }
 
 /* 未发布的章节：虚线描边 + 略淡 */
 .graph-node--draft rect {
@@ -1956,6 +2052,15 @@ a.series__link:hover {
 }
 .graph-node--planned text { fill: var(--text-faint); font-weight: 600; }
 .graph-node--planned .graph-node__badge { fill: var(--text-faint); }
+
+/* 已经有分野的预留课程（如数学里的线性代数）：**留着分野淡色**，只把「规划中」交给
+   虚线与半透明表达 —— 否则整个数学带里只有高等数学是绿的，看不出这四门是一伙的。 */
+.graph-node--course.graph-node--planned[data-disc] rect {
+  fill-opacity: 0.42;
+  stroke-opacity: 0.7;
+  stroke-dasharray: 5 4;
+}
+.graph-node--course.graph-node--planned[data-disc] text { opacity: 0.8; }
 
 /* 注：章节先修**不分主干/旁支**，全部是同样的实线肘形。
    早期版本把「建树用的那个父节点」画实线、其余画虚线，读起来像在说「这条前置是次要的」——
