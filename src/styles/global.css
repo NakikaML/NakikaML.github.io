@@ -530,6 +530,85 @@ dialog.img-zoom::backdrop {
 .prose blockquote > *:last-child { margin-bottom: 0; }
 .prose blockquote > *:first-child { margin-top: 0; }
 
+/* ------------------------------------------- 例题 / 提示 内嵌块（opinion-22）
+   正文里写
+
+       :::example 例 1 · 求数组最大值
+       题目……
+       :::
+
+   由 scripts/remark-callout.mjs 转成下面这套结构。设计目标是「嵌在正文里」
+   而不是「浮在正文上」：不用投影（shadow 会把它抬起来），只用同色淡底 +
+   1px 边框 + 左侧一道粗色条，读起来像这段正文自己圈出来的一块。
+
+   配色：**例题用第三色（青碧绿）**。正文里的「引用块」（`.prose blockquote`）
+   已经占了主色（暖橙金），例题再用金色就分不清「信息补充」和「例题」了。
+   易错 / 警告用副色（绯朱红），和站点原有的警示色一致。 */
+.callout {
+  /* 每个 callout 自己带一套颜色变量，换类型只改这三个值 */
+  --callout: var(--accent);
+  --callout-soft: var(--accent-soft);
+  --callout-text: var(--accent-text);
+
+  margin: 1.75rem 0;
+  border: 1px solid color-mix(in srgb, var(--callout) 26%, var(--border));
+  border-left: 3px solid var(--callout);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--callout-soft) 55%, var(--bg-elevated));
+  /* 圆角别被里面的表格 / 代码块顶破 */
+  overflow: hidden;
+}
+.callout--example {
+  --callout: var(--green);
+  --callout-soft: var(--green-soft);
+  --callout-text: var(--green-text);
+}
+.callout--warning,
+.callout--danger {
+  --callout: var(--red);
+  --callout-soft: var(--red-soft);
+  --callout-text: var(--red-text);
+}
+
+.callout__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.6rem;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--callout) 20%, var(--border));
+  background: color-mix(in srgb, var(--callout-soft) 85%, transparent);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+/* 角标：例题显示「例 3」，其它类型显示类型名（提示 / 易错 …） */
+.callout__chip {
+  flex: none;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--callout) 38%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--callout) 15%, var(--bg-elevated));
+  color: var(--callout-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.callout__title {
+  min-width: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+.callout__body { padding: 0.9rem 1rem; }
+.callout__body > *:first-child { margin-top: 0; }
+.callout__body > *:last-child { margin-bottom: 0; }
+
+/* 窄屏：通栏更耐读，别让内边距把正文挤成一条细柱 */
+@media (max-width: 600px) {
+  .callout__body { padding: 0.8rem 0.85rem; }
+  .callout__head { padding: 0.45rem 0.85rem; }
+}
+
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.875em;

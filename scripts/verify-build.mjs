@@ -13,6 +13,7 @@
  *   4e. 声明了「最后更新」（updated）的笔记，详情页是否真的显示了「更新于」
  *   4f. 产物 CSS 是否关掉了编程连字（`!=` 不会被画成 `≠`）
  *   4g. 笔记页尾的「同课程笔记」列表是否真的渲染出来、高亮自己、且没有死链（opinion-8）
+ *   4h. 例题 / callout 内嵌块是否真的渲染出来、没有残留围栏标记（opinion-22）
  *   5. 产物体积构成
  *
  * 用法： node scripts/verify-build.mjs
@@ -428,6 +429,64 @@ if (seriesPages === 0) {
     info(`提示：${hint}`);
   }
   if (broken === 0) ok(`${seriesPages} 篇笔记的页尾列表都在，且各自高亮了自己`);
+  else failures++;
+}
+
+// ------------------------------------------- 4h. 例题内嵌块 / callout（opinion-22）
+// 正文写 `:::example 例 1 · 求数组最大值 … :::`，产物里必须真的变成
+// <div class="callout callout--example">。这类「围栏被原样印在页面上」的故障
+// 构建完全不会报错（最坏的结果就是读者看到一行 :::example），所以在这里兜住：
+//   ① 源码里有几道围栏，产物里就该有几个 callout 块；
+//   ② 产物的正文里不许残留未被消费的 `:::` / `[!example]`；
+//   ③ 例题框必须带角标（callout__chip），否则等于退回成一个普通灰框。
+console.log('\n【4h】例题 / callout 内嵌块（opinion-22）');
+const calloutShort = [];
+const calloutLeaked = [];
+const calloutNoChip = [];
+let calloutPages = 0;
+let calloutTotal = 0;
+for (const id of notePageDirs) {
+  const src = fs.readFileSync(path.join(notesSrcDir, `${id}.md`), 'utf8');
+  // 开头围栏：行首的 `:::类型`；收尾的裸 `:::` 不算
+  const fenced = (src.match(/^:::[ \t]*[A-Za-z][\w-]*/gm) ?? []).length;
+  const aliased = (src.match(/^>[ \t]*\[![\w-]+\]/gm) ?? []).length;
+  const declared = fenced + aliased;
+  if (declared === 0) continue;
+
+  const html = fs.readFileSync(path.join(notesDir, id, 'index.html'), 'utf8');
+  const rendered = (html.match(/class="callout callout--[\w-]+"/g) ?? []).length;
+  calloutPages++;
+  calloutTotal += rendered;
+
+  if (rendered < declared) calloutShort.push(`${id} 源码 ${declared} 个 / 产物 ${rendered} 个`);
+
+  // 没被插件消费掉的围栏会作为正文原样出现（`<p>:::example` 或 `<p>[!example]`）
+  const leak = html.match(/<p>:::[ \t]*[\w-]*|<p>[ \t]*\[![\w-]+\]/);
+  if (leak) calloutLeaked.push(`${id} → ${leak[0]}`);
+
+  // 例题框必须有角标：`.callout__head` 里有 `callout__chip`
+  const heads = (html.match(/class="callout__head"[\s\S]{0,400}?<\/div>/g) ?? []).length;
+  const chips = (html.match(/class="callout__chip"/g) ?? []).length;
+  if (chips < heads) calloutNoChip.push(`${id} 头 ${heads} 个 / 角标 ${chips} 个`);
+}
+if (calloutPages === 0) {
+  console.log('  ⚠ 没有任何笔记用到 callout 围栏，跳过');
+} else {
+  ok(`${calloutPages} 篇笔记用了 callout，产物里共 ${calloutTotal} 个内嵌块`);
+  const table = [
+    [calloutShort, '围栏没有全部渲染成 callout 块', '检查 scripts/remark-callout.mjs 的围栏配对与 astro.config.mjs 的注册'],
+    [calloutLeaked, '正文里残留了未消费的围栏标记', '多半是收尾的 `:::` 写成了别的样子，或围栏没顶格写'],
+    [calloutNoChip, '有 callout 头没有角标', '见 scripts/remark-callout.mjs 的 splitTitle / buildCallout'],
+  ];
+  let broken = 0;
+  for (const [list, label, hint] of table) {
+    if (list.length === 0) continue;
+    broken += list.length;
+    bad(`${list.length} 处${label}：`);
+    list.slice(0, 8).forEach(info);
+    info(`提示：${hint}`);
+  }
+  if (broken === 0) ok('callout 全部正常渲染（含角标），没有残留围栏标记');
   else failures++;
 }
 

@@ -58,6 +58,7 @@ pnpm preview      # 预览构建产物
 | `pnpm build` | 同步 + 构建（同步当前是空操作） |
 | `pnpm verify` | 检查产物：页面齐全 / 公式渲染 / 图片完整 / 体积构成 |
 | `pnpm check:math` | 检查公式定界符合法性 |
+| `pnpm test:callout` | `remark-callout` 的回归测试（例题内嵌块的围栏配对 / 标题拆分） |
 | `pnpm check:live` | 检查线上站点 13 个关键点 |
 | `pnpm stamp` | 列/写笔记的「最后更新」日期（见下方「最后更新」一节） |
 | `pnpm sync` | 从 Obsidian 同步（当前白名单为空，输出 0 篇） |
@@ -145,6 +146,35 @@ pnpm stamp cpp-1-basics --unset             # 摘掉这个字段
 > （当初摘掉的是**按标签算**的那块「相关笔记」，见 opinion-10。）
 
 > ⚠️ **写多行公式时把 `$$` 单独放一行。**
+
+#### 例题内嵌块（opinion-22）
+
+例题不再写成「一行加粗引用 + 一堆正文」，而是整块包进 `:::example … :::`，
+渲染成「角标（例 N）+ 标题 + 正文」的内嵌块（视觉参考 Obsidian 的 callout）：
+
+```markdown
+:::example 例 1 · 求数组最大值
+找出数组 `{300, 350, 200, 400, 250}` 中的最大值。
+
+**思路**：……
+**解**：……
+:::
+```
+
+- 同一个写法还支持 `:::tip`（提示）、`:::warning`（易错）、`:::note`（说明）、
+  `:::summary`（小结）、`:::quote` / `:::info` / `:::danger`。
+  例题是青碧绿，警告系是绯朱红，其余用暖橙金 —— 与正文里原有的引用块（暖橙金）区分开。
+- **从 Obsidian 粘过来的 `> [!example] 例 1` 也认**，渲染结果完全一致。
+- 收尾的 `:::` 忘了写不会吃掉整篇：会在下一个标题前自动收住并打印警告；
+  `pnpm verify` 的第 4h 项还会兜住「源码有围栏、产物没有 callout」和残留标记。
+- 实现：`scripts/remark-callout.mjs`（remark 阶段重组节点，靠 `data.hName` 落地成 div），
+  样式在 `global.css` 的 `.callout` 一节，回归测试 `pnpm test:callout`。
+- 现有 132 道例题是用 `scripts/migrate-example-callouts.mjs` 批量改写的
+  （边界规则、以及 4 处「题后跟着换话题正文」的手工截断都写在那份文件里；
+  再跑一次是空操作，可以放心当文档看）。
+- ⚠️ 「下载原文 .md」给的是**磁盘上的原文**，所以里面保留的就是 `:::example` 围栏 ——
+  Obsidian 不认这套写法（它认 `> [!example]`），读者在 Obsidian 里会看到字面的 `:::`。
+  想让下载件在 Obsidian 里也是 callout，正文就按 `> [!example]` 写，站点渲染结果一样。
 
 ### ✍️ 加一篇博客
 
@@ -235,7 +265,7 @@ pnpm check:live
 ```
 Nakika-Personal-Website/
 ├── content-sync.config.mjs   Obsidian 同步闸门（当前白名单为空 = 关闭）
-├── astro.config.mjs          站点配置（域名、KaTeX、sitemap、picomatch 垫片）
+├── astro.config.mjs          站点配置（域名、KaTeX、callout、sitemap、picomatch 垫片）
 ├── pnpm-workspace.yaml       构建脚本白名单
 │
 ├── scripts/
@@ -243,6 +273,9 @@ Nakika-Personal-Website/
 │   ├── verify-build.mjs      产物自检（最后更新字段 / 同课程笔记列表 / 图片与链接…）
 │   ├── stamp-updated.mjs     给笔记打「最后更新」日期（pnpm stamp）
 │   ├── rehype-code-meta.mjs  代码块：语言标签 + 复制按钮
+│   ├── remark-callout.mjs    例题 / 提示内嵌块（`:::example … :::`，opinion-22）
+│   ├── test-callout.mjs      上面那个插件的回归测试（围栏配对 / 标题拆分）
+│   ├── migrate-example-callouts.mjs 一次性迁移脚本：旧例题 → 内嵌块（已跑完）
 │   ├── rehype-image-figure.mjs 正文图片：懒加载 / 尺寸占位 / 放大按钮
 │   ├── test-image-size.mjs   上面那个插件的回归测试（含各图片格式的尺寸解析）
 │   ├── check-math-delims.mjs 公式定界符检查
@@ -396,6 +429,18 @@ includeFolders: {
   用 headless Chrome 渲染 A/B 两组 —— 关连字组显示 `!=`，强制打开连字组显示 `≠`。
 - **注意**：这只修网站。**Obsidian 的阅读视图有自己的字体设置**，那边的连字要去
   `设置 → 外观 → 等宽字体` 里处理，跟本站无关。
+
+### 12. `:::` 围栏被 markdown 吞进清单 / 表格里（opinion-22 期间踩到）
+
+- **现象**：例题框在页面上变成一行字面的 `:::example 例 1 · …`，收尾的 `:::` 没了，
+  构建时只在终端里留下一条 `[callout] xxx.md:211 没有找到收尾的 :::`。
+- **原因**：CommonMark 的**惰性续行**。围栏前后没有空行时，紧跟在清单 / 引用块后面的
+  `:::` 会被当成**最后一个列表项的续行**（跑进 `<li>` 里）；GFM 表格更狠，
+  会把它当成**新的一行**（`<td>:::</td>`）。两种情况下围栏都和外层的开围栏不在同一层。
+- **修复**：`scripts/remark-callout.mjs` 里分两步处理：先把「一行围栏」从所在的段落里
+  拆出来（`explodeFences`），再把被吞进容器末尾的围栏一层层提回同级
+  （`hoistTrailingFences`，清单 / 引用块 / 表格都覆盖）。这两个行为都有回归测试。
+- **写的时候仍然建议**：`:::` 前后各留一个空行。插件能救回来，但不该指望它每次都救。
 
 ---
 

@@ -8,6 +8,7 @@ import remarkMath from 'remark-math';
 import remarkCjkFriendly from 'remark-cjk-friendly';
 import rehypeKatex from 'rehype-katex';
 import remarkInlineDfrac from './scripts/remark-inline-dfrac.mjs';
+import remarkCallout from './scripts/remark-callout.mjs';
 import rehypeCodeMeta from './scripts/rehype-code-meta.mjs';
 import rehypeImageFigure from './scripts/rehype-image-figure.mjs';
 import rehypeScriptMetrics from './scripts/rehype-script-metrics.mjs';
@@ -134,7 +135,12 @@ export default defineConfig({
       // 不是这样，所以从知识库搬过来的公式一到网站上才显形）。
       // 详见 scripts/remark-inline-dfrac.mjs。
       //
-      remarkPlugins: [remarkCjkFriendly, remarkMath, remarkInlineDfrac],
+      // remarkCallout 负责「例题 / 提示」这类内嵌块（opinion-22）。
+      // 必须留在 remark 阶段（而不是像别的插件那样挂在 rehype 上）：
+      // 它要把 `:::example … :::`（以及 Obsidian 的 `> [!example] …`）之间的
+      // 兄弟块重新组装成一个 div，等进了 hast 就改不动父子关系了。
+      // 详见 scripts/remark-callout.mjs。
+      remarkPlugins: [remarkCjkFriendly, remarkMath, remarkInlineDfrac, remarkCallout],
       rehypePlugins: [
         // 笔记里有不少用中文直接写的公式（如 $$开始索引 = (当前页码-1) * 每页条数$$），
         // 关掉严格模式 + 不因渲染失败而中断构建，让它尽力渲染；
