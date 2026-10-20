@@ -15,7 +15,9 @@ const CHECKS = [
   { path: '/', expect: 'Nakika', label: '首页含站点名' },
   { path: '/about/', expect: '关于我' },
   { path: '/notes/', expect: '学习笔记', label: '页面正常' },
-  { path: '/notes/graph/', expect: '知识图谱' },
+  { path: '/notes/route/', expect: '学习路线' },
+  // 旧地址（知识图谱）现在是 meta refresh 重定向页，线上也得还在
+  { path: '/notes/graph/', expect: 'refresh', label: '旧地址仍可跳到学习路线' },
   { path: '/blog/', expect: '博客' },
   { path: '/works/', expect: '作品' },
   { path: '/projects/', expect: '项目' },

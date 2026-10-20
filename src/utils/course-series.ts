@@ -7,23 +7,30 @@
  * 为什么按课程而不是按标签：
  *   · 标签是横向的（讲「栈」的和讲「二叉树」的都能算相关），课程是纵向的 ——
  *     读者读完一章，真正想知道的是「这门课还有哪几章、我走到哪儿了」；
- *   · 这个顺序是作者手写的教学判断，已经放在 `src/data/curriculum.ts` 的 `courses` 里了，
- *     这里只把它翻译成「页面上要渲染的一行行」，**不重新排序**。想调顺序就改那个文件。
+ *   · 章节清单照 `src/data/curriculum.ts` 的 `courses` 取，但**按章号升序排**，
+ *     不照抄那个数组的顺序（bug-16）：
+ *       - `curriculum.ts` 的 `chapters` 数组是按**依赖**写的，高等数学那 11 章就是
+ *         `1, 2, 7, 4, 3, 6, 5, 8, 9, 11, 10`（照作者当年的依赖草图），C++ 也是
+ *         「文件操作」排在「面向对象」前面 —— 那是讲「先学谁」，不是目录该有的顺序；
+ *       - 页尾读起来要像目录，所以按标题里的章号排。排序器是 `utils/toc.ts` 的 byChapter，
+ *         学习路线页用的是同一个，两边永远一致。
+ *     「先学后学」这件事由学习路线页的课程/章节先修标签表达，不靠列表位置表达。
  *
  * 三种行的形态：
  *   · 已上线            → 可点的链接；
  *   · 课程里挂了、笔记还没写 → 灰行 +「待发布」（标题用 curriculum.ts 的 draftTitles 兜底）；
- *   · 同一 subfield 但没挂进课程 → 补到列表末尾（新写完忘了挂时，至少别让它从自己的页尾消失）。
+ *   · 同一 subfield 但没挂进课程 → 补到列表**末尾**（新写完忘了挂时，至少别让它从自己的页尾消失；
+ *     不参与上面那个章号排序，这样它不会混进正常章节里装成一条合法记录）。
  */
 
 import { courses, draftTitles, shortTitle } from '../data/curriculum';
 import type { Note } from './notes';
-import { chapterOf } from './toc';
+import { byChapter, chapterOf } from './toc';
 
 export interface SeriesItem {
   /** 笔记 id（= 文件名 = URL 末段） */
   id: string;
-  /** 短标题：剥掉课程名前缀与章号，与知识图谱沿用同一套规则（shortTitle） */
+  /** 短标题：剥掉课程名前缀与章号，与「学习路线」页沿用同一套规则（shortTitle） */
   label: string;
   /** 章号，从完整标题里取（"数据结构与算法-2 线性表" → 2），与目录编号同一套规则 */
   chapter: number;
@@ -71,9 +78,14 @@ export function courseSeries(notes: Note[], current: Note): CourseSeries | null 
     });
   }
 
+  // 计划内的章节：按**章号升序**排（bug-16）。别照抄 curriculum.ts 数组的顺序 ——
+  // 那个数组是照依赖写的（高等数学 1,2,7,4,3,6,5,8,9,11,10），当目录印出来就是乱的。
+  items.sort(byChapter);
+
   // 兜底：同一门课里还没写进 curriculum.ts 的笔记。
   // 不补的话，它自己的页尾会连「高亮的那一行」都没有 —— 看着像功能坏了。
-  // 顺序按章号（无章的排最后），跟上面「按课程顺序」的差别只在这几篇上。
+  // 它**不进上面那个章号排序**，一律排在清单末尾：混进正常章节里，读者和作者都看不出
+  // 「这一篇其实还没编进课程」。（学习路线页对同一件事的处理是挂「未编入路线」角标。）
   const extras = notes
     .filter((n) => n.data.subfield?.trim() === course && !listed.has(n.id))
     .map((n) => ({ note: n, chapter: chapterOf(n.data.title) }))

@@ -55,7 +55,10 @@ const required = [
   ['关于我', 'about/index.html'],
   ['履历（跳转到 /about/#cv）', 'cv/index.html'],
   ['笔记列表', 'notes/index.html'],
-  ['知识图谱', 'notes/graph/index.html'],
+  ['学习路线', 'notes/route/index.html'],
+  // 旧地址（知识图谱，opinion-24 下线）必须还在：astro.config.mjs 的 redirects
+  // 会为它生成一个 meta refresh 页，老书签才不会 404。
+  ['旧地址重定向 /notes/graph/', 'notes/graph/index.html'],
   ['博客列表', 'blog/index.html'],
   ['作品集', 'works/index.html'],
   ['项目', 'projects/index.html'],
@@ -208,7 +211,7 @@ console.log('\n【4c】笔记原文（.md）导出');
 const notesDir = path.join(DIST, 'notes');
 /**
  * 注意：dist/notes/ 下除了「一篇笔记一个目录」，还会有 **别的子路由**
- * （目前是 /notes/graph/ 知识图谱）。那些不是笔记，没有也不该有 .md 原文，
+ * （目前是 /notes/route/ 学习路线，另有一个 /notes/graph/ 的旧地址重定向）。那些不是笔记，没有也不该有 .md 原文，
  * 所以这里以 src/content/notes/ 里的真实笔记文件为准来认定「哪些是笔记详情页」，
  * 而不是把 notes/ 下每个带 index.html 的目录都当成笔记。
  */
@@ -355,7 +358,9 @@ if (ligOff) {
 //   ② 高亮（aria-current="page"）正好一行，且就是这一页自己；
 //   ③ 列表里的链接必须都指向已构建的笔记（不能是死链）；
 //   ④ 同一门课的其他已上线笔记都得在列表里（漏挂 / 漏渲染都能看出来）；
-//   ⑤ 表头写的「共 N 篇」要和实际行数一致。
+//   ⑤ 表头写的「共 N 篇」要和实际行数一致；
+//   ⑥ 章号必须从头到尾递增（bug-16：以前直接照抄 curriculum.ts 数组的顺序，
+//      高数那 11 章印出来是 1 → 2 → 7 → 4 → 3 → …，看着就是乱的）。
 console.log('\n【4g】页尾「同课程笔记」（opinion-8）');
 /** 从手写原文的 frontmatter 里取一个纯文本标量 */
 function fmText(src, key) {
@@ -378,6 +383,7 @@ const wrongCurrent = [];
 const deadSeriesLinks = [];
 const notListed = [];
 const countMismatch = [];
+const outOfOrder = [];
 let seriesPages = 0;
 for (const [course, ids] of bySubfield) {
   if (ids.length < 2) continue; // 这门课只有一篇：没有「其他笔记」可列，页面本来就不该有这块
@@ -411,6 +417,12 @@ for (const [course, ids] of bySubfield) {
     if (!Number.isFinite(declared) || declared !== rowIds.size) {
       countMismatch.push(`${id} → 表头「${meta}」，实际 ${rowIds.size} 行`);
     }
+
+    // 章号递增（bug-16）。只比对「已编入课程」的行：兜底补进来的那几篇
+    // （data-note-id 在 curriculum.ts 里没有）本来就排在末尾，不参与这个判定。
+    const order = [...block.matchAll(/class="series__num">(\d+)</g)].map((m) => Number(m[1]));
+    const monotonic = order.every((n, i) => i === 0 || n >= order[i - 1]);
+    if (!monotonic) outOfOrder.push(`${id} → ${order.join(' → ')}`);
   }
 }
 if (seriesPages === 0) {
@@ -422,6 +434,11 @@ if (seriesPages === 0) {
     [notListed, '漏掉了同课程的笔记', '同 subfield 的笔记没挂进 curriculum.ts 会被兜底补上，不该缺'],
     [deadSeriesLinks, '列表里是死链', 'href 只在笔记已上线时才会生成（见 utils/course-series.ts）'],
     [countMismatch, '表头篇数与实际行数不一致', '见 src/pages/notes/[id].astro 的 series__meta'],
+    [
+      outOfOrder,
+      '页尾章节顺序乱',
+      '章节要按章号升序（utils/toc.ts 的 byChapter）；别照抄 curriculum.ts 的 chapters 数组顺序（bug-16）',
+    ],
   ];
   let broken = 0;
   for (const [list, label, hint] of problems) {
@@ -431,7 +448,7 @@ if (seriesPages === 0) {
     list.slice(0, 8).forEach(info);
     info(`提示：${hint}`);
   }
-  if (broken === 0) ok(`${seriesPages} 篇笔记的页尾列表都在，且各自高亮了自己`);
+  if (broken === 0) ok(`${seriesPages} 篇笔记的页尾列表都在，各自高亮了自己，章节都按章号升序`);
   else failures++;
 }
 
@@ -491,6 +508,105 @@ if (calloutPages === 0) {
   }
   if (broken === 0) ok('callout 全部正常渲染（含角标），没有残留围栏标记');
   else failures++;
+}
+
+// ------------------------------------------ 4i. 学习路线页（opinion-25）
+// 这一页把「全部学科依次排开」改成了「搜索 + 学科标签页 + 一次只显示一个」，
+// 结构一旦走形，页面还是能打开、只是不能用 —— 构建不会报错，所以在这里兜住：
+//   ① 标签页与面板必须一一对应（点了切不过去，最常见的原因就是这俩数量对不上）；
+//   ② 每篇已上线笔记都要能在路线上找到入口（挂漏了由兜底补上，不该缺）；
+//   ③ 搜索索引必须内联进页面（缺了的话，搜索框就是个摆设）；
+//   ④ 渐进增强的开关 `has-js` 必须在 —— 没有它，标签页和搜索框会一直藏着。
+console.log('\n【4i】学习路线页（opinion-25）');
+{
+  const routeHtml = fs.readFileSync(path.join(DIST, 'notes', 'route', 'index.html'), 'utf8');
+  const tabsN = (routeHtml.match(/role="tab"/g) ?? []).length;
+  const panelsN = (routeHtml.match(/role="tabpanel"/g) ?? []).length;
+  if (tabsN > 0 && tabsN === panelsN) ok(`${tabsN} 个学科：标签页与面板一一对应`);
+  else {
+    bad(`标签页 ${tabsN} 个、面板 ${panelsN} 个，对不上`);
+    info('提示：见 src/pages/notes/route.astro —— 两个循环都跑 route.disciplines');
+    failures++;
+  }
+
+  const notOnRoute = notePageDirs.filter((id) => !routeHtml.includes(`/notes/${id}/`));
+  if (notOnRoute.length === 0) ok(`${notePageDirs.length} 篇笔记在路线上都有入口`);
+  else {
+    bad(`${notOnRoute.length} 篇笔记在学习路线上找不到入口：`);
+    notOnRoute.slice(0, 8).forEach(info);
+    info('提示：挂进 curriculum.ts 的 chapters，或确认它的 subfield 与课程名一致');
+    failures++;
+  }
+
+  // 二级标签（课程）与课程卡片必须一一对应；并且**没有「全部」**、
+  // 每个学科出厂就选中一门课（否则 JS 跑起来之前那块是空的）。
+  const courseCards = (routeHtml.match(/id="course-\d+"/g) ?? []).length;
+  const coursePills = (routeHtml.match(/data-course-filter="course-\d+"/g) ?? []).length;
+  const leftoverAll = (routeHtml.match(/data-course-filter=""/g) ?? []).length;
+  const activePills = (routeHtml.match(/route-course-tab is-active/g) ?? []).length;
+  const shownCards = (routeHtml.match(/route-course is-shown/g) ?? []).length;
+  if (
+    courseCards > 0 &&
+    coursePills === courseCards &&
+    leftoverAll === 0 &&
+    activePills === panelsN &&
+    shownCards === panelsN
+  ) {
+    ok(`${panelsN} 个学科共 ${courseCards} 门课：标签与卡片一一对应，每科默认选中一门`);
+  } else {
+    bad(
+      `课程标签/卡片对不上：卡片 ${courseCards}、标签 ${coursePills}、` +
+        `残留「全部」${leftoverAll} 个、选中标签 ${activePills}、显示卡片 ${shownCards}` +
+        `（后三项每科应各为 1，残留「全部」应为 0）`
+    );
+    info('提示：见 src/pages/notes/route.astro 里 route-course-tabs 与 route-course 两段');
+    failures++;
+  }
+
+  const rawIndex = (
+    routeHtml.match(/<script type="application\/json" id="route-index">([\s\S]*?)<\/script>/) ?? []
+  )[1];
+  let searchItems = null;
+  try {
+    searchItems = rawIndex ? JSON.parse(rawIndex) : null;
+  } catch {
+    searchItems = null;
+  }
+  if (Array.isArray(searchItems) && searchItems.length > 0) {
+    const courseItems = searchItems.filter((x) => x.kind === 'course').length;
+    ok(`搜索索引内联了 ${searchItems.length} 条（课程 ${courseItems} + 章节 ${searchItems.length - courseItems}）`);
+  } else {
+    bad('页面上没有可用的搜索索引（#route-index）');
+    info('提示：见 src/pages/notes/route.astro 的 set:html={JSON.stringify(searchIndex)}');
+    failures++;
+  }
+
+  if (/classList\.add\(['"]has-js['"]\)/.test(routeHtml)) {
+    ok('渐进增强开关 has-js 在（没有 JS 时不会露出点了没反应的标签页）');
+  } else {
+    bad('页面里找不到 has-js 开关脚本');
+    info('提示：见 src/pages/notes/route.astro 顶部的 <script is:inline>');
+    failures++;
+  }
+
+  // 交互脚本必须真的随页面发出去（标签页 / 二级课程过滤 / 搜索都在这支脚本里）。
+  // 它可能被内联，也可能被抽成 /_astro/route.astro…js —— 两种都算数，所以两边都读。
+  const inlineJs = [...routeHtml.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)]
+    .map((m) => m[1])
+    .join('\n');
+  const externalJs = [...routeHtml.matchAll(/src="(\/_astro\/[^"]+\.js)"/g)]
+    .map((m) => path.join(DIST, m[1].replace(/^\//, '')))
+    .filter((p) => fs.existsSync(p))
+    .map((p) => fs.readFileSync(p, 'utf8'))
+    .join('\n');
+  const pageJs = inlineJs + '\n' + externalJs;
+  if (pageJs.includes('route-course-tab') && pageJs.includes('route-q')) {
+    ok('交互脚本已随页面发布（学科标签页 + 二级课程过滤 + 搜索）');
+  } else {
+    bad('页面没有带上交互脚本，标签页 / 课程过滤 / 搜索都会是死的');
+    info('提示：见 src/pages/notes/route.astro 末尾那段 <script>');
+    failures++;
+  }
 }
 
 // ------------------------------------------------------------ 5. 体积

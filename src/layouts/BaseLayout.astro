@@ -102,15 +102,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 
         // 把代码块换成一个空的 .mermaid 容器，交给 mermaid 渲染。
         // 连「语言标签 + 复制按钮」那层壳一起换掉——图不需要复制按钮。
-        // 同时记下原节点：渲染失败时放回去，总比留一片空白强。
+        // 同时记下原节点与源码：渲染失败时放回去，总比留一片空白强。
         const swapped = [];
         for (const block of blocks) {
           const wrapper = block.closest('.code-block') ?? block;
+          const text = (block.querySelector('code') ?? block).textContent ?? '';
           const div = document.createElement('div');
           div.className = 'mermaid';
-          div.textContent = (block.querySelector('code') ?? block).textContent ?? '';
           wrapper.replaceWith(div);
-          swapped.push({ div, wrapper });
+          swapped.push({ div, wrapper, text });
         }
 
         try {
@@ -153,7 +153,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
             theme: dark ? 'dark' : 'neutral',
             securityLevel: 'loose',
           });
-          await mermaid.run({ querySelector: '.mermaid' });
+
+          /**
+           * ⚠️ 逐张调用 `mermaid.render()`，不要用 `mermaid.run()`。
+           *
+           * `run()` 会自己去 DOM 里扫 `.mermaid` 节点批量渲染，而 mermaid 的图表数据库
+           * （flowDb 等）是**模块级单例**：一旦页面上有第二张图，前一张的节点会漏进后一张，
+           * 表现是「第 2 张图把第 3 张的节点一起画了，第 3 张变成一个没有 viewBox 的空 SVG」，
+           * 而且每张都带着 data-processed，控制台不报错——只能靠肉眼看出来。
+           * （实测：连 `await run({ nodes: [div] })` 串行也不行，它内部仍然走同一套全局状态。）
+           *
+           * `render(id, text)` 是纯函数式的：传入源码、返回 svg 字符串，自己负责插进容器。
+           * 每张图一个唯一 id，彼此不共享任何节点扫描过程，多图页面就是确定的。
+           */
+          for (const [i, { div, text }] of swapped.entries()) {
+            const { svg } = await mermaid.render(`mermaid-svg-${i}-${Date.now()}`, text);
+            div.innerHTML = svg;
+            div.setAttribute('data-processed', 'true');
+          }
         } catch (err) {
           // 渲染失败：把原始代码块放回去，并换成一句能看懂的提示
           swapped.forEach(({ div, wrapper }) => div.replaceWith(wrapper));

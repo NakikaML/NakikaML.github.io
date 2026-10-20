@@ -107,6 +107,18 @@ export default defineConfig({
   site: SITE,
   integrations: [sitemap()],
 
+  /**
+   * 旧地址重定向：`/notes/graph/`（知识图谱）在 opinion-24 下线，换成了
+   * `/notes/route/`（学习路线，`src/pages/notes/route.astro`）。
+   *
+   * 为什么要留这一条：那个页面曾经挂在笔记库页头，也被「关于我」链过，
+   * 说不定还有人存了书签。构建时 Astro 会为它生成一个 meta refresh 页面，
+   * 让老链接照样落到新页面，而不是撞上 404。
+   */
+  redirects: {
+    '/notes/graph/': '/notes/route/',
+  },
+
   build: {
     // /notes/xxx/ 生成 /notes/xxx/index.html
     format: 'directory',
@@ -185,6 +197,28 @@ export default defineConfig({
         // 指向 ESM 垫片，走 Node 原生 CJS 加载路径。详见 shims/picomatch-esm.mjs
         picomatch: fileURLToPath(new URL('./shims/picomatch-esm.mjs', import.meta.url)),
       },
+    },
+    optimizeDeps: {
+      /**
+       * mermaid 必须**在启动时就预打包**（`include`），不能靠运行时发现。
+       *
+       * 故障链（2026-10 实测，浏览器控制台里能看到）：
+       *   ① BaseLayout 里的 mermaid 是**运行时**才 `await import('mermaid')` 的 ——
+       *      Vite 启动时扫描源码看不到它，所以第一次真正用到才「发现新依赖」；
+       *   ② 发现即触发**中途重新预打包**，`_metadata.json` 的 hash 换掉；
+       *   ③ 已经发出去的页面里写死的是旧 hash 的 URL
+       *      （`/node_modules/.vite/deps/mermaid.js?v=旧hash`）→ 请求 504 Outdated Optimize Dep；
+       *   ④ 动态 import 抛错，被 BaseLayout 的 catch 接住 → 页面「安静地」回退成灰色代码块。
+       * 现象就是「mermaid 图又不渲染了」，而且**全站所有含图页面**一起坏。
+       *
+       * 写上 `include` 之后，依赖图在 dev 启动时一次算定，不会再中途变 hash。
+       * ⚠️ 不要改成 `exclude: ['mermaid']`：那样 mermaid 走源码 ESM，而它的 CJS 依赖
+       *    （dayjs）会被原样发给浏览器，报 `does not provide an export named 'default'`。
+       *
+       * 排查提示：控制台搜 `Outdated Optimize Dep` / `Failed to fetch dynamically imported module`。
+       * 判据：`node_modules/.vite/deps/_metadata.json` 的 `optimized` 里必须有 `mermaid`。
+       */
+      include: ['mermaid'],
     },
   },
 });

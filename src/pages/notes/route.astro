@@ -1,0 +1,629 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { contentNotes } from '../../utils/notes';
+import { learningRoute, routeSearchIndex } from '../../utils/learning-route';
+
+/**
+ * 学习路线 /notes/route/
+ * ============================================================
+ * 这条路线取代了原来的知识图谱（/notes/graph/，已下线 —— 理由写在
+ * src/utils/learning-route.ts 的顶部注释与 bug及意见汇总.md 的 opinion-24 里）。
+ *
+ * 页面里**只负责渲染**：分野、课程、章节的顺序全部在 learning-route.ts 里算好，
+ * 那个文件又只读 `src/data/curriculum.ts` —— 想改顺序改数据，不要改这里。
+ *
+ * 两种「未上线」要在视觉上分开，别混成一种灰：
+ *   · **待发布**       —— 计划里有这一章，笔记还没写完（灰行，不可点）；
+ *   · **未编入路线**   —— 笔记已经上线了，但没挂进 curriculum.ts 的 chapters
+ *                        （能点，但排在课程末尾，提示作者该去补一行）。
+ *
+ * 一屏只显示一个学科（opinion-25）
+ * ------------------------------------------------------------
+ * 结构是「搜索框 + 学科标签页 + 一次只露一个的目录」：
+ *   · 上面搜课程/笔记，命中结果直接替代下面的目录（跨学科搜，不用先切标签页）；
+ *   · 标签页点「计算机科学」就只显示它的子学科（C++ / 数据结构 / 计网…），点「数学」只显示高数 / 线代…
+ *     这样以后加「法学」「哲学」也只是多一个标签，页面不会越滚越长，手机端同理。
+ *
+ * 全是**渐进增强**的（没有 JS 也要能读）：
+ *   · 标签页和搜索框默认 `display: none`，只在 `html.has-js` 时出现 —— 没有 JS 时
+ *     不会露出一排点了没反应的按钮，所有学科的目录会像以前那样依次排开，页内锚点照样能用；
+ *   · 首屏默认激活第一个学科，且这个 `is-active` 是**服务端写死的**，
+ *     所以脚本还没跑到之前也不会出现「一片空白」。
+ */
+
+const notes = await contentNotes();
+const route = learningRoute(notes);
+const { stats } = route;
+
+/** 搜索索引：整条路线摊平成一张 JSON（≤ 几百条），前端做 includes 过滤，不另开接口 */
+const searchIndex = routeSearchIndex(route);
+
+const pct = (live: number, total: number) => (total > 0 ? Math.round((live / total) * 100) : 0);
+
+/**
+ * 把某个分野的三色色值挂到元素上（`--disc-soft / --disc-line / --disc-text`）。
+ *
+ * 这样 global.css 里所有 `.route-*` 规则都只读这三个变量、并带 `var(--disc-line, …)`
+ * 回退值 —— **新增学科分野时只要在 CSS 里补三行色值，样式表一行都不用改**。
+ * 色值还没补时回退成主题色，页面不会缺一块。
+ */
+const discVars = (key: string) =>
+  `--disc-soft:var(--disc-${key}-soft,var(--bg-soft));` +
+  `--disc-line:var(--disc-${key}-line,var(--border-strong));` +
+  `--disc-text:var(--disc-${key}-text,var(--text));`;
+---
+
+<BaseLayout
+  title="学习路线"
+  description={`按「先学 → 后学」整理的 ${stats.courses} 门课、共 ${stats.chapters} 章笔记：${stats.liveChapters} 章已上线，其余待发布。`}
+>
+  {/* 渐进增强的开关：放在最前面，浏览器解析到这里时就把标记挂上，
+      后面的标签页/搜索框据此显示，不会出现「先露出来再消失」的闪烁。 */}
+  <script is:inline>
+    document.documentElement.classList.add('has-js');
+  </script>
+
+  <div class="wrap">
+    <nav class="breadcrumb" aria-label="面包屑">
+      <a href="/">首页</a>
+      <span>/</span>
+      <a href="/notes/">笔记</a>
+      <span>/</span>
+      <span>学习路线</span>
+    </nav>
+
+    <header class="page-head">
+      <p class="page-head__kicker">Learning Path</p>
+      <h1>学习路线</h1>
+      <p class="page-head__lede">
+        我的笔记不是一堆散装文章，而是按课程顺序排的：先学什么、后学什么、哪一章建立在哪一章之上。
+        每门课标了它的<strong>先修课程</strong>，每一章标了它的<strong>先修章节</strong>。
+      </p>
+      <p class="route-summary">{stats.disciplines} 个学科分野 · {stats.courses} 门课程（{stats.plannedCourses} 门规划中）· {stats.chapters} 章笔记，已上线 {stats.liveChapters} 章</p>
+    </header>
+
+    {/* ---------------------------------------------------------- 搜索 */}
+    {/* 没有 JS 时整块隐藏：一个打字没反应的搜索框比没有搜索框更糟 */}
+    <div class="route-search-wrap">
+      <input
+        type="search"
+        id="route-q"
+        class="route-search"
+        placeholder="搜索课程或笔记：标题、课程名、DSA / 计网 / 线代…"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="搜索学习路线里的课程与笔记"
+        aria-controls="route-results"
+      />
+      <p class="route-search__hint">支持按标题、课程名、英文缩写搜；搜索范围是全部学科</p>
+    </div>
+
+    {/* 搜索结果：由脚本填充。hidden 的显隐规则在 CSS 里显式写死（bug-3 的教训） */}
+    <div class="route-results" id="route-results" hidden aria-live="polite">
+      <p class="route-results__meta" id="route-results-meta"></p>
+      <ul class="route-results__list" id="route-results-list"></ul>
+    </div>
+
+    <div class="route-directory" id="route-directory">
+      {/* ---------------------------------------------------- 学科标签页 */}
+      <div class="route-tabs" id="route-tabs" role="tablist" aria-label="按学科分野查看">
+        {
+          route.disciplines.map((d, i) => (
+            <button
+              type="button"
+              role="tab"
+              class:list={['route-tab', i === 0 && 'is-active']}
+              id={`tab-${d.key}`}
+              data-disc={d.key}
+              aria-controls={`panel-${d.key}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              style={discVars(d.key)}
+            >
+              <i class="route-tab__dot" aria-hidden="true" />
+              <span class="route-tab__label">{d.label}</span>
+              <span class="route-tab__count">
+                {d.live}/{d.total}
+              </span>
+            </button>
+          ))
+        }
+      </div>
+
+      {/* --------------------------------------------------------- 目录 */}
+      <div class="route-panels">
+        {
+          route.disciplines.map((d, i) => (
+            <section
+              class:list={['route-band', 'route-panel', i === 0 && 'is-active']}
+              id={`panel-${d.key}`}
+              data-disc={d.key}
+              role="tabpanel"
+              aria-labelledby={`tab-${d.key}`}
+              style={discVars(d.key)}
+            >
+              <header class="route-band__head">
+                <h2 class="route-band__title">{d.label}</h2>
+                <p class="route-band__meta">
+                  {d.courses.length} 门课 · 笔记 {d.live}/{d.total} 章
+                </p>
+                {d.note && <p class="route-band__note">{d.note}</p>}
+              </header>
+
+              {/* 二级标签：这一科的**课程**。点了只显示那一门课的内容（opinion-25）。
+                  没有「全部」—— 进学科就默认选中第一门课（依赖深度最靠前的那门，也就是
+                  最该先学的那门），所以任何时候下方都正好是一门课的章节，不会是一堆卡片。
+                  没有 JS 时整行隐藏 —— 一排点了没反应的按钮只会碍事。 */}
+              <div class="route-course-tabs" role="group" aria-label={`${d.label}的课程`}>
+                <span class="route-course-tabs__label">课程</span>
+                {d.courses.map((c, ci) => (
+                  <button
+                    type="button"
+                    class:list={['route-course-tab', ci === 0 && 'is-active']}
+                    data-course-filter={c.anchor}
+                    aria-pressed={ci === 0 ? 'true' : 'false'}
+                  >
+                    {c.id}
+                    <span class="route-course-tab__count">
+                      {c.planned ? '规划中' : `${c.live}/${c.total}`}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div class="route-courses">
+                {d.courses.map((c, ci) => (
+                  <article
+                    class:list={['route-course', ci === 0 && 'is-shown']}
+                    data-disc={d.key}
+                    id={c.anchor}
+                  >
+                    <div class="route-course__head">
+                      <h3 class="route-course__name">{c.id}</h3>
+                      {c.planned ? (
+                        <span class="route-course__tag route-course__tag--planned">规划中</span>
+                      ) : (
+                        <span class="route-course__tag">
+                          {c.live}/{c.total} 章
+                        </span>
+                      )}
+                    </div>
+
+                    {c.note && <p class="route-course__note">{c.note}</p>}
+
+                    {c.prereq.length > 0 && (
+                      <p class="route-course__prereq">
+                        <span class="route-course__prereq-label">先修课程</span>
+                        {c.prereq.map((p) => (
+                          <a class="route-chip" href={`#${p.anchor}`}>
+                            {p.id}
+                            {p.cross && (
+                              <span class="route-chip__cross" title="跨学科先修 —— 另一个学科里的课">
+                                跨学科
+                              </span>
+                            )}
+                          </a>
+                        ))}
+                      </p>
+                    )}
+
+                    {c.total > 0 && (
+                      <div
+                        class="route-course__bar"
+                        role="progressbar"
+                        aria-valuemin="0"
+                        aria-valuemax={c.total}
+                        aria-valuenow={c.live}
+                        aria-label={`${c.id}：计划 ${c.total} 章，已上线 ${c.live} 章`}
+                      >
+                        <i style={`width:${pct(c.live, c.total)}%`} />
+                      </div>
+                    )}
+
+                    {c.chapters.length > 0 ? (
+                      <ol class="route-chapters">
+                        {c.chapters.map((ch) => (
+                          <li
+                            class:list={[
+                              'route-chapter',
+                              !ch.href && 'is-pending',
+                              ch.unlisted && 'is-unlisted',
+                            ]}
+                          >
+                            <span class="route-chapter__num">{ch.chapter}</span>
+                            <span class="route-chapter__body">
+                              {ch.href ? (
+                                <a class="route-chapter__name" href={ch.href}>
+                                  {ch.label}
+                                </a>
+                              ) : (
+                                <span class="route-chapter__name">{ch.label}</span>
+                              )}
+                              {(ch.prereq.length > 0 || ch.unlisted || !ch.href || ch.exam408) && (
+                                <span class="route-chapter__meta">
+                                  {/* 408 权重（opinion-26）：只在标注过时出现。
+                                      core 标「408」、basic 标「408·了解」，off 不标 ——
+                                      让读者一眼看出这一章在考研里值多少。 */}
+                                  {ch.exam408 === 'core' && (
+                                    <span class="route-chapter__exam" title="408 考研必考重点">
+                                      408
+                                    </span>
+                                  )}
+                                  {ch.exam408 === 'basic' && (
+                                    <span
+                                      class="route-chapter__exam route-chapter__exam--basic"
+                                      title="408 要求了解，或只考其中一部分"
+                                    >
+                                      408·了解
+                                    </span>
+                                  )}
+                                  {ch.prereq.length > 0 && (
+                                    <span
+                                      class="route-chapter__pre"
+                                      title={ch.prereq.map((p) => p.full).join('；')}
+                                    >
+                                      先修 {ch.prereq.map((p) => p.short).join('、')}
+                                    </span>
+                                  )}
+                                  {ch.unlisted && (
+                                    <span class="route-chapter__badge">未编入路线</span>
+                                  )}
+                                  {!ch.href && (
+                                    <span class="route-chapter__badge route-chapter__badge--todo">
+                                      待发布
+                                    </span>
+                                  )}
+                                </span>
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p class="route-course__empty">
+                        {c.planned
+                          ? '这门课还在规划里，笔记一篇都还没写。'
+                          : '笔记还在安排中 —— 写好一篇、挂进 curriculum.ts，这里就会长出一行。'}
+                      </p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+
+    {
+      route.orphanNotes.length > 0 && (
+        <section class="route-orphans">
+          <h2>其他笔记</h2>
+          <p>
+            下面这些笔记还没归进任何课程：它们的 <code>subfield</code> 对不上
+            <code>src/data/curriculum.ts</code> 里的课程名。所以它们既不在上面的路线里，
+            页尾也没有「同课程笔记」可列。
+          </p>
+          <ul>
+            {route.orphanNotes.map((n) => (
+              <li>
+                <a href={n.href}>{n.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <p class="route-note">
+      「先学 → 后学」这套顺序来自 <code>src/data/curriculum.ts</code>，是我自己的教学判断，
+      不是从笔记正文里推出来的。灰行是还没写完的章；标着「未编入路线」的是已经上线、
+      但还没排进顺序的笔记。同一份数据还养着每篇笔记页尾的「同课程笔记」列表 ——
+      挂一次，两边一起更新。
+    </p>
+  </div>
+
+  {/* 搜索索引：服务端算好、内联成 JSON，前端只做 includes 过滤 */}
+  <script type="application/json" id="route-index" set:html={JSON.stringify(searchIndex)} />
+
+  <script>
+    /* ------------------------------------------------------------------
+       学习路线页的交互（opinion-25）：学科标签页 + 全局搜索
+       ------------------------------------------------------------------
+       三条底线：
+         ① 只切「显示哪个面板」，绝不重建 DOM —— 页内锚点（先修课程的小标签、
+            搜索结果里的课程条目）在任何状态下都得能落到地方；
+         ② 搜索是**跨学科**的：命中结果替代目录显示，点结果直接去那篇笔记
+            （搜的是「东西」，不是「当前这一页里的东西」）；
+         ③ 键盘可用：标签页支持 ←/→/Home/End，搜索框 Enter 进第一条、Esc 清空。
+       ------------------------------------------------------------------ */
+
+    interface SearchItem {
+      kind: 'course' | 'chapter';
+      label: string;
+      meta: string;
+      search: string;
+      href: string;
+      disc: string;
+      discLabel: string;
+      chapter: number;
+      pending: boolean;
+    }
+
+    const qEl = document.getElementById('route-q') as HTMLInputElement | null;
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.route-tab'));
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('.route-panel'));
+    const directoryEl = document.getElementById('route-directory');
+    const resultsEl = document.getElementById('route-results');
+    const listEl = document.getElementById('route-results-list');
+    const metaEl = document.getElementById('route-results-meta');
+    const indexEl = document.getElementById('route-index');
+
+    const INDEX: SearchItem[] = indexEl?.textContent ? JSON.parse(indexEl.textContent) : [];
+
+    /** 归一化：小写 + 空白折叠，与 routeSearchIndex 里的规则保持一致 */
+    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    /* ------------------------------------------------ 标签页 */
+
+    /**
+     * 面板内的课程选择（二级标签）：**永远有且只有一门课被选中**。
+     *
+     * `anchor` 传空串（或传了个不在这科的锚点）时，落到这一科的**第一门课** ——
+     * 那就是依赖深度最靠前、最该先学的那门；所以进学科不会出现「什么都没有」的状态。
+     * 返回真正选中的锚点，调用方拿它去同步地址栏。
+     *
+     * 只切 class，不删 DOM —— 卡片和章节行始终在页面里，切回来不用重新渲染；
+     * 也正因为它们在，页内锚点（先修课程的小标签）才总能找到目标。
+     */
+    function selectCourse(panel: HTMLElement, anchor: string): string {
+      const pills = [...panel.querySelectorAll<HTMLButtonElement>('.route-course-tab')];
+      const known = pills.map((b) => b.dataset.courseFilter ?? '');
+      const target = anchor && known.includes(anchor) ? anchor : known[0] ?? '';
+
+      for (const btn of pills) {
+        const on = (btn.dataset.courseFilter ?? '') === target;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      for (const card of panel.querySelectorAll<HTMLElement>('.route-course')) {
+        card.classList.toggle('is-shown', card.id === target);
+      }
+      return target;
+    }
+
+    /**
+     * 切到某个学科。`hash` 为 false 时不改地址栏（初始化时用）；
+     * `course` 传了课程锚点时同时选中那门课（先修标签跳过来时用）。
+     */
+    function activate(disc: string, opts: { hash?: boolean; course?: string } = {}) {
+      const target = panels.find((p) => p.dataset.disc === disc) ?? panels[0];
+      if (!target) return;
+      const key = target.dataset.disc ?? '';
+
+      for (const t of tabs) {
+        const on = t.dataset.disc === key;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      }
+      for (const p of panels) p.classList.toggle('is-active', p === target);
+
+      // 换学科时选中那门课的「第一门」：带着上一科选中的课程名切过来，
+      // 那门课不在这一科里，硬留着只会是一片空白。
+      const selected = selectCourse(target, opts.course ?? '');
+
+      if (opts.hash !== false) {
+        // 用 replaceState 而不是改 location.hash：不往历史里塞垃圾，
+        // 也不会因为设 hash 触发浏览器自己跳去锚点。
+        history.replaceState(null, '', `#${selected || key}`);
+      }
+    }
+
+    for (const [i, tab] of tabs.entries()) {
+      tab.addEventListener('click', () => activate(tab.dataset.disc ?? ''));
+
+      tab.addEventListener('keydown', (ev) => {
+        let next = -1;
+        if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') next = (i + 1) % tabs.length;
+        else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') next = (i - 1 + tabs.length) % tabs.length;
+        else if (ev.key === 'Home') next = 0;
+        else if (ev.key === 'End') next = tabs.length - 1;
+        if (next < 0) return;
+        ev.preventDefault();
+        activate(tabs[next].dataset.disc ?? '');
+        tabs[next].focus();
+      });
+    }
+
+    /* ---------------------- 二级标签：点课程名，只看这一门 */
+    for (const panel of panels) {
+      for (const btn of panel.querySelectorAll<HTMLButtonElement>('.route-course-tab')) {
+        btn.addEventListener('click', () => {
+          const anchor = btn.dataset.courseFilter ?? '';
+          // ⚠️ 选择必须交给 activate 一起做：它内部会 `selectCourse(target, opts.course ?? '')`，
+          //    先 select 再 activate（不带 course）等于立刻把刚点的那门课又重置成第一门。
+          activate(panel.dataset.disc ?? '', { hash: false, course: anchor });
+          // 地址栏跟着走：`#course-3` 刷新/分享回来还是同一门课
+          history.replaceState(null, '', `#${anchor}`);
+          // 换上另一门课后页面高度会变，把卡片顶进视口，读者不会以为内容没了
+          if (anchor) document.getElementById(anchor)?.scrollIntoView({ block: 'nearest' });
+        });
+      }
+    }
+
+    /* ------------------------------------------------ 搜索 */
+
+    function showDirectory() {
+      if (resultsEl) resultsEl.hidden = true;
+      directoryEl?.classList.remove('is-hidden');
+    }
+
+    function showResults() {
+      if (resultsEl) resultsEl.hidden = false;
+      directoryEl?.classList.add('is-hidden');
+    }
+
+    /** 匹配度：完全等于 → 0，开头匹配 → 1，标题里包含 → 2，只命中副信息 → 3 */
+    function rank(item: SearchItem, kw: string): number {
+      if (!item.search.includes(kw)) return -1;
+      const label = norm(item.label);
+      if (label === kw) return 0;
+      if (label.startsWith(kw)) return 1;
+      if (label.includes(kw)) return 2;
+      return 3;
+    }
+
+    /** 一行结果：章号/「课」+ 标题 + 副标题 + 角标 */
+    function buildRow(item: SearchItem): HTMLLIElement {
+      const li = document.createElement('li');
+      li.className = 'route-result';
+
+      // 有去处就用 <a>，没有（待发布 / 规划中）就用 <span>，别给读者一个点了没反应的链接
+      const row = document.createElement(item.href ? 'a' : 'span');
+      row.className = 'route-result__row';
+      if (item.href) row.setAttribute('href', item.href);
+      else row.classList.add('is-pending');
+
+      const num = document.createElement('span');
+      num.className = 'route-result__num';
+      num.textContent = item.kind === 'course' ? '课' : String(item.chapter);
+      num.setAttribute('aria-hidden', 'true');
+
+      const body = document.createElement('span');
+      body.className = 'route-result__body';
+
+      const name = document.createElement('span');
+      name.className = 'route-result__name';
+      name.textContent = item.label;
+      body.appendChild(name);
+
+      const meta = document.createElement('span');
+      meta.className = 'route-result__meta';
+      meta.textContent = item.meta;
+      body.appendChild(meta);
+
+      row.appendChild(num);
+      row.appendChild(body);
+
+      if (item.pending) {
+        const badge = document.createElement('span');
+        badge.className = 'route-result__badge';
+        badge.textContent = item.kind === 'course' ? '规划中' : '待发布';
+        row.appendChild(badge);
+      }
+
+      li.appendChild(row);
+      return li;
+    }
+
+    function render(query: string) {
+      if (!listEl || !metaEl) return;
+      const kw = norm(query);
+      if (!kw) {
+        listEl.replaceChildren();
+        metaEl.textContent = '';
+        showDirectory();
+        return;
+      }
+
+      const hits = INDEX.map((item, i) => ({ item, i, score: rank(item, kw) }))
+        .filter((h) => h.score >= 0)
+        // 匹配度优先；同分时课程排在它的章节前面（先给「哪门课」，再给「哪一章」）
+        .sort(
+          (a, b) =>
+            a.score - b.score ||
+            (a.item.kind === b.item.kind ? 0 : a.item.kind === 'course' ? -1 : 1) ||
+            a.i - b.i
+        );
+
+      listEl.replaceChildren();
+      if (hits.length === 0) {
+        metaEl.textContent = `「${query.trim()}」没有匹配的课程或笔记 —— 换个关键词，或清空搜索回到目录。`;
+        showResults();
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      for (const hit of hits) frag.appendChild(buildRow(hit.item));
+      listEl.appendChild(frag);
+
+      metaEl.textContent = `找到 ${hits.length} 条 · 范围：全部 ${INDEX.length} 条课程与章节 · 按 Esc 清空`;
+      showResults();
+    }
+
+    qEl?.addEventListener('input', () => render(qEl.value));
+
+    qEl?.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        qEl.value = '';
+        render('');
+        return;
+      }
+      // Enter：直接进第一条有去处的结果。搜完一个词不用再挪手去点鼠标。
+      if (ev.key === 'Enter') {
+        const first = listEl?.querySelector<HTMLAnchorElement>('a.route-result__row[href]');
+        if (first) {
+          ev.preventDefault();
+          first.click();
+        }
+      }
+    });
+
+    /* ---------------------- 页内锚点：先切学科，再滚过去 */
+    // 「先修课程」的小标签、搜索结果里的课程条目都指向 `#course-N`。
+    // 目标可能躺在**没被激活的面板**里（display:none），直接跳锚点什么都不会发生，
+    // 所以这里先切到它所属的分野，再滚。
+    document.addEventListener('click', (ev) => {
+      const anchor = (ev.target as HTMLElement | null)?.closest?.(
+        'a[href^="#"]'
+      ) as HTMLAnchorElement | null;
+      if (!anchor) return;
+
+      const id = decodeURIComponent((anchor.getAttribute('href') ?? '').slice(1));
+      const el = id ? document.getElementById(id) : null;
+      const panel = el?.closest<HTMLElement>('.route-panel') ?? null;
+      if (!el || !panel) return;
+
+      // 目标是某张课程卡片时，顺手把那门课单独显示出来 —— 否则它可能正被
+      // 上一个「只看某门课」的过滤藏起来，切过去却是一片空白。
+      const card =
+        el.classList.contains('route-course')
+          ? el
+          : el.closest<HTMLElement>('.route-course');
+
+      ev.preventDefault();
+      qEl && (qEl.value = '');
+      showDirectory();
+      activate(panel.dataset.disc ?? '', { hash: false, course: card?.id ?? '' });
+      // 地址栏记住这次跳转的目标：`#course-3` 刷新回来还是「只看这门课」
+      history.replaceState(null, '', `#${id}`);
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    /* ---------------------- 首次进入：按地址栏里的 hash 定位 */
+    // 支持三种写法：#cs（分野 key）、#panel-cs、#course-12（课程卡片 → 顺便只看这门课）
+    function initFromHash() {
+      const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
+      if (!raw) return;
+
+      const key = raw.replace(/^(disc|panel)-/, '');
+      if (panels.some((p) => p.dataset.disc === key)) {
+        activate(key, { hash: false });
+        return;
+      }
+
+      const el = document.getElementById(raw);
+      const panel = el?.closest<HTMLElement>('.route-panel') ?? null;
+      if (!panel) return;
+      const card = el?.classList.contains('route-course')
+        ? el
+        : el?.closest<HTMLElement>('.route-course');
+      activate(panel.dataset.disc ?? '', { hash: false, course: card?.id ?? '' });
+      el?.scrollIntoView({ block: 'start' });
+    }
+
+    initFromHash();
+  </script>
+</BaseLayout>

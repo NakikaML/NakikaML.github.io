@@ -52,10 +52,11 @@
   --brand-from: #c9402e;
   --brand-to: #9c3d15;
 
-  /* 学科分野色系（opinion-18）：知识图谱里「一个学科一个色系」。
-     每个分野三档 —— soft = 课程头实底 / line = 描边与图例圆点 / text = 课程头上的字。
+  /* 学科分野色系（opinion-18）：学习路线里「一个学科一个色系」。
+     每个分野三档 —— soft = 课程角标底 / line = 左侧色条、图例圆点与进度条 / text = 分野标题与角标上的字。
      新增分野：这里加三行 + 深色模式里再加三行，`src/data/curriculum.ts` 的 disciplines 里
-     加一项（key 必须与这里 `--disc-<key>-*` 的后缀一致），代码不用动。
+     加一项（key 必须与这里 `--disc-<key>-*` 的后缀一致），代码不用动 ——
+     学习路线页会把这三档挂成元素上的 `--disc-soft / -line / -text`。
      `cs`（计算机科学）沿用主题暖橙金，`math`（数学）用青碧绿 —— 两者色相分开，深浅也分开。 */
   --disc-cs-soft: #fdf1de;
   --disc-cs-line: #d78b34;
@@ -384,7 +385,7 @@ li > ul, li > ol { margin: 0.3rem 0; }
   max-width: 62ch;
 }
 
-/* 页头右侧放一个小入口（目前只有笔记库的「知识图谱」按钮用）。
+/* 页头右侧放一个小入口（目前只有笔记库的「学习路线」按钮用）。
    窄屏时按钮换行到标题下面，不跟标题挤在一行。 */
 .page-head--row {
   display: flex;
@@ -395,7 +396,7 @@ li > ul, li > ol { margin: 0.3rem 0; }
 }
 .page-head--row > div { min-width: 0; }
 
-.graph-entry {
+.route-entry {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -410,13 +411,13 @@ li > ul, li > ol { margin: 0.3rem 0; }
   text-decoration: none;
   transition: all 0.15s;
 }
-.graph-entry:hover {
+.route-entry:hover {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent-text);
 }
-.graph-entry svg { flex: 0 0 auto; }
-.graph-entry__count {
+.route-entry svg { flex: 0 0 auto; }
+.route-entry__count {
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
   background: var(--bg-soft);
@@ -424,7 +425,7 @@ li > ul, li > ol { margin: 0.3rem 0; }
   font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
 }
-.graph-entry:hover .graph-entry__count {
+.route-entry:hover .route-entry__count {
   background: var(--bg-elevated);
   color: var(--accent-text);
 }
@@ -1783,306 +1784,542 @@ a.series__link:hover {
 
 
 /* ================================================================
-   知识图谱（/notes/graph/）—— 有向依赖图，零第三方依赖
+   学习路线（/notes/route/）—— 搜索 + 学科标签页 + 课程/章节清单
+   ================================================================
+   这一块取代了原来的知识图谱（/notes/graph/，opinion-24 下线），
+   并在 opinion-25 改成「一屏只看一个学科」+ 上方全局搜索。
+   页面结构见 src/pages/notes/route.astro，顺序与先修由 utils/learning-route.ts 算好。
+
+   配色不再按分野写死选择器：分野那三种颜色由页面在元素上设成
+   `--disc-soft / --disc-line / --disc-text`（见 route.astro 的 discVars），
+   这里一律读这三个变量、并给了回退值 —— 所以**新增学科只要补三行色值**，
+   这个文件一个字都不用改（旧版要给每个分野各写一条 `[data-disc='xx']` 选择器）。
+
+   ⚠️ 标签页与搜索框只在 `html.has-js` 下出现（脚本第一时间挂上这个类）：
+   没有 JS 时不该露出「点了没反应」的按钮，那时所有学科的目录依次排开，照样能读。
    ================================================================ */
-.graph-page { margin-bottom: 4rem; }
 
-/* 一条窄工具栏 + 一张大画布。
-   原来左侧那栏「课程列表 / 操作」已经去掉 —— 课程列表本来就是图上点一下就能做的事，
-   去掉之后画布能占满整行（这一版排版需要横向空间：课程按依赖分列、每列还要装下章节树）。 */
-.graph-layout { display: flex; flex-direction: column; }
-
-/* ---------------------------------------------------------------- 画布 */
-.graph-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-bottom: 0.75rem;
+/* --------------------------------------------------------- 页头摘要 */
+/* 一行小字：几个学科、几门课、多少章。放在标题下面的说明之后，
+   不再单独占一排卡片 —— 手机上一屏要看得到目录。 */
+.route-summary {
+  margin: 0.7rem 0 0;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
 }
-.graph-search {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: 0.45rem 0.7rem;
+
+/* ------------------------------------------------------------ 搜索 */
+/* 没有 JS 时整块不显示：一个打字没反应的搜索框比没有搜索框更糟 */
+.route-search-wrap { display: none; margin: 0 0 1.1rem; }
+html.has-js .route-search-wrap { display: block; }
+
+.route-search {
+  width: 100%;
+  max-width: 480px;
+  padding: 0.55rem 0.85rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
-.graph-search:focus {
+.route-search:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
-/* 「适应窗口」：贴着搜索框右侧的小按钮，不抢视线 */
-.graph-fit {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  padding: 0.42rem 0.7rem;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.12s;
+.route-search__hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-faint);
 }
-.graph-fit:hover { border-color: var(--accent); color: var(--accent-text); }
 
-/* 图例（opinion-18）：一个学科一个小圆点 + 名字。
-   放在搜索框与「适应窗口」之间 —— 它解释的是整张图的配色，位置要靠近图。 */
-.graph-legend {
+/* 搜索结果：替代目录显示（搜索是跨学科的，不该被当前标签页限制住） */
+.route-results[hidden] { display: none; } /* 显式写死 —— [hidden] 会被 display:flex 盖掉（bug-3） */
+.route-results { margin: 0 0 2rem; }
+.route-results__meta {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.route-results__list {
   display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 0.7rem;
+  flex-direction: column;
+  gap: 1px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.graph-legend__item {
+/* 一行结果 = 章号/「课」| 标题 + 副标题 | 角标，与页尾「同课程笔记」同一套读法 */
+.route-result__row {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr auto;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+}
+a.route-result__row { transition: background 0.12s, color 0.12s; }
+a.route-result__row:hover {
+  background: var(--bg-soft);
+  color: var(--accent-text);
+}
+.route-result__row.is-pending { color: var(--text-faint); }
+.route-result__num {
+  text-align: right;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.route-result__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.route-result__name { font-size: 0.92rem; line-height: 1.5; }
+.route-result__meta {
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+.route-result__badge {
+  padding: 0.02rem 0.4rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+
+/* -------------------------------------------------------- 学科标签页 */
+/* 一屏只看一个学科。窄屏时这一排可以横向滑动，而不是折成好几行把目录顶下去。 */
+.route-tabs { display: none; }
+html.has-js .route-tabs {
+  display: flex;
+  gap: 0.45rem;
+  margin: 0 0 1.1rem;
+  padding-bottom: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.route-tabs::-webkit-scrollbar { display: none; }
+
+.route-tab {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 0.32rem;
+  gap: 0.42rem;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elevated);
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font: inherit;
+  font-size: 0.85rem;
   font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
 }
-.graph-legend__item i {
+.route-tab:hover {
+  border-color: var(--disc-line, var(--accent));
+  color: var(--disc-text, var(--accent-text));
+}
+/* 选中的学科：染上它自己的分野色（圆点 + 浅底 + 同色描边），
+   这样「现在看的是哪一科」不只靠按钮位置表达 */
+.route-tab.is-active {
+  border-color: var(--disc-line, var(--accent));
+  background: var(--disc-soft, var(--accent-soft));
+  color: var(--disc-text, var(--accent-text));
+}
+.route-tab__dot {
   display: block;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--text-faint);
+  background: var(--disc-line, var(--text-faint));
 }
-.graph-legend__item[data-disc='cs'] i { background: var(--disc-cs-line); }
-.graph-legend__item[data-disc='math'] i { background: var(--disc-math-line); }
-
-@media (max-width: 720px) {
-  /* 窄屏：图例折到工具栏第二行（搜索框与按钮留在第一行） */
-  .graph-bar { flex-wrap: wrap; }
-  .graph-legend { order: 3; flex: 1 0 100%; justify-content: flex-start; }
-}
-
-.graph-stage {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg-soft);
-  overflow: hidden;
-  touch-action: none;
-}
-.graph-canvas {
-  display: block;
-  width: 100%;
-  height: clamp(520px, 72vh, 900px);
-  cursor: grab;
-}
-.graph-canvas.is-panning { cursor: grabbing; }
-
-/* 边：默认很淡的灰，只有点亮的先修链才变主题色 */
-.graph-link {
-  stroke: var(--border-strong);
-  stroke-opacity: 0.7;
-  stroke-width: 1.4;
-}
-/* 课程级箭头：略粗一点 —— 它是这张图的骨架（.is-lit 的 2px 会覆盖它，见下） */
-.graph-link--course { stroke-width: 1.6; }
-/* 跨分野的课（如「离散数学 → 数据结构与算法」）：用虚线区别于带内先修，
-   告诉读者「这条是跨学科的，不是同一门课里的顺序」。虚线在这里不代表草稿。 */
-.graph-link--cross {
-  stroke-dasharray: 6 4;
-  stroke-width: 1.7;
-}
-.graph-link.is-lit { stroke: var(--accent); stroke-opacity: 1; stroke-width: 2; }
-.graph-link.is-dim { stroke-opacity: 0.18; }
-
-/* 学科分野底带（opinion-18）：**一条带 = 一个学科**。
-   只上极淡的分野色 + 一圈同色细边，章节节点和箭头仍然压在它上面 ——
-   它负责回答「这几门课是一伙的」，不该比节点本身更抢眼。 */
-.graph-band {
-  stroke-width: 1;
-  fill-opacity: 0.06;
-  stroke-opacity: 0.22;
-}
-.graph-band[data-disc='cs'] { fill: var(--disc-cs-line); stroke: var(--disc-cs-line); }
-.graph-band[data-disc='math'] { fill: var(--disc-math-line); stroke: var(--disc-math-line); }
-.graph-band__label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  fill: var(--text-muted);
-}
-.graph-band__label[data-disc='cs'] { fill: var(--disc-cs-text); }
-.graph-band__label[data-disc='math'] { fill: var(--disc-math-text); }
-
-/* 节点：圆角矩形 */
-.graph-node { cursor: pointer; }
-.graph-node rect {
-  fill: var(--bg-elevated);
-  stroke: var(--border-strong);
-  stroke-width: 1.2;
-  transition: fill 0.12s, stroke 0.12s;
-}
-.graph-node text {
-  fill: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  pointer-events: none;
-}
-.graph-node__badge {
-  fill: var(--text-faint);
-  font-size: 10px;
+.route-tab__count {
+  font-size: 0.72rem;
   font-weight: 500;
-}
-
-/* 章号角标：挂在节点左侧的小方块 + 数字。
-   shortTitle() 刻意把「第 N 章」从标签里剥掉了（序号由位置表达），
-   但位置只看得出「在第几层」，看不出「同层里谁先谁后」—— 角标把顺序补回来。 */
-.graph-node__chip {
-  fill: var(--bg-soft);
-  stroke: var(--border-strong);
-  stroke-width: 1;
-}
-.graph-node__num {
-  fill: var(--text-faint);
-  font-size: 10px;
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  pointer-events: none;
+  color: var(--text-faint);
 }
-.graph-node.is-current .graph-node__chip {
-  fill: var(--accent-soft);
-  stroke: var(--accent);
+.route-tab.is-active .route-tab__count { color: var(--disc-text, var(--accent-text)); }
+
+/* 键盘聚焦要看得见 —— 这一页新加了按钮和输入框，Tab 键得用得下去。
+   用 :focus-visible 而不是 :focus：鼠标点完不该留一圈框。 */
+.route-tab:focus-visible,
+.route-search:focus-visible,
+a.route-result__row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.graph-node.is-current .graph-node__num { fill: var(--accent-text); }
-.graph-node:hover rect { fill: var(--accent-soft); stroke: var(--accent); }
-.graph-node:hover text { fill: var(--text); }
 
-/* 课程节点：实底 + 更重的描边，一眼能和章节区分开 */
-.graph-node--course rect {
-  fill: var(--accent-soft);
-  stroke: var(--accent);
-  stroke-width: 1.6;
+/* -------------------------------------------- 面板显隐（一次只显示一个） */
+/* 没有 JS：所有面板依次排开（旧的读法，锚点也能用）。
+   有 JS：只显示 .is-active 那个；首屏的 .is-active 是服务端写死的，不会白屏。 */
+html.has-js .route-panel { display: none; }
+html.has-js .route-panel.is-active { display: block; }
+
+/* 搜索命中时整块目录让位给结果列表 */
+.route-directory.is-hidden { display: none; }
+
+/* ------------------------------------------------- 二级标签（课程） */
+/* 选了学科之后，这一行列出该学科的所有课程：点一门就只显示那门课的内容。
+   视觉上刻意比上面的学科标签**小一号、且用主题色而不是分野色** ——
+   两级用两套颜色，读者才不会把「学科」和「课程」看成同一层。
+   没有 JS 时整行隐藏（点了没反应的按钮不如不出现）。 */
+.route-course-tabs { display: none; }
+html.has-js .route-course-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
 }
-.graph-node--course text { fill: var(--accent-text); font-weight: 700; }
-
-/* 课程头按**学科分野**上色（opinion-18）：一个分野一个色系。
-   选择器比 `.graph-node--course rect` 更具体，所以写在它后面才生效；
-   悬停时不再换成主题色（那会抹掉「这门课属于哪个学科」），改成加粗描边做反馈。 */
-.graph-node--course[data-disc='cs'] rect { fill: var(--disc-cs-soft); stroke: var(--disc-cs-line); }
-.graph-node--course[data-disc='cs'] text { fill: var(--disc-cs-text); }
-.graph-node--course[data-disc='math'] rect { fill: var(--disc-math-soft); stroke: var(--disc-math-line); }
-.graph-node--course[data-disc='math'] text { fill: var(--disc-math-text); }
-.graph-node--course[data-disc]:hover rect { stroke-width: 2.4; }
-.graph-node--course[data-disc]:hover text { fill: var(--text); }
-
-/* 正在展开的课程头：描边加重一档，说明「下面那棵章节树是它的」——
-   树挂在课程行下方、横向还可能为了留在带内而偏一点，没有这个提示容易认错爹。 */
-.graph-node--course.is-open rect { stroke-width: 2.8; }
-.graph-node--course.is-open text { font-weight: 800; }
-
-/* 未发布的章节：虚线描边 + 略淡 */
-.graph-node--draft rect {
-  fill: var(--bg-soft);
-  stroke-dasharray: 4 3;
+.route-course-tabs__label {
+  margin-right: 0.1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
 }
-.graph-node--draft text { fill: var(--text-faint); }
-
-.graph-node.is-current rect {
-  fill: var(--accent);
-  stroke: var(--accent-hover);
-  stroke-width: 2;
+.route-course-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
 }
-.graph-node.is-current text { fill: var(--on-accent); font-weight: 700; }
-.graph-node.is-hit rect { stroke: var(--red); stroke-width: 2.4; }
-.graph-node.is-dim { opacity: 0.28; }
+.route-course-tab:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.route-course-tab.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.route-course-tab__count {
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+.route-course-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
-/* 信息卡 */
-.graph-tip {
-  position: absolute;
-  z-index: 2;
-  max-width: 280px;
-  padding: 0.6rem 0.7rem;
+/* -------------------------------------------------------- 分野带 */
+/* 一条分野 = 一个 section：极淡的分野底色 + 同色左侧色条。
+   色条是「这几门课是一伙的」的主信号，底色只是帮眼睛把整块框住。 */
+.route-band {
+  margin: 0 0 2.25rem;
+  padding: 1.1rem 1.15rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--disc-line, var(--border-strong)) 24%, transparent);
+  border-left: 3px solid var(--disc-line, var(--border-strong));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--disc-line, var(--border-strong)) 5%, var(--bg));
+  scroll-margin-top: 5.5rem; /* 顶栏是 sticky 的，锚点跳转要留出它的高度 */
+}
+.route-band__head { margin-bottom: 1rem; }
+.route-band__title {
+  display: inline-block;
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--disc-text, var(--text));
+}
+.route-band__meta {
+  display: inline-block;
+  margin: 0 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.route-band__note {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* 课程卡片：宽屏两列、窄屏一列。
+   两列时仍是**行优先**（DOM 顺序 = 依赖深度顺序），从左到右、从上到下就是从先到后。 */
+.route-courses {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 0.9rem;
+  align-items: start;
+}
+
+/* 有 JS 时：一次只显示选中的那一门课（opinion-25 的二级标签）。
+   既然永远只看到一张卡，网格就恒为单列 —— 再排两列只会让那张卡占着左半边像没加载完。
+   没有 JS 时不加这些规则：所有课程依次排开，照旧能读。 */
+html.has-js .route-courses { grid-template-columns: 1fr; }
+html.has-js .route-courses > .route-course:not(.is-shown) { display: none; }
+
+.route-course {
+  padding: 0.85rem 0.95rem 0.9rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
-  box-shadow: var(--shadow);
-  pointer-events: none;
+  box-shadow: var(--shadow-sm);
+  scroll-margin-top: 5.5rem;
 }
-.graph-tip[hidden] { display: none; }
-.graph-tip__title {
-  margin: 0 0 0.3rem;
-  font-size: 0.85rem;
-  font-weight: 700;
+.route-course__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.route-course__name {
+  margin: 0;
+  font-size: 0.98rem;
   color: var(--text);
 }
-.graph-tip__meta {
-  margin: 0 0 0.35rem;
-  color: var(--text-faint);
-  font-size: 0.75rem;
+/* 右上角的「N/M 章」与「规划中」共用一套外壳：它回答的是「这门课有多少内容」 */
+.route-course__tag {
+  flex: 0 0 auto;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--disc-soft, var(--bg-soft));
+  color: var(--disc-text, var(--text-muted));
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.graph-tip__desc {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  line-height: 1.7;
-}
-
-.graph-note {
-  margin: 0.75rem 0 0;
+/* 规划中的课连一章都还没有：外壳换成虚线，别让它看起来和「写了 3 章」一样实 */
+.route-course__tag--planned {
+  background: transparent;
+  border: 1px dashed var(--border-strong);
   color: var(--text-faint);
+  font-weight: 600;
+}
+.route-course__note {
+  margin: 0.3rem 0 0;
   font-size: 0.8rem;
-  line-height: 1.8;
+  line-height: 1.7;
+  color: var(--text-faint);
 }
 
-@media (max-width: 860px) {
-  .graph-canvas { height: clamp(400px, 62vh, 560px); }
+/* 先修**课程**：几个小胶囊，点了跳到那门课的卡片（跨学科的多一个角标） */
+.route-course__prereq {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.55rem 0 0;
+}
+.route-course__prereq-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+.route-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.08rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.route-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.route-chip__cross {
+  padding-left: 0.3rem;
+  border-left: 1px solid var(--border-strong);
+  font-size: 0.66rem;
+  color: var(--text-faint);
 }
 
-/* 预留课程（笔记还在规划中）：虚线 + 更淡，且不响应展开 */
-.graph-node--planned rect {
-  fill: transparent;
-  stroke-dasharray: 5 4;
-  stroke: var(--border-strong);
+/* 上线进度：一条 3px 的细线。章多的课一眼能看出还剩多少，不占版面 */
+.route-course__bar {
+  height: 3px;
+  margin: 0.6rem 0 0.35rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  overflow: hidden;
 }
-.graph-node--planned text { fill: var(--text-faint); font-weight: 600; }
-.graph-node--planned .graph-node__badge { fill: var(--text-faint); }
+.route-course__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--disc-line, var(--accent));
+}
 
-/* 已经有分野的预留课程（如数学里的线性代数）：**留着分野淡色**，只把「规划中」交给
-   虚线与半透明表达 —— 否则整个数学带里只有高等数学是绿的，看不出这四门是一伙的。 */
-.graph-node--course.graph-node--planned[data-disc] rect {
-  fill-opacity: 0.42;
-  stroke-opacity: 0.7;
-  stroke-dasharray: 5 4;
+.route-course__empty {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--text-faint);
 }
-.graph-node--course.graph-node--planned[data-disc] text { opacity: 0.8; }
 
-/* 注：章节先修**不分主干/旁支**，全部是同样的实线肘形。
-   早期版本把「建树用的那个父节点」画实线、其余画虚线，读起来像在说「这条前置是次要的」——
-   前置就是前置，没有主次；多条先修自然汇到同一个节点上（竖直段重叠，视觉上就收成一条）。 */
+/* -------------------------------------------------------- 章节行 */
+/* 一行 = 章号 | 章名（+ 第二行的先修/角标）。
+   章号用等宽数字右对齐，扫一眼就能确认「1、2、3… 没有跳号」。 */
+.route-chapters {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.route-chapter {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+.route-chapter:hover { background: var(--bg-soft); }
+.route-chapter__num {
+  text-align: right;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.route-chapter__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+.route-chapter__name {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+a.route-chapter__name {
+  text-decoration: none;
+  transition: color 0.12s;
+}
+a.route-chapter__name:hover { color: var(--accent-text); }
 
-/* 画布上不要选中文本：
-   ① 画布整体禁止选中 —— 平移时按住一拖会框选到页面文字，指针事件随之不可靠；
-   ② 节点标签单独再禁一次 user-select，并关掉指针事件 —— 否则指针落在文字上时
-      事件的 target 会变成 <text>，悬停信息卡与点击判定都会抖
-      （以前节点可拖动时这是 bug-8 的成因，现在节点不可拖，但这两条依然要留）。
-   SVG 里 text 不继承父级的 user-select，所以必须单独写 `.graph-node text`。 */
-.graph-canvas,
-.graph-stage {
-  user-select: none;
-  -webkit-user-select: none;
+/* 章名下面那一行小字：先修 + 两种「未上线」角标 */
+.route-chapter__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
 }
-.graph-node,
-.graph-node text {
-  user-select: none;
-  -webkit-user-select: none;
+.route-chapter__pre {
+  font-size: 0.7rem;
+  color: var(--text-faint);
 }
-.graph-node text { pointer-events: none; }
+.route-chapter__badge {
+  padding: 0.02rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+/* 「待发布」是计划内、还没写；「未编入路线」是已经上线、但没排进顺序。
+   两种灰要能分开：前者虚线空心，后者实心（上面那条 .route-chapter__badge）。 */
+.route-chapter__badge--todo {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.route-chapter.is-pending .route-chapter__name { color: var(--text-faint); }
+
+/* 408 考研权重（opinion-26）：只给标注过的章出现，别让每行都挂满角标。
+   core 用副色（绯朱红）—— 它是这一行里唯一「要考试」的信息，比灰色角标更该被看见；
+   basic 退回灰调，弱一档。 */
+.route-chapter__exam {
+  padding: 0.02rem 0.38rem;
+  border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
+  border-radius: 4px;
+  background: var(--red-soft);
+  font-size: 0.66rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--red-text);
+  white-space: nowrap;
+}
+.route-chapter__exam--basic {
+  border-color: var(--border-strong);
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+/* --------------------------------------------- 未归入课程的笔记 */
+.route-orphans {
+  margin: 2rem 0 0;
+  padding: 1rem 1.1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+.route-orphans h2 { margin: 0 0 0.4rem; font-size: 1rem; }
+.route-orphans p {
+  margin: 0 0 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+.route-orphans ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.9;
+}
+
+/* ------------------------------------------------------ 页脚说明 */
+.route-note {
+  margin: 1.75rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.85;
+  color: var(--text-faint);
+}
+
+/* 窄屏（手机）：这一页的重点是「一屏看得完一个学科的目录」，
+   所以除了收窄留白，还要把搜索结果里那种「章号 + 标题 + 角标」的三栏压扁一点。 */
+@media (max-width: 560px) {
+  .route-band { padding: 0.9rem 0.85rem 1rem; }
+  .route-chapter { grid-template-columns: 1.35rem 1fr; gap: 0.35rem; }
+  .route-result__row { grid-template-columns: 1.5rem 1fr; gap: 0.45rem; }
+  /* 角标换到第二行右侧（挂在 body 下面），免得把标题挤成竖排 */
+  .route-result__badge {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.15rem;
+  }
+  .route-search { max-width: none; }
+  .route-summary { font-size: 0.78rem; }
+}
 
 /* 页脚来源说明（opinion-12）：单独一行、压低对比度 —— 它要在场，但不抢视线 */
 .site-footer__note {

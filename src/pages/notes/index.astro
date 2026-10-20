@@ -39,16 +39,14 @@ const hasNotes = notes.length > 0;
       </div>
       {
         hasNotes && (
-          <a class="graph-entry" href="/notes/graph/" title="按「先学 → 后学」的依赖看全部笔记">
+          <a class="route-entry" href="/notes/route/" title="按「先学 → 后学」看全部笔记的课程顺序">
             <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" fill="none"
               stroke="currentColor" stroke-width="1.6">
-              <circle cx="5" cy="5" r="2.4" />
-              <circle cx="15" cy="7" r="2.4" />
-              <circle cx="8" cy="15" r="2.4" />
-              <path d="M7.2 6.1 12.8 6.7M6.2 7.2l1.3 5.4M13.8 9.1l-4.4 4.2" />
+              <path d="M3 4h9M3 10h13M3 16h7" stroke-linecap="round" />
+              <path d="M15.2 3.4 17 5l-1.8 1.6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            知识图谱
-            <span class="graph-entry__count">{notes.length}</span>
+            学习路线
+            <span class="route-entry__count">{notes.length}</span>
           </a>
         )
       }

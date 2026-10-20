@@ -13,6 +13,7 @@ const PATHS = [
   '/',
   '/about/',
   '/notes/',
+  '/notes/route/',
   '/notes/graph/',
   '/blog/',
   '/works/',
