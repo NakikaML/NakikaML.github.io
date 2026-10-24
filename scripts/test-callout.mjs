@@ -201,6 +201,34 @@ const render = async (md) => (await renderer.render(md, { fileURL: FIXTURE })).c
   check('没有凭空生出 callout', !html.includes('class="callout'), html);
 }
 
+// --------------------------- 9. 紧跟在开围栏后面的「非文本行」不能被当成空行丢掉
+{
+  // 图片 / 公式节点没有文本，早期实现用「这一行的文本是否为空」判断空行，
+  // 于是紧跟围栏那张图会被静默丢弃（笔记里 hm-3 的「描绘步骤」例题踩过）。
+  const img = await render(
+    [
+      ':::example 例 1 · 描绘图形',
+      '![示例图](/notes-assets/demo.svg)',
+      '',
+      '**思路**：照五步走。',
+      ':::',
+    ].join('\n')
+  );
+  check('围栏下一行的图片要保留', img.includes('<img'), img);
+  check('图片这张没有变成空段落', !/callout__body\s*<p>\s*<\/p>/.test(img), img);
+
+  // 另一类「没有文本的节点」：图片和文字在同一段里（图后面紧跟说明行）
+  const imgPlusText = await render(
+    [
+      ':::tip 提示',
+      '![示例图](/notes-assets/demo.svg)',
+      '图注之后还有一行说明。',
+      ':::',
+    ].join('\n')
+  );
+  check('图 + 文字混在同一段时两者都在', imgPlusText.includes('<img') && imgPlusText.includes('说明'), imgPlusText);
+}
+
 // ------------------------------------------------------------- 结果
 console.log(`\n${pass} 项通过${fails.length ? `，${fails.length} 项失败` : ''}`);
 if (fails.length) {

@@ -86,11 +86,11 @@ $$
 
 推论：$x = \operatorname{sgn} x \cdot |x|$。符号函数是分段函数的典型代表。
 
-![符号函数的图像：x 为负时取 -1，为零时取 0，为正时取 1](/notes-assets/hm1-01-symbol-function-graph.jpg)
+![符号函数的图像：x 为负时取值 -1，为零时取值 0，为正时取值 1](/notes-assets/hm1-01-symbol-function-graph.svg)
 
 **取整函数**：$[x]$ 表示不超过 $x$ 的最大整数。$\lceil x \rceil$ 为向上取整，$\lfloor x \rfloor$ 为向下取整。
 
-![取整函数的图像：阶梯状，每经过一个整数跳一级](/notes-assets/hm1-02-floor-function-graph.jpg)
+![取整函数的图像：阶梯状，x 每经过一个整数，函数值就往上跳一级](/notes-assets/hm1-02-floor-function-graph.svg)
 
 #### 函数的性质
 
@@ -124,7 +124,7 @@ $$
 
 若 $f$ 是定义在 $D$ 上的单调函数，则 $f: D \rightarrow f(D)$ 是单射，于是 $f$ 的反函数必定存在，且 $f^{-1}$ 也是 $f(D)$ 上的单调函数。$f(x)$ 和 $f^{-1}(x)$ 的图像关于直线 $y = x$ 对称。
 
-![函数与反函数的图像关于直线 y = x 对称](/notes-assets/hm1-03-inverse-function-graph.jpg)
+![函数 y = eˣ 与它的反函数 y = ln x 的图像关于直线 y = x 对称](/notes-assets/hm1-03-inverse-function-graph.svg)
 
 #### 复合函数
 
@@ -158,9 +158,19 @@ $$
   - $y = \arctan x$：定义域 $(-\infty, +\infty)$，值域 $(-\frac{\pi}{2}, \frac{\pi}{2})$，奇函数
   - $y = \operatorname{arccot} x$：定义域 $(-\infty, +\infty)$，值域 $(0, \pi)$，非奇非偶
 
-![余切、正割、余割三个函数的图像](/notes-assets/hm1-04-cot-sec-csc-graphs.jpg)
+![余切函数 y = cot x：周期 π，在每个 kπ 处有竖直渐近线，零点在 π/2 + kπ](/notes-assets/hm1-04-1-cot-graph.svg)
 
-![四个反三角函数的图像](/notes-assets/hm1-05-inverse-trig-function-graphs.jpg)
+![正割函数 y = sec x：周期 2π，在 π/2 + kπ 处有竖直渐近线，且始终 |sec x| ≥ 1](/notes-assets/hm1-04-2-sec-graph.svg)
+
+![余割函数 y = csc x：周期 2π，在每个 kπ 处有竖直渐近线，且始终 |csc x| ≥ 1](/notes-assets/hm1-04-3-csc-graph.svg)
+
+![反正弦函数 y = arcsin x：定义域 [-1, 1]，值域 [-π/2, π/2]，单调递增](/notes-assets/hm1-05-1-arcsin-graph.svg)
+
+![反余弦函数 y = arccos x：定义域 [-1, 1]，值域 [0, π]，单调递减](/notes-assets/hm1-05-2-arccos-graph.svg)
+
+![反正切函数 y = arctan x：定义域 R，值域 (-π/2, π/2)，两端是水平渐近线](/notes-assets/hm1-05-3-arctan-graph.svg)
+
+![反余切函数 y = arccot x：定义域 R，值域 (0, π)，两端是水平渐近线 y = 0 与 y = π](/notes-assets/hm1-05-4-arccot-graph.svg)
 
 由**常数**和**基本初等函数**经过有限次四则运算和有限次函数复合步骤所构成、并可用一个式子表示的函数，称为**初等函数**。
 
@@ -169,6 +179,12 @@ $$
 - 双曲正弦：$\operatorname{sh} x = \sinh x = \dfrac{e^x - e^{-x}}{2}$
 - 双曲余弦：$\operatorname{ch} x = \cosh x = \dfrac{e^x + e^{-x}}{2}$
 - 双曲正切：$\operatorname{th} x = \tanh x = \dfrac{\sinh x}{\cosh x} = \dfrac{e^x - e^{-x}}{e^x + e^{-x}}$
+
+![双曲正弦 y = sh x = sinh x：奇函数，过原点，|x| 增大时按指数增长](/notes-assets/hm1-12-1-sinh-graph.svg)
+
+![双曲余弦 y = ch x = cosh x：偶函数，在 x = 0 处取最小值 1，图像是悬链线的形状](/notes-assets/hm1-12-2-cosh-graph.svg)
+
+![双曲正切 y = th x = tanh x：奇函数，单调递增，两端以 y = 1 与 y = −1 为水平渐近线](/notes-assets/hm1-12-3-tanh-graph.svg)
 
 :::example 例 1 · 复合函数求定义域
 已知 $f(x) = \arccos(2x + 1) + \log_2(3x + 2)$，求定义域 $D_f$。
@@ -218,7 +234,7 @@ $$
 :::example 例 3 · 判断函数在给定区间上是否有界
 函数 $f(x) = \dfrac{1}{x - 2}$ 分别在 $x \in (2, 3)$ 与 $x \in (3, +\infty)$ 内是否有界？
 
-![例 3 中 f(x) = 1/(x-2) 的图像](/notes-assets/hm1-06-boundedness-example-graph.jpg)
+![例 3 中 f(x) = 1/(x-2) 的图像：x 从右侧靠近 2 时函数值趋于 +∞，x 趋于 +∞ 时函数值趋于 0](/notes-assets/hm1-06-boundedness-example-graph.svg)
 
 **思路**：判断函数在区间上的有界性，就是看函数值是否有上界又有下界——"有界"要求两头都被挡住。
 
@@ -540,7 +556,7 @@ $$
 :::example 例 1 · 无界但非无穷大的反例
 函数 $y = x \cos x$ 在 $(-\infty, +\infty)$ 内是否无界？当 $x \to +\infty$ 时，$y$ 是否为无穷大？
 
-![y = x·cos x 的图像：振幅随 |x| 增大而增大，在正负之间无限振荡](/notes-assets/hm1-07-unbounded-not-infinite.jpg)
+![y = x·cos x 的图像：振幅随 |x| 增大而增大，在正负之间无限振荡，但始终被包络 y = ±x 挡住](/notes-assets/hm1-07-unbounded-not-infinite.svg)
 
 **思路**：区分"无界"和"无穷大"——无界意味着函数值可以任意大；无穷大意味着 $x$ 趋于某值时**持续**趋于无穷。函数在趋于无穷和趋于零之间无限振荡，则无界但非无穷大。
 
@@ -1305,7 +1321,7 @@ $f(0) \cdot f(1) < 0$，由零点定理，存在 $\xi \in (0, 1)$ 使 $f(\xi) = 
 
 若 $f(x)$ 在 $[a, b]$ 上连续，且 $f(a) = A$，$f(b) = B$，则对于 $A$ 与 $B$ 之间的任意数 $C$，至少存在一点 $\xi \in (a, b)$ 使 $f(\xi) = C$。
 
-![介值定理的几何意义：f(a) 与 f(b) 之间的每个值都能被取到](/notes-assets/hm1-11-intermediate-value-theorem.jpg)
+![介值定理的几何意义：f(a) = A 与 f(b) = B 之间的任意一个 C，曲线上都至少有一点取到它](/notes-assets/hm1-11-intermediate-value-theorem.svg)
 
 介值定理是零点定理的推广。事实上，零点定理是介值定理在 $C = 0$ 时的特例。
 

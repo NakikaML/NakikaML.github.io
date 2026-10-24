@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="例 3 中 f(x) = 1/(x-2) 的图像：x 从右侧靠近 2 时函数值趋于 +∞，x 趋于 +∞ 时函数值趋于 0">
+  <title>例 3 中 f(x) = 1/(x-2) 的图像：x 从右侧靠近 2 时函数值趋于 +∞，x 趋于 +∞ 时函数值趋于 0</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-06-boundedness-example-graph"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-06-boundedness-example-graph)"><line x1="81.63" y1="34" x2="81.63" y2="364"/><line x1="152.88" y1="34" x2="152.88" y2="364"/><line x1="224.13" y1="34" x2="224.13" y2="364"/><line x1="295.38" y1="34" x2="295.38" y2="364"/><line x1="366.63" y1="34" x2="366.63" y2="364"/><line x1="437.88" y1="34" x2="437.88" y2="364"/><line x1="509.13" y1="34" x2="509.13" y2="364"/><line x1="580.38" y1="34" x2="580.38" y2="364"/><line x1="46" y1="322.75" x2="616" y2="322.75"/><line x1="46" y1="281.5" x2="616" y2="281.5"/><line x1="46" y1="240.25" x2="616" y2="240.25"/><line x1="46" y1="199" x2="616" y2="199"/><line x1="46" y1="157.75" x2="616" y2="157.75"/><line x1="46" y1="116.5" x2="616" y2="116.5"/><line x1="46" y1="75.25" x2="616" y2="75.25"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-06-boundedness-example-graph)"><line x1="295.38" y1="34" x2="295.38" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="199" x2="624" y2="199"/><line x1="152.88" y1="368" x2="152.88" y2="26"/><line x1="81.63" y1="199" x2="81.63" y2="203"/><line x1="152.88" y1="199" x2="152.88" y2="203"/><line x1="224.13" y1="199" x2="224.13" y2="203"/><line x1="295.38" y1="199" x2="295.38" y2="203"/><line x1="366.63" y1="199" x2="366.63" y2="203"/><line x1="437.88" y1="199" x2="437.88" y2="203"/><line x1="509.13" y1="199" x2="509.13" y2="203"/><line x1="580.38" y1="199" x2="580.38" y2="203"/><line x1="152.88" y1="364" x2="148.88" y2="364"/><line x1="152.88" y1="322.75" x2="148.88" y2="322.75"/><line x1="152.88" y1="281.5" x2="148.88" y2="281.5"/><line x1="152.88" y1="240.25" x2="148.88" y2="240.25"/><line x1="152.88" y1="157.75" x2="148.88" y2="157.75"/><line x1="152.88" y1="116.5" x2="148.88" y2="116.5"/><line x1="152.88" y1="75.25" x2="148.88" y2="75.25"/><line x1="152.88" y1="34" x2="148.88" y2="34"/></g>
+  <g clip-path="url(#clip-hm1-06-boundedness-example-graph)"><path d="M46 210.8 L84 212.9 L116.1 215.4 L143.4 218.3 L166.4 221.8 L185.9 225.8 L202.5 230.6 L216.8 236.4 L228.6 243 L238.8 251 L247.4 260.3 L254.8 271.4 L260.9 284.3 L266.2 299.6 L270.7 318 L274.5 339.6 L277.6 364 M313.2 34 L316.8 61.5 L320.8 83.3 L325.8 102.3 L332 118.6 L339.1 131.7 L347.9 143 L358.3 152.3 L370.9 160.1 L385.9 166.5 L403.7 171.9 L425.3 176.4 L450.9 180.1 L481.8 183.2 L518.6 185.8 L562.8 188 L616 189.8" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="81.63" y="214" text-anchor="middle">-1</text><text class="tick" x="152.88" y="214" text-anchor="middle">0</text><text class="tick" x="224.13" y="214" text-anchor="middle">1</text><text class="tick" x="295.38" y="214" text-anchor="middle">2</text><text class="tick" x="366.63" y="214" text-anchor="middle">3</text><text class="tick" x="437.88" y="214" text-anchor="middle">4</text><text class="tick" x="509.13" y="214" text-anchor="middle">5</text><text class="tick" x="580.38" y="214" text-anchor="middle">6</text><text class="tick" x="144.88" y="368" text-anchor="end">-4</text><text class="tick" x="144.88" y="326.75" text-anchor="end">-3</text><text class="tick" x="144.88" y="285.5" text-anchor="end">-2</text><text class="tick" x="144.88" y="244.25" text-anchor="end">-1</text><text class="tick" x="143.88" y="211" text-anchor="end">0</text><text class="tick" x="144.88" y="161.75" text-anchor="end">1</text><text class="tick" x="144.88" y="120.5" text-anchor="end">2</text><text class="tick" x="144.88" y="79.25" text-anchor="end">3</text><text class="tick" x="144.88" y="38" text-anchor="end">4</text><text class="axisname" x="622" y="192">x</text><text class="axisname" x="159.88" y="30">y</text></g>
+  <g><circle cx="366.63" cy="157.75" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="375.63" y="148.75" text-anchor="start">(3, 1)</text></g>
+  <g></g>
+  <g></g>
+  <g></g>
+</svg>

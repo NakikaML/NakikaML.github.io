@@ -19,6 +19,8 @@
     "test:frac": "node scripts/test-inline-dfrac.mjs",
     "test:callout": "node scripts/test-callout.mjs",
     "test:img": "node scripts/test-image-size.mjs",
+    "test:plot": "node scripts/test-plots.mjs",
+    "plot": "node scripts/build-plots.mjs",
     "check:math": "node scripts/check-math-delims.mjs",
     "check:bold": "node scripts/check-bold-render.mjs",
     "check:live": "node scripts/check-live.mjs",

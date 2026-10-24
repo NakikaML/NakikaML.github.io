@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="罗尔定理：f(a) = f(b) 时，区间内至少有一点 ξ 处切线水平、平行于两端点的连线">
+  <title>罗尔定理：f(a) = f(b) 时，区间内至少有一点 ξ 处切线水平、平行于两端点的连线</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm3-02-rolles-theorem"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm3-02-rolles-theorem)"><line x1="81.63" y1="34" x2="81.63" y2="364"/><line x1="259.75" y1="34" x2="259.75" y2="364"/><line x1="437.88" y1="34" x2="437.88" y2="364"/><line x1="46" y1="289.48" x2="616" y2="289.48"/><line x1="46" y1="183.03" x2="616" y2="183.03"/><line x1="46" y1="76.58" x2="616" y2="76.58"/></g>
+  <g class="asym" clip-path="url(#clip-hm3-02-rolles-theorem)"><line x1="135.06" y1="34" x2="135.06" y2="364"/><line x1="509.13" y1="34" x2="509.13" y2="364"/></g>
+  <g class="axis"><line x1="81.63" y1="368" x2="81.63" y2="26"/><line x1="81.63" y1="364" x2="81.63" y2="368"/><line x1="259.75" y1="364" x2="259.75" y2="368"/><line x1="437.88" y1="364" x2="437.88" y2="368"/><line x1="616" y1="364" x2="616" y2="368"/><line x1="81.63" y1="289.48" x2="77.63" y2="289.48"/><line x1="81.63" y1="183.03" x2="77.63" y2="183.03"/><line x1="81.63" y1="76.58" x2="77.63" y2="76.58"/></g>
+  <g clip-path="url(#clip-hm3-02-rolles-theorem)"><path d="M63.9 364 L80.7 343.3 L99 319 L160 232.8 L182.8 201.7 L205.6 173.1 L226.3 150.1 L239.1 137.6 L251.4 127 L263.5 118 L275.4 110.8 L287.3 105.1 L298.9 101.1 L310.6 98.7 L322 97.9 L333.4 98.6 L345 101 L356.7 105 L368.5 110.7 L380.6 118 L392.7 127 L405.1 137.6 L417.9 150.1 L438.6 173.1 L461.4 201.7 L484.2 232.8 L545.2 319 L563.5 343.3 L580.3 364" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M135.1 268.2 L509.1 268.2" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="1.9" stroke-dasharray="6 5" stroke-linecap="butt"/><path d="M46 97.9 L616 97.9" class="curve" stroke="var(--plot-c3, #4f9a76)"/></g>
+  <g><text class="tick" x="81.63" y="379" text-anchor="middle">0</text><text class="tick" x="259.75" y="379" text-anchor="middle">2</text><text class="tick" x="437.88" y="379" text-anchor="middle">4</text><text class="tick" x="616" y="379" text-anchor="middle">6</text><text class="tick" x="73.63" y="293.48" text-anchor="end">1</text><text class="tick" x="73.63" y="187.03" text-anchor="end">2</text><text class="tick" x="73.63" y="80.58" text-anchor="end">3</text><text class="tick tick--mark" x="135.06" y="379" text-anchor="middle">a</text><text class="tick tick--mark" x="509.13" y="379" text-anchor="middle">b</text><text class="axisname" x="88.63" y="30">y</text></g>
+  <g><circle cx="135.06" cy="268.19" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="509.13" cy="268.19" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="322.09" cy="97.87" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="331.09" y="89.87" text-anchor="start">ξ</text></g>
+  <g></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">y = f(x)</text><line x1="145.68" y1="18" x2="163.68" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2" stroke-dasharray="6 5"/><text class="legend" x="169.68" y="22">弦（水平）</text><line x1="249.68" y1="18" x2="267.68" y2="18" stroke="var(--plot-c3, #4f9a76)" stroke-width="2"/><text class="legend" x="273.68" y="22">f′(ξ) = 0</text></g>
+</svg>

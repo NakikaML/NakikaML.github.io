@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="余切函数 y = cot x 的图像：周期为 π，在每个 kπ 处有竖直渐近线，零点在 π/2 + kπ">
+  <title>余切函数 y = cot x 的图像：周期为 π，在每个 kπ 处有竖直渐近线，零点在 π/2 + kπ</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-04-1-cot-graph"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-04-1-cot-graph)"><line x1="117.25" y1="34" x2="117.25" y2="364"/><line x1="188.5" y1="34" x2="188.5" y2="364"/><line x1="259.75" y1="34" x2="259.75" y2="364"/><line x1="331" y1="34" x2="331" y2="364"/><line x1="402.25" y1="34" x2="402.25" y2="364"/><line x1="473.5" y1="34" x2="473.5" y2="364"/><line x1="544.75" y1="34" x2="544.75" y2="364"/><line x1="46" y1="309" x2="616" y2="309"/><line x1="46" y1="254" x2="616" y2="254"/><line x1="46" y1="199" x2="616" y2="199"/><line x1="46" y1="144" x2="616" y2="144"/><line x1="46" y1="89" x2="616" y2="89"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-04-1-cot-graph)"><line x1="188.5" y1="34" x2="188.5" y2="364"/><line x1="473.5" y1="34" x2="473.5" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="199" x2="624" y2="199"/><line x1="331" y1="368" x2="331" y2="26"/><line x1="46" y1="199" x2="46" y2="203"/><line x1="117.25" y1="199" x2="117.25" y2="203"/><line x1="188.5" y1="199" x2="188.5" y2="203"/><line x1="259.75" y1="199" x2="259.75" y2="203"/><line x1="331" y1="199" x2="331" y2="203"/><line x1="402.25" y1="199" x2="402.25" y2="203"/><line x1="473.5" y1="199" x2="473.5" y2="203"/><line x1="544.75" y1="199" x2="544.75" y2="203"/><line x1="616" y1="199" x2="616" y2="203"/><line x1="331" y1="364" x2="327" y2="364"/><line x1="331" y1="309" x2="327" y2="309"/><line x1="331" y1="254" x2="327" y2="254"/><line x1="331" y1="144" x2="327" y2="144"/><line x1="331" y1="89" x2="327" y2="89"/><line x1="331" y1="34" x2="327" y2="34"/></g>
+  <g clip-path="url(#clip-hm1-04-1-cot-graph)"><path d="M53.5 34 L56 76 L59.1 106.2 L63.3 130.6 L68.8 149 L72.4 157.1 L76.6 164.7 L81.4 171.2 L87.1 177.4 L93.3 182.9 L100.4 188.3 L130.3 207.1 L142.2 215.9 L148.1 221.3 L153.1 226.8 L157.6 233 L161.4 239.5 L165.5 248.4 L168.8 258.2 L171.6 269.5 L174.3 283.6 L178.3 319.1 L181 364 M196 34 L198.5 76 L201.6 106.2 L205.8 130.6 L211.3 149 L214.9 157.1 L219.1 164.7 L223.9 171.2 L229.6 177.4 L235.8 182.9 L242.9 188.3 L272.8 207.1 L284.7 215.9 L290.6 221.3 L295.6 226.8 L300.1 233 L303.9 239.5 L308 248.4 L311.3 258.2 L314.1 269.5 L316.8 283.6 L320.8 319.1 L323.5 364 M338.5 34 L341.2 78.9 L345.3 114.4 L347.9 128.5 L350.7 139.8 L354 149.6 L358.1 158.5 L361.9 165 L366.4 171.2 L371.4 176.7 L377.3 182.1 L389.2 190.9 L419.1 209.7 L426.2 215.1 L432.4 220.6 L438.1 226.8 L442.9 233.3 L447.1 240.9 L450.7 249 L456.2 267.4 L460.4 291.8 L463.5 322 L466 364 M481 34 L483.5 76 L486.6 106.2 L490.8 130.6 L496.3 149 L499.9 157.1 L504.1 164.7 L508.9 171.2 L514.6 177.4 L520.8 182.9 L527.9 188.3 L557.8 207.1 L569.7 215.9 L575.6 221.3 L580.6 226.8 L585.1 233 L588.9 239.5 L593 248.4 L596.3 258.2 L599.1 269.5 L601.8 283.6 L605.8 319.1 L608.5 364" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="46" y="214" text-anchor="middle">-2π</text><text class="tick" x="117.25" y="214" text-anchor="middle">-3π/2</text><text class="tick" x="188.5" y="214" text-anchor="middle">-π</text><text class="tick" x="259.75" y="214" text-anchor="middle">-π/2</text><text class="tick" x="331" y="214" text-anchor="middle">0</text><text class="tick" x="402.25" y="214" text-anchor="middle">π/2</text><text class="tick" x="473.5" y="214" text-anchor="middle">π</text><text class="tick" x="544.75" y="214" text-anchor="middle">3π/2</text><text class="tick" x="616" y="214" text-anchor="middle">2π</text><text class="tick" x="323" y="368" text-anchor="end">-6</text><text class="tick" x="323" y="313" text-anchor="end">-4</text><text class="tick" x="323" y="258" text-anchor="end">-2</text><text class="tick" x="322" y="211" text-anchor="end">0</text><text class="tick" x="323" y="148" text-anchor="end">2</text><text class="tick" x="323" y="93" text-anchor="end">4</text><text class="tick" x="323" y="38" text-anchor="end">6</text><text class="axisname" x="622" y="192">x</text><text class="axisname" x="338" y="30">y</text></g>
+  <g></g>
+  <g></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-c1, #d78b34)">y = cot x</text></g>
+  <g></g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="反正切函数 y = arctan x 的图像：定义域 R，值域 (-π/2, π/2)，两端是水平渐近线">
+  <title>反正切函数 y = arctan x 的图像：定义域 R，值域 (-π/2, π/2)，两端是水平渐近线</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-05-3-arctan-graph"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-05-3-arctan-graph)"><line x1="141" y1="34" x2="141" y2="364"/><line x1="236" y1="34" x2="236" y2="364"/><line x1="331" y1="34" x2="331" y2="364"/><line x1="426" y1="34" x2="426" y2="364"/><line x1="521" y1="34" x2="521" y2="364"/><line x1="46" y1="322.42" x2="616" y2="322.42"/><line x1="46" y1="199" x2="616" y2="199"/><line x1="46" y1="75.58" x2="616" y2="75.58"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-05-3-arctan-graph)"><line x1="46" y1="322.42" x2="616" y2="322.42"/><line x1="46" y1="75.58" x2="616" y2="75.58"/></g>
+  <g class="axis"><line x1="40" y1="199" x2="624" y2="199"/><line x1="331" y1="368" x2="331" y2="26"/><line x1="46" y1="199" x2="46" y2="203"/><line x1="141" y1="199" x2="141" y2="203"/><line x1="236" y1="199" x2="236" y2="203"/><line x1="331" y1="199" x2="331" y2="203"/><line x1="426" y1="199" x2="426" y2="203"/><line x1="521" y1="199" x2="521" y2="203"/><line x1="616" y1="199" x2="616" y2="203"/><line x1="331" y1="322.42" x2="327" y2="322.42"/><line x1="331" y1="75.58" x2="327" y2="75.58"/></g>
+  <g clip-path="url(#clip-hm1-05-3-arctan-graph)"><path d="M46 309.4 L89.2 307.2 L126 304.5 L157.6 301.4 L184.7 297.8 L208 293.5 L228.2 288.4 L245.7 282.5 L261.2 275.5 L272.3 268.9 L282.8 261.3 L292.5 252.5 L301.8 242.3 L309.1 232.9 L317 221.5 L349.3 170.1 L358.8 157.4 L368.1 147 L378.7 137.1 L390.1 128.7 L402.7 121.5 L417 115.2 L432.2 110.1 L449.3 105.6 L468.8 101.7 L490.8 98.3 L516 95.3 L545 92.7 L616 88.6" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="46" y="214" text-anchor="middle">-6</text><text class="tick" x="141" y="214" text-anchor="middle">-4</text><text class="tick" x="236" y="214" text-anchor="middle">-2</text><text class="tick" x="331" y="214" text-anchor="middle">0</text><text class="tick" x="426" y="214" text-anchor="middle">2</text><text class="tick" x="521" y="214" text-anchor="middle">4</text><text class="tick" x="616" y="214" text-anchor="middle">6</text><text class="tick" x="323" y="326.42" text-anchor="end">-π/2</text><text class="tick" x="322" y="211" text-anchor="end">0</text><text class="tick" x="323" y="79.58" text-anchor="end">π/2</text><text class="axisname" x="622" y="192">x</text><text class="axisname" x="338" y="30">y</text></g>
+  <g></g>
+  <g></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-c1, #d78b34)">y = arctan x</text></g>
+  <g></g>
+</svg>

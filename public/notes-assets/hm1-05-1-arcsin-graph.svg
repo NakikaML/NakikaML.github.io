@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 400" width="620" height="400" role="img" aria-label="反正弦函数 y = arcsin x 的图像：定义域 [-1, 1]，值域 [-π/2, π/2]，单调递增">
+  <title>反正弦函数 y = arcsin x 的图像：定义域 [-1, 1]，值域 [-π/2, π/2]，单调递增</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-05-1-arcsin-graph"><rect x="46" y="34" width="550" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="550" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-05-1-arcsin-graph)"><line x1="117.3" y1="34" x2="117.3" y2="364"/><line x1="321" y1="34" x2="321" y2="364"/><line x1="524.7" y1="34" x2="524.7" y2="364"/><line x1="46" y1="322.42" x2="596" y2="322.42"/><line x1="46" y1="199" x2="596" y2="199"/><line x1="46" y1="75.58" x2="596" y2="75.58"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-05-1-arcsin-graph)"><line x1="46" y1="322.42" x2="596" y2="322.42"/><line x1="46" y1="75.58" x2="596" y2="75.58"/></g>
+  <g class="axis"><line x1="40" y1="199" x2="604" y2="199"/><line x1="321" y1="368" x2="321" y2="26"/><line x1="117.3" y1="199" x2="117.3" y2="203"/><line x1="321" y1="199" x2="321" y2="203"/><line x1="524.7" y1="199" x2="524.7" y2="203"/><line x1="321" y1="322.42" x2="317" y2="322.42"/><line x1="321" y1="75.58" x2="317" y2="75.58"/></g>
+  <g clip-path="url(#clip-hm1-05-1-arcsin-graph)"><path d="M117.3 322.4 L118.3 314.6 L121.2 307 L126 299.4 L132.7 291.6 L141.6 283.7 L152.3 275.7 L165.2 267.4 L180.1 259 L209 244.8 L245 229.1 L371.6 179.3 L414 161.7 L450 145.1 L478 129.8 L489.1 122.8 L498.6 115.8 L506.5 109 L513.2 102.2 L518.3 95.4 L521.8 88.8 L524 82 L524.7 75.6" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="117.3" y="214" text-anchor="middle">-1</text><text class="tick" x="321" y="214" text-anchor="middle">0</text><text class="tick" x="524.7" y="214" text-anchor="middle">1</text><text class="tick" x="313" y="326.42" text-anchor="end">-π/2</text><text class="tick" x="312" y="211" text-anchor="end">0</text><text class="tick" x="313" y="79.58" text-anchor="end">π/2</text><text class="axisname" x="602" y="192">x</text><text class="axisname" x="328" y="30">y</text></g>
+  <g><circle cx="117.3" cy="322.42" r="3.2" fill="var(--plot-c1, #d78b34)" stroke="var(--plot-c1, #d78b34)" stroke-width="1.6"/><circle cx="524.7" cy="75.58" r="3.2" fill="var(--plot-c1, #d78b34)" stroke="var(--plot-c1, #d78b34)" stroke-width="1.6"/></g>
+  <g></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-c1, #d78b34)">y = arcsin x</text></g>
+  <g></g>
+</svg>

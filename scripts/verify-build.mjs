@@ -269,7 +269,10 @@ let imgSized = 0;
 let imgZoomable = 0;
 for (const f of htmlFiles) {
   const html = fs.readFileSync(f, 'utf8');
-  for (const m of html.matchAll(/<img\b[^>]*>/g)) {
+  // ⚠️ 不能用 /<img[^>]*>/：属性值里完全可能有 `>`（图注写「f″ > 0」就会），
+  // 那样一个 `[^>]*` 会在引号中间截断，这一张图的 loading / width / data-zoomable
+  // 就全都「看不见」，检查会报成「有图没懒加载」。按引号成对地吃掉属性才是对的。
+  for (const m of html.matchAll(/<img\b(?:[^>"']|"[^"]*"|'[^']*')*>/g)) {
     const tag = m[0];
     // 只统计正文配图（站点图标、头像、作品封面这些不该被要求 lazy）
     if (!/\/notes-assets\//.test(tag)) continue;

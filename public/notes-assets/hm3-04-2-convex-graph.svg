@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img" aria-label="凸弧：曲线位于弦的上方，f″ &lt; 0，开口向下">
+  <title>凸弧：曲线位于弦的上方，f″ &lt; 0，开口向下</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm3-04-2-convex-graph"><rect x="46" y="34" width="530" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="530" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm3-04-2-convex-graph)"><line x1="70.09" y1="34" x2="70.09" y2="364"/><line x1="311" y1="34" x2="311" y2="364"/><line x1="551.91" y1="34" x2="551.91" y2="364"/><line x1="46" y1="246.14" x2="576" y2="246.14"/><line x1="46" y1="128.29" x2="576" y2="128.29"/></g>
+  <g class="asym" clip-path="url(#clip-hm3-04-2-convex-graph)"></g>
+  <g class="axis"><line x1="40" y1="364" x2="584" y2="364"/><line x1="311" y1="368" x2="311" y2="26"/><line x1="70.09" y1="364" x2="70.09" y2="368"/><line x1="311" y1="364" x2="311" y2="368"/><line x1="551.91" y1="364" x2="551.91" y2="368"/><line x1="311" y1="246.14" x2="307" y2="246.14"/><line x1="311" y1="128.29" x2="307" y2="128.29"/></g>
+  <g clip-path="url(#clip-hm3-04-2-convex-graph)"><path d="M46 274.9 L62.6 250.7 L79.1 228.1 L95.7 207.1 L112.3 187.6 L128.8 169.6 L145.4 153.2 L161.9 138.4 L178.5 125.2 L195.1 113.5 L211.6 103.3 L228.2 94.7 L244.8 87.7 L261.3 82.3 L277.9 78.4 L294.4 76 L311 75.2 L327.6 76 L344.1 78.4 L360.7 82.3 L377.3 87.7 L393.8 94.7 L410.4 103.3 L426.9 113.5 L443.5 125.2 L460.1 138.4 L476.6 153.2 L493.2 169.6 L509.8 187.6 L526.3 207.1 L542.9 228.1 L559.4 250.7 L576 274.9" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M94.2 208.9 L527.8 208.9" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="1.9" stroke-dasharray="6 5" stroke-linecap="butt"/><path d="M311 75.2 L311 208.9" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="1.4" stroke-dasharray="3 4" stroke-linecap="butt"/></g>
+  <g><text class="tick" x="70.09" y="379" text-anchor="middle">-2</text><text class="tick" x="311" y="379" text-anchor="middle">0</text><text class="tick" x="551.91" y="379" text-anchor="middle">2</text><text class="tick" x="302" y="376" text-anchor="end">0</text><text class="tick" x="303" y="250.14" text-anchor="end">1</text><text class="tick" x="303" y="132.29" text-anchor="end">2</text><text class="axisname" x="582" y="357">x</text><text class="axisname" x="318" y="30">y</text></g>
+  <g><circle cx="94.18" cy="208.9" r="3" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="527.82" cy="208.9" r="3" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="311" cy="75.25" r="3" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/></g>
+  <g></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">凸弧 f″ &lt; 0</text><line x1="162.72" y1="18" x2="180.72" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2" stroke-dasharray="6 5"/><text class="legend" x="186.72" y="22">弦</text></g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420" role="img" aria-label="例 1 的图形：y = x²/(x−1) 在 x = 0 处取极大值 0、在 x = 2 处取极小值 4；x = 1 是铅直渐近线，y = x + 1 是斜渐近线">
+  <title>例 1 的图形：y = x²/(x−1) 在 x = 0 处取极大值 0、在 x = 2 处取极小值 4；x = 1 是铅直渐近线，y = x + 1 是斜渐近线</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm3-05-function-graphing"><rect x="46" y="34" width="570" height="350" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="350" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm3-05-function-graphing)"><line x1="97.82" y1="34" x2="97.82" y2="384"/><line x1="201.45" y1="34" x2="201.45" y2="384"/><line x1="305.09" y1="34" x2="305.09" y2="384"/><line x1="408.73" y1="34" x2="408.73" y2="384"/><line x1="512.36" y1="34" x2="512.36" y2="384"/><line x1="46" y1="337.33" x2="616" y2="337.33"/><line x1="46" y1="290.67" x2="616" y2="290.67"/><line x1="46" y1="244" x2="616" y2="244"/><line x1="46" y1="197.33" x2="616" y2="197.33"/><line x1="46" y1="150.67" x2="616" y2="150.67"/><line x1="46" y1="104" x2="616" y2="104"/><line x1="46" y1="57.33" x2="616" y2="57.33"/></g>
+  <g class="asym" clip-path="url(#clip-hm3-05-function-graphing)"><line x1="356.91" y1="34" x2="356.91" y2="384"/></g>
+  <g class="axis"><line x1="40" y1="244" x2="624" y2="244"/><line x1="305.09" y1="388" x2="305.09" y2="26"/><line x1="97.82" y1="244" x2="97.82" y2="248"/><line x1="201.45" y1="244" x2="201.45" y2="248"/><line x1="305.09" y1="244" x2="305.09" y2="248"/><line x1="408.73" y1="244" x2="408.73" y2="248"/><line x1="512.36" y1="244" x2="512.36" y2="248"/><line x1="616" y1="244" x2="616" y2="248"/><line x1="305.09" y1="384" x2="301.09" y2="384"/><line x1="305.09" y1="337.33" x2="301.09" y2="337.33"/><line x1="305.09" y1="290.67" x2="301.09" y2="290.67"/><line x1="305.09" y1="197.33" x2="301.09" y2="197.33"/><line x1="305.09" y1="150.67" x2="301.09" y2="150.67"/><line x1="305.09" y1="104" x2="301.09" y2="104"/><line x1="305.09" y1="57.33" x2="301.09" y2="57.33"/></g>
+  <g clip-path="url(#clip-hm3-05-function-graphing)"><path d="M46 341.2 L165 290.1 L206.1 273.3 L238.4 260.9 L263.8 252.2 L283.7 246.8 L299.4 244.3 L311.8 244.4 L317 245.6 L321.5 247.4 L325.5 250 L329.1 253.3 L332.2 257.4 L335 262.5 L339.8 275.7 L343.3 292.6 L346.2 315.1 L348.6 346.2 L350.3 384 M364.5 34 L366.4 65.5 L368.8 90 L371.6 108.5 L375.2 122.9 L379.7 134 L385.4 142.1 L388.7 145 L392.3 147.2 L396.3 148.9 L401.1 150.1 L412 150.6 L425.5 148.8 L442.6 144.6 L463.8 137.9 L490.4 128.2 L523.4 115.1 L616 76" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M46 337.3 L616 80.7" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="1.9" stroke-dasharray="6 5" stroke-linecap="butt"/></g>
+  <g><text class="tick" x="97.82" y="259" text-anchor="middle">-4</text><text class="tick" x="201.45" y="259" text-anchor="middle">-2</text><text class="tick" x="305.09" y="259" text-anchor="middle">0</text><text class="tick" x="408.73" y="259" text-anchor="middle">2</text><text class="tick" x="512.36" y="259" text-anchor="middle">4</text><text class="tick" x="616" y="259" text-anchor="middle">6</text><text class="tick" x="297.09" y="388" text-anchor="end">-6</text><text class="tick" x="297.09" y="341.33" text-anchor="end">-4</text><text class="tick" x="297.09" y="294.67" text-anchor="end">-2</text><text class="tick" x="296.09" y="256" text-anchor="end">0</text><text class="tick" x="297.09" y="201.33" text-anchor="end">2</text><text class="tick" x="297.09" y="154.67" text-anchor="end">4</text><text class="tick" x="297.09" y="108" text-anchor="end">6</text><text class="tick" x="297.09" y="61.33" text-anchor="end">8</text><text class="axisname" x="622" y="237">x</text><text class="axisname" x="312.09" y="30">y</text></g>
+  <g><circle cx="305.09" cy="244" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="315.09" y="236" text-anchor="start">极大值 (0, 0)</text><circle cx="408.73" cy="150.67" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="418.73" y="140.67" text-anchor="start">极小值 (2, 4)</text></g>
+  <g></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">y = x²/(x − 1)</text><line x1="187.44" y1="18" x2="205.44" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2" stroke-dasharray="6 5"/><text class="legend" x="211.44" y="22">y = x + 1</text><line x1="294.08" y1="18" x2="312.08" y2="18" stroke="var(--plot-asym, #c2ac92)" stroke-width="2"/><text class="legend" x="318.08" y="22">x = 1</text></g>
+</svg>

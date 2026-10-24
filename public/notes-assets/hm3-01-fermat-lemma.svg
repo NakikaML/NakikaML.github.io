@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="费马引理：可导的极大值点 x₀ 处，曲线的切线是水平的">
+  <title>费马引理：可导的极大值点 x₀ 处，曲线的切线是水平的</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm3-01-fermat-lemma"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm3-01-fermat-lemma)"><line x1="141" y1="34" x2="141" y2="364"/><line x1="236" y1="34" x2="236" y2="364"/><line x1="331" y1="34" x2="331" y2="364"/><line x1="426" y1="34" x2="426" y2="364"/><line x1="521" y1="34" x2="521" y2="364"/><line x1="46" y1="309" x2="616" y2="309"/><line x1="46" y1="254" x2="616" y2="254"/><line x1="46" y1="199" x2="616" y2="199"/><line x1="46" y1="144" x2="616" y2="144"/><line x1="46" y1="89" x2="616" y2="89"/></g>
+  <g class="asym" clip-path="url(#clip-hm3-01-fermat-lemma)"><line x1="331" y1="34" x2="331" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="254" x2="624" y2="254"/><line x1="236" y1="368" x2="236" y2="26"/><line x1="46" y1="254" x2="46" y2="258"/><line x1="141" y1="254" x2="141" y2="258"/><line x1="236" y1="254" x2="236" y2="258"/><line x1="331" y1="254" x2="331" y2="258"/><line x1="426" y1="254" x2="426" y2="258"/><line x1="521" y1="254" x2="521" y2="258"/><line x1="616" y1="254" x2="616" y2="258"/><line x1="236" y1="364" x2="232" y2="364"/><line x1="236" y1="309" x2="232" y2="309"/><line x1="236" y1="199" x2="232" y2="199"/><line x1="236" y1="144" x2="232" y2="144"/><line x1="236" y1="89" x2="232" y2="89"/><line x1="236" y1="34" x2="232" y2="34"/></g>
+  <g clip-path="url(#clip-hm3-01-fermat-lemma)"><path d="M46 336.5 L63.8 306.5 L81.6 278.5 L99.4 252.4 L117.3 228.2 L135.1 206 L152.9 185.7 L170.7 167.3 L188.5 150.9 L206.3 136.4 L224.1 123.8 L241.9 113.2 L259.8 104.5 L277.6 97.7 L295.4 92.9 L313.2 90 L331 89 L348.8 90 L366.6 92.9 L384.4 97.7 L402.3 104.5 L420.1 113.2 L437.9 123.8 L455.7 136.4 L473.5 150.9 L491.3 167.3 L509.1 185.7 L526.9 206 L544.8 228.2 L562.6 252.4 L580.4 278.5 L598.2 306.5 L616 336.5" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M46 89 L616 89" class="curve" stroke="var(--plot-c2, #c9402e)"/></g>
+  <g><text class="tick" x="46" y="269" text-anchor="middle">-2</text><text class="tick" x="141" y="269" text-anchor="middle">-1</text><text class="tick" x="236" y="269" text-anchor="middle">0</text><text class="tick" x="331" y="269" text-anchor="middle">1</text><text class="tick" x="426" y="269" text-anchor="middle">2</text><text class="tick" x="521" y="269" text-anchor="middle">3</text><text class="tick" x="616" y="269" text-anchor="middle">4</text><text class="tick" x="228" y="368" text-anchor="end">-2</text><text class="tick" x="228" y="313" text-anchor="end">-1</text><text class="tick" x="227" y="266" text-anchor="end">0</text><text class="tick" x="228" y="203" text-anchor="end">1</text><text class="tick" x="228" y="148" text-anchor="end">2</text><text class="tick" x="228" y="93" text-anchor="end">3</text><text class="tick" x="228" y="38" text-anchor="end">4</text><text class="tick tick--mark" x="331" y="269" text-anchor="middle">x<tspan baseline-shift="sub" font-size="0.72em">0</tspan></text><text class="axisname" x="622" y="247">x</text><text class="axisname" x="243" y="30">y</text></g>
+  <g><circle cx="331" cy="89" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="341" y="78" text-anchor="start">极大值点</text></g>
+  <g></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">y = f(x)</text><line x1="145.68" y1="18" x2="163.68" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2"/><text class="legend" x="169.68" y="22">切线（水平）</text></g>
+</svg>

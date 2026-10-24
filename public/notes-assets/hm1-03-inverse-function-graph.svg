@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 530 530" width="530" height="530" role="img" aria-label="函数 y = e^x 与它的反函数 y = ln x 的图像关于直线 y = x 对称">
+  <title>函数 y = e^x 与它的反函数 y = ln x 的图像关于直线 y = x 对称</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-03-inverse-function-graph"><rect x="46" y="34" width="460" height="460" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="460" height="460" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-03-inverse-function-graph)"><line x1="140.71" y1="34" x2="140.71" y2="494"/><line x1="276" y1="34" x2="276" y2="494"/><line x1="411.29" y1="34" x2="411.29" y2="494"/><line x1="46" y1="399.29" x2="506" y2="399.29"/><line x1="46" y1="264" x2="506" y2="264"/><line x1="46" y1="128.71" x2="506" y2="128.71"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-03-inverse-function-graph)"></g>
+  <g class="axis"><line x1="40" y1="264" x2="514" y2="264"/><line x1="276" y1="498" x2="276" y2="26"/><line x1="140.71" y1="264" x2="140.71" y2="268"/><line x1="276" y1="264" x2="276" y2="268"/><line x1="411.29" y1="264" x2="411.29" y2="268"/><line x1="276" y1="399.29" x2="272" y2="399.29"/><line x1="276" y1="128.71" x2="272" y2="128.71"/></g>
+  <g clip-path="url(#clip-hm1-03-inverse-function-graph)"><path d="M46 261.7 L86.6 259.9 L120.6 257.2 L149.7 253.5 L175.2 248.8 L198.2 242.6 L218.7 235 L237.5 225.7 L254.5 214.7 L270.8 201.3 L286 185.6 L300 167.6 L313.2 146.8 L325.6 123.1 L337.3 96.5 L348.3 67.1 L358.8 34" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M278.3 494 L280.2 451.7 L282.9 418.4 L286.5 389.8 L291.3 364.4 L297.5 341.6 L305.1 321 L314.3 302.4 L325.3 285.5 L338.7 269.2 L354.4 254 L372.6 239.9 L393.3 226.8 L416.9 214.4 L443.3 202.7 L473 191.7 L506 181.2" class="curve" stroke="var(--plot-c2, #c9402e)"/><path d="M46 494 L506 34" class="curve dashed" stroke="var(--plot-grid, #e2d7c7)" stroke-dasharray="6 5"/></g>
+  <g><text class="tick" x="140.71" y="279" text-anchor="middle">-2</text><text class="tick" x="276" y="279" text-anchor="middle">0</text><text class="tick" x="411.29" y="279" text-anchor="middle">2</text><text class="tick" x="268" y="403.29" text-anchor="end">-2</text><text class="tick" x="267" y="276" text-anchor="end">0</text><text class="tick" x="268" y="132.71" text-anchor="end">2</text><text class="axisname" x="512" y="257">x</text><text class="axisname" x="283" y="30">y</text></g>
+  <g><circle cx="276" cy="196.35" r="3" fill="var(--plot-c1, #d78b34)" stroke="var(--plot-c1, #d78b34)" stroke-width="1.6"/><circle cx="343.65" cy="264" r="3" fill="var(--plot-c2, #c9402e)" stroke="var(--plot-c2, #c9402e)" stroke-width="1.6"/></g>
+  <g></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">y = e<tspan baseline-shift="super" font-size="0.72em">x</tspan></text><line x1="152.64" y1="18" x2="170.64" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2"/><text class="legend" x="176.64" y="22">y = ln x</text><line x1="252.32" y1="18" x2="270.32" y2="18" stroke="var(--plot-grid, #e2d7c7)" stroke-width="2" stroke-dasharray="6 5"/><text class="legend" x="276.32" y="22">y = x</text></g>
+</svg>

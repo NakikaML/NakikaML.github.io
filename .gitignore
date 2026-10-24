@@ -21,6 +21,13 @@ dist/
 Thumbs.db
 # 某些 Windows 工具会把没展开的 %SystemDrive% 当字面路径建目录，防一手
 %SystemDrive%/
+# 改笔记前留的手工备份（`xxx.md.bak`）：只是本机的后悔药，内容本身有 git 兜底
+*.bak
+
+# 一次性的对照页（scripts/plot-preview.mjs 生成，用来比对「手绘图 vs 生成图」）。
+# 决策做完就没用了，不属于站点，别入库。
+plot-preview.html
+scripts/plot-preview.mjs
 
 # 日志
 *.log

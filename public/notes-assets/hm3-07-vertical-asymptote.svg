@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="铅直渐近线：x 趋于 x₀ 时函数值的绝对值无限增大，曲线贴近竖直直线 x = x₀">
+  <title>铅直渐近线：x 趋于 x₀ 时函数值的绝对值无限增大，曲线贴近竖直直线 x = x₀</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm3-07-vertical-asymptote"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm3-07-vertical-asymptote)"><line x1="86.71" y1="34" x2="86.71" y2="364"/><line x1="249.57" y1="34" x2="249.57" y2="364"/><line x1="412.43" y1="34" x2="412.43" y2="364"/><line x1="575.29" y1="34" x2="575.29" y2="364"/><line x1="46" y1="309" x2="616" y2="309"/><line x1="46" y1="254" x2="616" y2="254"/><line x1="46" y1="199" x2="616" y2="199"/><line x1="46" y1="144" x2="616" y2="144"/><line x1="46" y1="89" x2="616" y2="89"/></g>
+  <g class="asym" clip-path="url(#clip-hm3-07-vertical-asymptote)"><line x1="331" y1="34" x2="331" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="199" x2="624" y2="199"/><line x1="249.57" y1="368" x2="249.57" y2="26"/><line x1="86.71" y1="199" x2="86.71" y2="203"/><line x1="249.57" y1="199" x2="249.57" y2="203"/><line x1="412.43" y1="199" x2="412.43" y2="203"/><line x1="575.29" y1="199" x2="575.29" y2="203"/><line x1="249.57" y1="364" x2="245.57" y2="364"/><line x1="249.57" y1="309" x2="245.57" y2="309"/><line x1="249.57" y1="254" x2="245.57" y2="254"/><line x1="249.57" y1="144" x2="245.57" y2="144"/><line x1="249.57" y1="89" x2="245.57" y2="89"/><line x1="249.57" y1="34" x2="245.57" y2="34"/></g>
+  <g clip-path="url(#clip-hm3-07-vertical-asymptote)"><path d="M46 206.9 L136.3 210.5 L170 212.9 L197.8 215.8 L220.8 219.3 L240 223.6 L255.7 228.7 L268.8 235 L279.5 242.4 L288.5 251.7 L295.9 262.7 L302 276.3 L307 292.4 L311.3 312.6 L314.6 335.6 L317.4 364 M344.6 34 L347.4 62.4 L350.7 85.4 L355 105.6 L360 121.7 L366.1 135.3 L373.5 146.3 L382.5 155.6 L393.2 163 L406.3 169.3 L422 174.4 L441.2 178.7 L464.2 182.2 L492 185.1 L525.8 187.5 L616 191.1" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="86.71" y="214" text-anchor="middle">-2</text><text class="tick" x="249.57" y="214" text-anchor="middle">0</text><text class="tick" x="412.43" y="214" text-anchor="middle">2</text><text class="tick" x="575.29" y="214" text-anchor="middle">4</text><text class="tick" x="241.57" y="368" text-anchor="end">-6</text><text class="tick" x="241.57" y="313" text-anchor="end">-4</text><text class="tick" x="241.57" y="258" text-anchor="end">-2</text><text class="tick" x="240.57" y="211" text-anchor="end">0</text><text class="tick" x="241.57" y="148" text-anchor="end">2</text><text class="tick" x="241.57" y="93" text-anchor="end">4</text><text class="tick" x="241.57" y="38" text-anchor="end">6</text><text class="axisname" x="622" y="192">x</text><text class="axisname" x="256.57" y="30">y</text></g>
+  <g></g>
+  <g><text class="note" data-color="muted" x="340.77" y="64.25" text-anchor="start">x → x<tspan baseline-shift="sub" font-size="0.72em">0</tspan> 时 f(x) → ∞</text></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">y = f(x)</text><line x1="145.68" y1="18" x2="163.68" y2="18" stroke="var(--plot-asym, #c2ac92)" stroke-width="2"/><text class="legend" x="169.68" y="22">x = x<tspan baseline-shift="sub" font-size="0.72em">0</tspan></text></g>
+</svg>

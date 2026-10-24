@@ -1,4 +1,4 @@
-﻿/**
+/**
  * remark-callout.mjs —— 例题 / 提示 等「内嵌引用块」（Obsidian callout 风格）
  * ==================================================================
  * 需求见 bug及意见汇总.md 的 opinion-22：给正文里的「例题」一个专属格式，
@@ -296,10 +296,20 @@ function explodeFences(children) {
         };
         for (const lineKids of lines) {
           const lineText = textOf({ children: lineKids }).trim();
+          // 「这一行是不是空的」不能只看文本：图片、行内/块级公式这些节点没有文本，
+          // 但它们绝不是空行。以前只判 `lineText === ''`，于是
+          //
+          //     :::example 例 1 · 描绘图形
+          //     ![图](/notes-assets/x.svg)        ← 紧跟围栏、同一段
+          //
+          // 里那张图会被当成空行丢掉（页面上图就没了，也不报错）。
+          const onlyBlankText = lineKids.every(
+            (n) => typeof n.value === 'string' && n.value.trim() === ''
+          );
           if (isFenceLine(lineText)) {
             flush();
             out.push({ type: 'paragraph', position: node.position, children: lineKids });
-          } else if (lineText === '') {
+          } else if (lineKids.length === 0 || onlyBlankText) {
             flush();
           } else {
             buffer.push(lineKids);

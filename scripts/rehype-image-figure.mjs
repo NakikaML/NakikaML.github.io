@@ -27,7 +27,9 @@
  *
  * 尺寸读取只认 public/ 下的本地文件（本站图片都在 public/notes-assets/），
  * 读不到就只做懒加载、不写 width/height，绝不因此让构建失败。
- * 支持 jpg / png / gif / webp / bmp；svg、avif 没有意义或解析太啰嗦，直接跳过。
+ * 支持 jpg / png / gif / webp / bmp 与 svg —— 数学笔记里的函数图是
+ * scripts/build-plots.mjs 生成的 svg，固有尺寸写在 <svg width height> 上。
+ * （avif 的尺寸埋在容器里，解析太啰嗦，仍然跳过。）
  */
 
 import fs from 'node:fs';
@@ -141,6 +143,28 @@ function bmpSize(buf) {
   return { width: buf.readInt32LE(18), height: Math.abs(buf.readInt32LE(22)) };
 }
 
+/**
+ * SVG：固有尺寸写在根节点的 width / height 上，读那几个属性就够了。
+ *
+ * 为什么不直接从 viewBox 算：两者含义不同 —— viewBox 是内部坐标系，
+ * width/height 才是它默认显示多大。本站的函数图（scripts/build-plots.mjs）
+ * 两个都写了，所以优先取 width/height，缺了再退回 viewBox。
+ *
+ * 注意 `\swidth`：SVG 里到处是 stroke-width，前面那个字符是 `-` 不是空白，
+ * 所以不会误匹配到描边宽度上。
+ */
+function svgSize(buf) {
+  const head = buf.toString('utf8', 0, Math.min(buf.length, 4096));
+  const tag = /<svg\b[^>]*>/i.exec(head);
+  if (!tag) return null;
+  const w = /\swidth\s*=\s*["']([\d.]+)/i.exec(tag[0]);
+  const h = /\sheight\s*=\s*["']([\d.]+)/i.exec(tag[0]);
+  if (w && h) return { width: Math.round(+w[1]), height: Math.round(+h[1]) };
+  const vb = /viewBox\s*=\s*["'][-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)/i.exec(tag[0]);
+  if (vb) return { width: Math.round(+vb[1]), height: Math.round(+vb[2]) };
+  return null;
+}
+
 const READERS = {
   '.jpg': jpegSize,
   '.jpeg': jpegSize,
@@ -149,6 +173,7 @@ const READERS = {
   '.gif': gifSize,
   '.webp': webpSize,
   '.bmp': bmpSize,
+  '.svg': svgSize,
 };
 
 // -------------------------------------------------------------------- 主逻辑

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="660" height="420" role="img" aria-label="介值定理的几何意义：f(a) = A 与 f(b) = B 之间的任意一个 C，曲线上都至少有一点取到它">
+  <title>介值定理的几何意义：f(a) = A 与 f(b) = B 之间的任意一个 C，曲线上都至少有一点取到它</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm1-11-intermediate-value-theorem"><rect x="46" y="34" width="590" height="350" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="590" height="350" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm1-11-intermediate-value-theorem)"><line x1="63.35" y1="34" x2="63.35" y2="384"/><line x1="280.26" y1="34" x2="280.26" y2="384"/><line x1="497.18" y1="34" x2="497.18" y2="384"/><line x1="46" y1="290.67" x2="636" y2="290.67"/><line x1="46" y1="174" x2="636" y2="174"/><line x1="46" y1="57.33" x2="636" y2="57.33"/></g>
+  <g class="asym" clip-path="url(#clip-hm1-11-intermediate-value-theorem)"><line x1="132.76" y1="34" x2="132.76" y2="384"/><line x1="549.24" y1="34" x2="549.24" y2="384"/><line x1="46" y1="197.33" x2="636" y2="197.33"/></g>
+  <g class="axis"><line x1="63.35" y1="388" x2="63.35" y2="26"/><line x1="63.35" y1="384" x2="63.35" y2="388"/><line x1="280.26" y1="384" x2="280.26" y2="388"/><line x1="497.18" y1="384" x2="497.18" y2="388"/><line x1="63.35" y1="290.67" x2="59.35" y2="290.67"/><line x1="63.35" y1="174" x2="59.35" y2="174"/><line x1="63.35" y1="57.33" x2="59.35" y2="57.33"/></g>
+  <g clip-path="url(#clip-hm1-11-intermediate-value-theorem)"><path d="M113.7 384 L131.8 339.3 L173.1 230.1 L183.7 204.1 L193.3 182.3 L205.3 158.1 L216.6 139.1 L227.7 124.4 L233.1 118.7 L238.5 114.1 L244.6 110.1 L250.8 107.6 L256.9 106.3 L263.3 106.5 L269.5 108 L275.9 111 L282.2 115.3 L288.9 121.1 L295.3 127.8 L301.7 135.7 L315.4 155.6 L329.4 179.1 L367.6 247.3 L379.3 266.1 L389.9 280.6 L402.2 294.1 L408.1 299 L414 302.9 L419.9 305.6 L425.6 307.2 L431.2 307.5 L436.9 306.8 L443.3 304.5 L449.7 300.8 L456.1 295.5 L462.4 288.9 L468.8 280.8 L475.5 270.9 L489.2 246.3 L501 221.1 L514.1 190 L557.3 75.8 L574.1 34" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="63.35" y="399" text-anchor="middle">0</text><text class="tick" x="280.26" y="399" text-anchor="middle">2.5</text><text class="tick" x="497.18" y="399" text-anchor="middle">5</text><text class="tick" x="55.35" y="294.67" text-anchor="end">2</text><text class="tick" x="55.35" y="178" text-anchor="end">3</text><text class="tick" x="55.35" y="61.33" text-anchor="end">4</text><text class="tick tick--mark" x="132.76" y="399" text-anchor="middle">a</text><text class="tick tick--mark" x="549.24" y="399" text-anchor="middle">b</text><text class="tick tick--mark" x="55.35" y="340.82" text-anchor="end">A</text><text class="tick tick--mark" x="55.35" y="101.07" text-anchor="end">B</text><text class="tick tick--mark" x="55.35" y="201.33" text-anchor="end">C</text><text class="axisname" x="70.35" y="30">y</text></g>
+  <g><circle cx="132.76" cy="336.82" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="549.24" cy="97.07" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="186.56" cy="197.33" r="3.6" fill="var(--plot-c2, #c9402e)" stroke="var(--plot-c2, #c9402e)" stroke-width="1.6"/><text class="note" data-color="red" x="194.56" y="188.33" text-anchor="start">ξ</text></g>
+  <g></g>
+  <g></g>
+  <g></g>
+</svg>

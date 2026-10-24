@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420" role="img" aria-label="导数的几何意义：曲线 y = f(x) 在点 (x₀, y₀) 处切线的斜率就是 f′(x₀)">
+  <title>导数的几何意义：曲线 y = f(x) 在点 (x₀, y₀) 处切线的斜率就是 f′(x₀)</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm2-02-geometric-meaning"><rect x="46" y="34" width="570" height="350" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="350" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm2-02-geometric-meaning)"><line x1="137.94" y1="34" x2="137.94" y2="384"/><line x1="321.81" y1="34" x2="321.81" y2="384"/><line x1="505.68" y1="34" x2="505.68" y2="384"/><line x1="46" y1="337.33" x2="616" y2="337.33"/><line x1="46" y1="220.67" x2="616" y2="220.67"/><line x1="46" y1="104" x2="616" y2="104"/></g>
+  <g class="asym" clip-path="url(#clip-hm2-02-geometric-meaning)"><line x1="413.74" y1="34" x2="413.74" y2="384"/></g>
+  <g class="axis"><line x1="40" y1="337.33" x2="624" y2="337.33"/><line x1="321.81" y1="388" x2="321.81" y2="26"/><line x1="137.94" y1="337.33" x2="137.94" y2="341.33"/><line x1="321.81" y1="337.33" x2="321.81" y2="341.33"/><line x1="505.68" y1="337.33" x2="505.68" y2="341.33"/><line x1="321.81" y1="220.67" x2="317.81" y2="220.67"/><line x1="321.81" y1="104" x2="317.81" y2="104"/></g>
+  <g clip-path="url(#clip-hm2-02-geometric-meaning)"><path d="M55.4 34 L72.1 63.9 L88.7 91.6 L105.4 117.4 L122 141.2 L138.6 163.2 L155.3 183.3 L171.9 201.4 L188.5 217.7 L205.4 232.2 L222 244.6 L238.6 255.1 L255.2 263.7 L271.9 270.4 L288.5 275.2 L305.1 278 L321.7 279 L338.4 278.1 L355 275.2 L371.8 270.4 L388.5 263.7 L405.1 255.1 L421.7 244.5 L438.4 232.1 L455 217.8 L471.6 201.6 L488.2 183.4 L504.8 163.4 L521.7 141.1 L538.3 117.2 L555 91.4 L571.6 63.7 L588.3 34" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M202.3 384 L616 121.5" class="curve" stroke="var(--plot-c2, #c9402e)"/></g>
+  <g><text class="tick" x="137.94" y="352.33" text-anchor="middle">-2</text><text class="tick" x="321.81" y="352.33" text-anchor="middle">0</text><text class="tick" x="505.68" y="352.33" text-anchor="middle">2</text><text class="tick" x="312.81" y="349.33" text-anchor="end">0</text><text class="tick" x="313.81" y="224.67" text-anchor="end">2</text><text class="tick" x="313.81" y="108" text-anchor="end">4</text><text class="tick tick--mark" x="413.74" y="352.33" text-anchor="middle">x<tspan baseline-shift="sub" font-size="0.72em">0</tspan></text><text class="tick tick--mark" x="313.81" y="253.83" text-anchor="end">y<tspan baseline-shift="sub" font-size="0.72em">0</tspan></text><text class="axisname" x="622" y="330.33">x</text><text class="axisname" x="328.81" y="30">y</text></g>
+  <g><circle cx="413.74" cy="249.83" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="423.74" y="239.83" text-anchor="start">(x<tspan baseline-shift="sub" font-size="0.72em">0</tspan>, y<tspan baseline-shift="sub" font-size="0.72em">0</tspan>)</text></g>
+  <g><text class="note" data-color="red" x="510.27" y="83.58" text-anchor="start">切线：斜率 = f′(x<tspan baseline-shift="sub" font-size="0.72em">0</tspan>)</text></g>
+  <g></g>
+  <g></g>
+</svg>
