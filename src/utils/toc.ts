@@ -79,7 +79,17 @@ export function stripOwnNumber(text: string, position: number): string {
 /** 只让 h2 / h3 / h4 进目录：h1 是页面标题，h5/h6 太细。 */
 const TOC_DEPTHS = [2, 3, 4];
 
-export function buildToc(headings: TocHeading[], chapter: number): TocNode[] {
+/**
+ * 把整篇标题组装成三层目录。
+ *
+ * @param chapter  章号（从 title 里取，见 `chapterOf`），h2 编号的前缀
+ * @param numbered 是否给 h2 / h3 编号（opinion-2 的「类论文编号」）。
+ *   **专题型笔记**（`curriculum.ts` 里 `kind: 'topic'` 的集合，如「算法竞赛」）传 `false`：
+ *   它们的标题本来就不带章号，再印一串 `1.1 / 1.2` 会让人以为漏了第 1 章。
+ *   传 false 时 h2 的 `number` 是空串，h3 跟着父节点也就成了空串，
+ *   页面据此不渲染编号那一列（`.toc__num` 有 2.7rem 固定宽度，不能渲染空 span）。
+ */
+export function buildToc(headings: TocHeading[], chapter: number, numbered = true): TocNode[] {
   const roots: TocNode[] = [];
   let h2: TocNode | null = null;
   let h3: TocNode | null = null;
@@ -104,7 +114,7 @@ export function buildToc(headings: TocHeading[], chapter: number): TocNode[] {
       h2 = {
         slug: h.slug,
         text: stripOwnNumber(h.text, h2Pos),
-        number: `${chapter}.${h2Pos}`,
+        number: numbered ? `${chapter}.${h2Pos}` : '',
         children: [],
       };
       roots.push(h2);

@@ -184,7 +184,7 @@ const discVars = (key: string) =>
                         <span class="route-course__tag route-course__tag--planned">规划中</span>
                       ) : (
                         <span class="route-course__tag">
-                          {c.live}/{c.total} 章
+                          {c.live}/{c.total} {c.kind === 'topic' ? '篇' : '章'}
                         </span>
                       )}
                     </div>
@@ -214,7 +214,7 @@ const discVars = (key: string) =>
                         aria-valuemin="0"
                         aria-valuemax={c.total}
                         aria-valuenow={c.live}
-                        aria-label={`${c.id}：计划 ${c.total} 章，已上线 ${c.live} 章`}
+                        aria-label={`${c.id}：计划 ${c.total} ${c.kind === 'topic' ? '篇' : '章'}，已上线 ${c.live} ${c.kind === 'topic' ? '篇' : '章'}`}
                       >
                         <i style={`width:${pct(c.live, c.total)}%`} />
                       </div>
@@ -230,7 +230,12 @@ const discVars = (key: string) =>
                               ch.unlisted && 'is-unlisted',
                             ]}
                           >
-                            <span class="route-chapter__num">{ch.chapter}</span>
+                            {/* 章号：专题集合（kind: 'topic'）不写章号，标题里也没有 `-N`，
+                                所以这里留一个空的占位 span（grid 的第一列是固定宽度的序号列，
+                                去掉它的话章名会掉进 1.6rem 宽的那一列里）。 */}
+                            <span class="route-chapter__num">
+                              {c.kind === 'topic' ? '' : ch.chapter}
+                            </span>
                             <span class="route-chapter__body">
                               {ch.href ? (
                                 <a class="route-chapter__name" href={ch.href}>

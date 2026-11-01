@@ -45,6 +45,11 @@ export interface SeriesItem {
 export interface CourseSeries {
   /** 课程名（= 笔记 frontmatter 的 subfield） */
   course: string;
+  /**
+   * 组织形态（curriculum.ts 的 `kind`）。`'topic'` 表示这是专题集合：
+   * 标题里不写章号，页尾那一列序号因此留空，标题词也从「同课程笔记」换成「同专题」。
+   */
+  kind: 'course' | 'topic';
   /** 按课程顺序排好的全系列，含当前这篇 */
   items: SeriesItem[];
 }
@@ -58,11 +63,14 @@ export function courseSeries(notes: Note[], current: Note): CourseSeries | null 
   const course = current.data.subfield?.trim();
   if (!course) return null;
 
+  const courseDef = courses.find((c) => c.id === course);
+  const kind: 'course' | 'topic' = courseDef?.kind === 'topic' ? 'topic' : 'course';
+
   const published = new Map(notes.map((n) => [n.id, n]));
   const items: SeriesItem[] = [];
   const listed = new Set<string>();
 
-  for (const ch of courses.find((c) => c.id === course)?.chapters ?? []) {
+  for (const ch of courseDef?.chapters ?? []) {
     // 已上线的用 frontmatter 的真实标题；还没写的用 draftTitles 的兜底标题。
     // 两个都没有 → 连章名都不知道，宁可不渲染这一行，也别凭空造一个名字出来。
     const title = published.get(ch.id)?.data.title ?? draftTitles[ch.id] ?? '';
@@ -103,5 +111,5 @@ export function courseSeries(notes: Note[], current: Note): CourseSeries | null 
 
   // 只有自己一篇时没什么可列的；自己不在列表里（数据对不上）也宁可不显示
   if (items.length < 2 || !items.some((i) => i.current)) return null;
-  return { course, items };
+  return { course, kind, items };
 }

@@ -64,6 +64,11 @@ export interface RouteCourse {
   anchor: string;
   /** 课程说明（curriculum.ts 的 `note`） */
   note: string;
+  /**
+   * 组织形态（curriculum.ts 的 `kind`）：`'topic'` 表示这是专题集合，标题里没有章号，
+   * 页面因此不渲染章前的数字、搜索里也不说「第 N 章」。
+   */
+  kind: 'course' | 'topic';
   /** 搜索别名（curriculum.ts 的 `aliases`），搜「DSA」「计网」时用得上 */
   aliases: string[];
   /** true = 预留课程：还没开始写，只能在路线里占个位 */
@@ -202,6 +207,7 @@ export function learningRoute(notes: Note[]): LearningRoute {
       id: c.id,
       anchor,
       note: c.note ?? '',
+      kind: c.kind === 'topic' ? 'topic' : 'course',
       aliases: c.aliases ?? [],
       planned: !!c.planned,
       prereq: (prereqOfCourse.get(c.id) ?? [])
@@ -324,14 +330,26 @@ export function routeSearchIndex(route: LearningRoute): RouteSearchItem[] {
 
   for (const d of route.disciplines) {
     for (const c of d.courses) {
+      // 专题集合（kind: 'topic'）的计数单位是「篇」而不是「章」，也不该说「第 N 章」
+      const isTopic = c.kind === 'topic';
+      const unit = isTopic ? '篇' : '章';
+
       items.push({
         kind: 'course',
         label: c.id,
         meta: c.planned
           ? `规划中的课程 · ${d.label}`
-          : `课程 · ${c.total} 章（已上线 ${c.live} 章）· ${d.label}`,
+          : `${isTopic ? '专题' : '课程'} · ${c.total} ${unit}（已上线 ${c.live} ${unit}）· ${d.label}`,
         search: normalize(
-          [c.id, ...c.aliases, d.label, d.key, '课程', c.planned ? '规划中' : '', c.note].join(' ')
+          [
+            c.id,
+            ...c.aliases,
+            d.label,
+            d.key,
+            isTopic ? '专题' : '课程',
+            c.planned ? '规划中' : '',
+            c.note,
+          ].join(' ')
         ),
         href: `#${c.anchor}`,
         disc: d.key,
@@ -355,7 +373,7 @@ export function routeSearchIndex(route: LearningRoute): RouteSearchItem[] {
         items.push({
           kind: 'chapter',
           label: ch.label,
-          meta: `${c.id} · 第 ${ch.chapter} 章 · ${d.label}`,
+          meta: `${c.id} · ${isTopic ? '专题' : `第 ${ch.chapter} 章`} · ${d.label}`,
           // 笔记 id 也参与检索：搜 `dsa` `cpp` `hm` 就能命中整门课的章节，
           // 这样即使课程没写 aliases，英文缩写也照样好使。
           search: normalize(
@@ -364,8 +382,8 @@ export function routeSearchIndex(route: LearningRoute): RouteSearchItem[] {
               c.id,
               ...c.aliases,
               d.label,
-              `第 ${ch.chapter} 章`,
-              String(ch.chapter),
+              isTopic ? '专题' : `第 ${ch.chapter} 章`,
+              isTopic ? '' : String(ch.chapter),
               ch.id,
               ch.unlisted ? '未编入路线' : '',
               ch.href ? '' : '待发布',
