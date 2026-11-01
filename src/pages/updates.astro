@@ -1,0 +1,71 @@
+---
+/**
+ * 更新日志（opinion-31）—— 站上新增与补写过的内容，按时间倒序。
+ * 数据是 utils/updates.ts 的那一份，和首页横幅同源：横幅只是「指路」，这里才是全量。
+ * 只收内容（笔记 / 博客），代码与样式的改动不记 —— 读者要的是「有什么可看」。
+ * 作品也暂时不收，原因见 utils/updates.ts 里的 INCLUDE_WORKS（作品的日期不是上站日期）。
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { contentNotes, visible } from '../utils/notes';
+import { updateFeed, UPDATE_KIND_LABEL } from '../utils/updates';
+
+const notes = await contentNotes();
+const works = visible(await getCollection('works'));
+const posts = visible(await getCollection('blog'));
+const feed = updateFeed({ notes, works, posts });
+---
+
+<BaseLayout
+  title="更新日志"
+  description={`站上新增与补写过的内容，共 ${feed.all.length} 条，按时间倒序。`}
+>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="page-head__kicker">Changelog</p>
+      <h1>更新日志</h1>
+      <p class="page-head__lede">
+        站上<strong>新增</strong>与<strong>补写</strong>过的内容，按时间倒序。只记你能读到的东西 ——
+        改样式、修构建这类事不在这里。
+      </p>
+    </div>
+
+    {
+      feed.months.length === 0 && (
+        <div class="empty" style="text-align:left;padding:2rem">
+          还没有可以列出来的内容。
+        </div>
+      )
+    }
+
+    {
+      feed.months.map((g) => (
+        <section class="updates">
+          <h2 class="updates__month">{g.label}</h2>
+          <ol class="updates__list">
+            {g.items.map((u) => (
+              <li class:list={['update', u.kind === 'feature' && 'update--feature']}>
+                <time class="update__date" datetime={u.date}>
+                  {u.date.slice(5)}
+                </time>
+                <span class={`update__kind update__kind--${u.kind}`}>
+                  {UPDATE_KIND_LABEL[u.kind]}
+                </span>
+                {/* 功能条目不一定有落脚页（比如这条更新日志本身），没有就只显示文字 */}
+                {u.href ? (
+                  <a class="update__title" href={u.href}>
+                    {u.title}
+                  </a>
+                ) : (
+                  <span class="update__title">{u.title}</span>
+                )}
+                {u.revised && <span class="update__flag">补写</span>}
+                {u.summary && <p class="update__summary">{u.summary}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>

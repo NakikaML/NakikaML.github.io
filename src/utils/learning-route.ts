@@ -23,6 +23,7 @@
  */
 
 import {
+  courseKind,
   courses,
   courseDeps,
   disciplines,
@@ -32,7 +33,7 @@ import {
   type Course,
 } from '../data/curriculum';
 import type { Note } from './notes';
-import { byChapter, chapterOf } from './toc';
+import { byChapter, byTopicOrder, chapterOf } from './toc';
 
 /** 一条先修：`full` 是完整说法（悬停提示 / 屏幕阅读器），`short` 是行内小标签 */
 export interface RoutePrereq {
@@ -53,6 +54,8 @@ export interface RouteChapter {
   prereq: RoutePrereq[];
   /** 408 考研权重（curriculum.ts 的 `exam408`）：core / basic / off / undefined */
   exam408?: 'core' | 'basic' | 'off';
+  /** 专题集合内的阅读顺序（curriculum.ts 的 `order`），课程不用它 */
+  order?: number;
   /** true = 这篇笔记写了，但没编进 curriculum.ts 的顺序，被兜底补到末尾 */
   unlisted: boolean;
 }
@@ -144,13 +147,21 @@ export function learningRoute(notes: Note[]): LearningRoute {
   /** 章号 — 标题 → 短标题。拿不到标题（既没上线、也没写 draftTitles）就返回空，调用方跳过 */
   const titleOf = (id: string): string => published.get(id)?.data.title ?? draftTitles[id] ?? '';
 
-  /** 把一条先修 id 换成人话：同课程「第 N 章」，跨课程「课程名 · 第 N 章」 */
+  /**
+   * 把一条先修 id 换成人话：
+   *   · 课程里：同课程「第 N 章」、跨课程「课程名 · 第 N 章」；
+   *   · 专题里：没有章号，直接说名字（`courseKind` 判定）——
+   *     硬套「第 1 章」会让读者以为漏了前面的章。
+   */
   const prereqLabel = (prereqId: string, ownCourse: string): RoutePrereq | null => {
     const owner = courseOfChapter.get(prereqId) ?? ownCourse;
     const title = titleOf(prereqId);
     if (!title) return null;
-    const chapter = chapterOf(title);
     const name = shortTitle(title, owner);
+    if (courseKind(owner) === 'topic') {
+      return { short: name, full: `先学专题「${name}」` };
+    }
+    const chapter = chapterOf(title);
     if (owner === ownCourse) {
       return { short: `第 ${chapter} 章`, full: `先学第 ${chapter} 章 ${name}` };
     }
@@ -178,10 +189,12 @@ export function learningRoute(notes: Note[]): LearningRoute {
           .map((p) => prereqLabel(p, c.id))
           .filter((x): x is RoutePrereq => x !== null),
         exam408: ch.exam408,
+        order: ch.order,
         unlisted: false,
       });
     }
-    listed.sort(byChapter);
+    // 课程按章号排（读者认 1、2、3…）；专题没有章号，按手写的 order 排
+    listed.sort(c.kind === 'topic' ? byTopicOrder : byChapter);
 
     // 兜底（同 course-series.ts 的做法，理由一样）：挂漏的笔记补在末尾 ——
     // 不然它就是从这条路线里凭空消失，而页面看上去一切正常。
@@ -194,9 +207,10 @@ export function learningRoute(notes: Note[]): LearningRoute {
         chapter: chapterOf(n.data.title),
         href: `/notes/${n.id}/`,
         prereq: [] as RoutePrereq[],
+        order: undefined, // 兜底补进来的没有 order → byTopicOrder 会排到最后
         unlisted: true,
       }))
-      .sort(byChapter);
+      .sort(c.kind === 'topic' ? byTopicOrder : byChapter);
 
     const chapters = [...listed, ...extras];
     // 进度只按**计划内的章**算：兜底补进来的那几篇不占名额，

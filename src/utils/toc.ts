@@ -67,6 +67,25 @@ export function byChapter(a: { id: string; chapter: number }, b: { id: string; c
 }
 
 /**
+ * 专题集合（`kind: 'topic'`）的排序：**人工 `order` 优先**，没写 order 的排在最后。
+ *
+ * 为什么专题不能直接用 `byChapter`：专题标题里没有 `-N` 章号，`chapterOf` 一律返回 1，
+ * 排序于是退化成按 id 的字典序 —— 会排出「重链剖分在 LCA 前面、树上 DP 排到最后」
+ * 这种明显不对的顺序（树上 DP 是另外三个的前置）。
+ *
+ * 所以专题的先后由 `curriculum.ts` 里手写的 `order` 决定，`order` 相同时再用 `byChapter` 兜底。
+ * 课程笔记不受影响：它们仍然按章号排，读者认的就是 1、2、3…
+ */
+export function byTopicOrder(
+  a: { id: string; chapter: number; order?: number },
+  b: { id: string; chapter: number; order?: number }
+): number {
+  const oa = a.order ?? Number.POSITIVE_INFINITY;
+  const ob = b.order ?? Number.POSITIVE_INFINITY;
+  return oa - ob || byChapter(a, b);
+}
+
+/**
  * 剥掉作者手写在样式标题里的顶层序号："1. 数据结构" → "数据结构"。
  *
  * 只在这个序号**正好等于它在本篇里的位次**时才剥，避免误伤

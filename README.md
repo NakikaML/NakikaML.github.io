@@ -60,6 +60,7 @@ pnpm preview      # 预览构建产物
 | `pnpm verify` | 检查产物：页面齐全 / 公式渲染 / 图片完整 / 体积构成 |
 | `pnpm check:math` | 检查公式定界符合法性 |
 | `pnpm test:callout` | `remark-callout` 的回归测试（例题内嵌块的围栏配对 / 标题拆分） |
+| `pnpm test:problems` | 练习题单的平台登记、题号校验与地址拼装（opinion-7） |
 | `pnpm check:live` | 检查线上站点 13 个关键点 |
 | `pnpm stamp` | 列/写笔记的「最后更新」日期（见下方「最后更新」一节） |
 | `pnpm sync` | 从 Obsidian 同步（当前白名单为空，输出 0 篇） |
@@ -177,6 +178,31 @@ pnpm stamp cpp-1-basics --unset             # 摘掉这个字段
   Obsidian 不认这套写法（它认 `> [!example]`），读者在 Obsidian 里会看到字面的 `:::`。
   想让下载件在 Obsidian 里也是 callout，正文就按 `> [!example]` 写，站点渲染结果一样。
 
+### 🧩 给笔记挂练习题单
+
+笔记页尾会自动长出一块「练习题单」面板。数据写在 frontmatter 的 `problems` 里，
+**正文不要再手写题目链接** —— 题号敲错一样点得开，只是点到了另一道题，构建不报错、读者也不会告诉你：
+
+```yaml
+problems:
+  - luogu P1601 A+B Problem | 高精度加法模板 | ★
+  - leetcode 66:plus-one 加一 | 数组形式的整数加一 | ★
+```
+
+写法是 `平台 题号 题名 | 考察点 | 难度`，后两段可以省略。
+
+| 平台 | frontmatter 里怎么写 | 备注 |
+| :--- | :--- | :--- |
+| 洛谷 | `luogu P1601` | 也认「洛谷」「lg」；题号统一转大写 |
+| LeetCode | `leetcode 66:plus-one` | 题号拼不出地址，所以给 `题号:slug`；只写 slug 也认。地址指向 leetcode.cn |
+| Codeforces | `codeforces 1234A` | 自动拆成 `/problem/1234/A` |
+| AtCoder | `atcoder abc300_a` | 自动补 `contests/abc300/tasks/…` |
+| 其它 OJ | 对象写法 + `url:` | 徽章显示平台名本身，例如 `{ platform: '牛客', id: 'NC16622', url: '…' }` |
+
+平台表在 `src/data/problem-platforms.ts`（加一个平台 = 在这里加一项，别处不用动）。
+平台名或题号格式写错会**在构建时**报错并指出是哪篇笔记；`pnpm verify` 的第 4j 项再兜一层：
+面板行数与表头题数是否一致、链接是否都是 https 绝对地址。
+
 ### ✍️ 加一篇博客
 
 在 `src/content/blog/` 新建 `.md`，格式与笔记类似，字段为
@@ -276,6 +302,7 @@ Nakika-Personal-Website/
 │   ├── rehype-code-meta.mjs  代码块：语言标签 + 复制按钮
 │   ├── remark-callout.mjs    例题 / 提示内嵌块（`:::example … :::`，opinion-22）
 │   ├── test-callout.mjs      上面那个插件的回归测试（围栏配对 / 标题拆分）
+│   ├── test-problems.mjs     练习题单的平台登记与题号校验（opinion-7）
 │   ├── migrate-example-callouts.mjs 一次性迁移脚本：旧例题 → 内嵌块（已跑完）
 │   ├── rehype-image-figure.mjs 正文图片：懒加载 / 尺寸占位 / 放大按钮
 │   ├── test-image-size.mjs   上面那个插件的回归测试（含各图片格式的尺寸解析）
@@ -298,6 +325,8 @@ Nakika-Personal-Website/
 │   │   └── works/            ✍️ 手写作品（含三个模板）
 │   ├── data/projects.ts      ✍️ 项目数据
 │   ├── data/curriculum.ts    ✍️ 学科分野 + 课程顺序 + 先修（学习路线 + 页尾「同课程笔记」共用）
+│   ├── data/problem-platforms.ts ✍️ 练习题单的平台登记（题号格式 + 地址拼装，opinion-7）
+│   ├── components/ProblemList.astro 笔记页尾的「练习题单」面板
 │   ├── utils/notes.ts        共用工具函数
 │   ├── utils/course-series.ts 页尾「同课程笔记」列表（opinion-8）
 │   ├── utils/learning-route.ts 「学习路线」页的三层结构装配（opinion-24）
@@ -353,6 +382,39 @@ includeFolders: {
 **关于删除安全性**：同步脚本**不会**再整目录清空输出目录。
 它只删除 `.sync-manifest.json` 里记录的、自己上次生成的文件，
 **你手写的笔记永远安全**（这是踩过坑后专门改的，见下方 #9）。
+
+---
+
+## 更新提示与更新日志（opinion-31）
+
+首页 hero 下面有一条「最近更新了什么」的小横幅；`/updates/` 是完整的更新日志（页脚有常驻入口）。
+两处数据同源：`src/utils/updates.ts`。
+
+**只统计内容**：新笔记、补写/订正过的笔记（frontmatter 的 `updated`，见 opinion-11）、新博客。
+改样式、修构建**不算** —— 否则改个错别字也会让所有访客看到一次「有新内容」。
+
+**重大功能是手写的**：[`src/data/feature-log.ts`](src/data/feature-log.ts)。加一条 = 一个对象：
+
+```ts
+{ date: '2026-11-01', title: '练习题单', summary: '一句话说明', href: '/notes/ac-bignum/' }
+```
+
+收录标准写得比较狠（宁可少收）：**访客能看见、能用上**的新东西才收；
+修 bug、重构、性能优化、文案配色微调、单篇内容上线都不收 —— 那些看 `bug及意见汇总.md` 和 git log。
+已经下线的东西也别收（比如知识图谱，已被「学习路线」取代，就只记后者）。
+
+**作品暂时不收**（`utils/updates.ts` 的 `INCLUDE_WORKS`）：作品的 `date` 是 B 站投稿日期，
+不是它被放上本站的日期，批量导入后会让日志变成「2023 年 3 月站上更新了 7 次」。
+要收就先给作品记一个「上站日期」，再打开那个开关。
+
+| 机制 | 说明 |
+| :--- | :--- |
+| 批次指纹 `data-update-batch` | 由**最新几条内容的 `kind:id@date`** 算哈希。**绝对不要改成构建时间/随机数** —— 那样每次部署都会变，所有看过的人又被弹一次 |
+| 「看过」的记忆 | `localStorage` 的 `nakika:updates-seen`，值是批次指纹；隐私模式下读写失败就退化成「每次都显示」 |
+| 默认 `hidden` | 横幅渲染时就带 `hidden`，由组件里的脚本判断后才露出来。老访客 **0 闪烁**；没有 JS 的访客永远看不到它 |
+| 横幅只列 2 条 | 多的去 `/updates/` 看 —— 全列出来就成了第二个「最近更新」板块 |
+
+`pnpm verify` 的【4k】项盯着三件事：横幅带指纹、横幅**默认 hidden**、`/updates/` 真有内容。
 
 ---
 

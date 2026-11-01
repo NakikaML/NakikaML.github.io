@@ -8,6 +8,20 @@ topic: 高精度四则运算
 difficulty: 基础
 date: "2026-11-01"
 tags: [算法竞赛, 高精度, 大整数, 数组模拟, 竖式运算, 进位与借位, 前导零]
+problems:
+  - luogu P1601 A+B Problem | 高精度加法模板 | ★
+  - leetcode 66:plus-one 加一 | 数组形式的整数加一（最简加法） | ★
+  - leetcode 415:add-strings 字符串相加 | 十进制高精度加法，与 P1601 等价 | ★
+  - leetcode 67:add-binary 二进制求和 | 二进制高精度加法（进位模 2） | ★
+  - leetcode 989:add-to-array-form-of-integer 数组形式的整数加法 | 数组形式加法，注意进位链 | ★
+  - luogu P1303 A×B Problem | 高精度 × 高精度模板 | ★★
+  - luogu P1009 阶乘之和 | 高 × 低与高 + 高的组合 | ★★
+  - luogu P1591 阶乘数码 | 高 × 低之后还要统计某位数字出现次数 | ★★
+  - leetcode 43:multiply-strings 字符串相乘 | 高精度 × 高精度，与 P1303 等价 | ★★
+  - leetcode 2:add-two-numbers 两数相加 | 链表逆序存储的加法（数据结构变体） | ★★★
+  - leetcode 445:add-two-numbers-ii 两数相加 II | 链表正序存储，需要栈辅助 | ★★★
+  - luogu P1249 最大乘积 | 数学推导 + 高精度乘法 | ★★★
+  - luogu P1045 麦森数 | 对数求位数 + 快速幂 + 只输出末 500 位 | ★★★★
 draft: false
 featured: false
 ---
@@ -444,21 +458,3 @@ int main() {
 
 选型上：高 × 高与高 ÷ 高在竞赛里出现频率很低，因为 $O(n^2)$ 一旦位数上万就会超时。**先想想能不能只用低精度乘除解决** —— $100!$ 只要「高 × 低」就够，不需要完整的 $O(n^2)$ 乘法。实在不行再考虑压位（把每 9 位十进制压进一个 `int`，进位阈值改成 $10^9$，常数直接降到 1/9），或者换一门有 `BigInteger` 的语言。
 :::
-
-#### 练习题单
-
-| # | 题目 | 难度 | 考察点 |
-| :---: | :--- | :---: | :--- |
-| 1 | [洛谷 P1601 A+B Problem](https://www.luogu.com.cn/problem/P1601) | ★ | 高精度加法模板 |
-| 2 | [LeetCode 66 加一](https://leetcode.com/problems/plus-one/) | ★ | 数组形式的整数加一（最简加法） |
-| 3 | [LeetCode 415 字符串相加](https://leetcode.com/problems/add-strings/) | ★ | 十进制高精度加法，与 P1601 等价 |
-| 4 | [LeetCode 67 二进制求和](https://leetcode.com/problems/add-binary/) | ★ | 二进制高精度加法（进位模 2） |
-| 5 | [LeetCode 989 数组形式的整数加法](https://leetcode.com/problems/add-to-array-form-of-integer/) | ★ | 数组形式加法，注意进位链 |
-| 6 | [洛谷 P1303 A×B Problem](https://www.luogu.com.cn/problem/P1303) | ★★ | 高精度 × 高精度模板 |
-| 7 | [洛谷 P1009 阶乘之和](https://www.luogu.com.cn/problem/P1009) | ★★ | 高 × 低与高 + 高的组合 |
-| 8 | [洛谷 P1591 阶乘数码](https://www.luogu.com.cn/problem/P1591) | ★★ | 高 × 低之后还要统计某位数字出现次数 |
-| 9 | [LeetCode 43 字符串相乘](https://leetcode.com/problems/multiply-strings/) | ★★ | 高精度 × 高精度，与 P1303 等价 |
-| 10 | [LeetCode 2 两数相加](https://leetcode.com/problems/add-two-numbers/) | ★★★ | 链表逆序存储的加法（数据结构变体） |
-| 11 | [LeetCode 445 两数相加 II](https://leetcode.com/problems/add-two-numbers-ii/) | ★★★ | 链表正序存储，需要栈辅助 |
-| 12 | [洛谷 P1249 最大乘积](https://www.luogu.com.cn/problem/P1249) | ★★★ | 数学推导 + 高精度乘法 |
-| 13 | [洛谷 P1045 麦森数](https://www.luogu.com.cn/problem/P1045) | ★★★★ | 对数求位数 + 快速幂 + 只输出末 500 位 |

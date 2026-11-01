@@ -1,0 +1,105 @@
+---
+/**
+ * UpdateNotice.astro —— 首页「最近更新了什么」小横幅（opinion-31）
+ * ==========================================================
+ * 数据来自 utils/updates.ts，只在首页渲染（见 pages/index.astro）。
+ *
+ * 几条刻意的做法：
+ *   · **默认 hidden**：横幅的显示与否由下面那段脚本判断，认过的访客不会先看到一眼再消失。
+ *     没有 JS 就永远不出现 —— 这条提示不该挡住任何内容，也不该是看懂站点的前提。
+ *   · 记忆用 localStorage，键 `nakika:updates-seen`，值是**批次指纹**（不是日期、不是构建号）。
+ *     指纹只在「真加了新内容」时变，所以内容没变时反复部署也不会再弹。
+ *   · 只列 2 个标题 + 「全部更新 →」，多的让别人去 /updates/ 看 ——
+ *     横幅要是把条目全列出来，就成了第二个「最近更新」板块。
+ */
+import type { UpdateFeed } from '../utils/updates';
+import { dayLabel } from '../utils/updates';
+
+interface Props {
+  feed: UpdateFeed;
+}
+
+const { feed } = Astro.props;
+const { batch, batchId } = feed;
+
+const latest = batch[0];
+const features = batch.filter((u) => u.kind === 'feature');
+const notes = batch.filter((u) => u.kind === 'note');
+const added = notes.filter((u) => !u.revised).length;
+const revised = notes.filter((u) => u.revised).length;
+
+// 文案分两段：先说「有没有新功能」（这是访客最该知道的），再报内容篇数。
+// 全是内容时把标题列出来 —— 「新增 1 篇」等于什么都没说。
+const parts: string[] = [];
+if (features.length > 0) {
+  const names = features
+    .slice(0, 2)
+    .map((u) => u.title)
+    .join('、');
+  parts.push(`新增功能：${names}${features.length > 2 ? ' 等' : ''}`);
+}
+if (added > 0) parts.push(`新增 ${added} 篇`);
+if (revised > 0) parts.push(`更新 ${revised} 篇`);
+
+let summary = parts.join(' · ');
+if (features.length === 0 && batch.length > 0) {
+  const names = batch
+    .slice(0, 2)
+    .map((u) => `《${u.title}》`)
+    .join('、');
+  summary += `：${names}${batch.length > 2 ? ' 等' : ''}`;
+}
+---
+
+{
+  latest && (
+    <div
+      class="notice-bar"
+      id="site-updates"
+      role="status"
+      hidden
+      data-update-batch={batchId}
+      data-update-seen-key="nakika:updates-seen"
+    >
+      <span class="notice-bar__badge" aria-hidden="true">更新</span>
+      <p class="notice-bar__text">
+        <strong>{dayLabel(latest.date)}</strong>
+        <span>{summary}</span>
+      </p>
+      <a class="notice-bar__more" href="/updates/">
+        全部更新 →
+      </a>
+      <button type="button" class="notice-bar__close" aria-label="关闭这条更新提示">
+        ✕
+      </button>
+    </div>
+  )
+}
+
+<script>
+  // 只在「这批更新没看过」时显示；点关闭后记住指纹，下次内容不变就不再出现。
+  const bar = document.getElementById('site-updates');
+  if (bar instanceof HTMLElement) {
+    const key = bar.dataset.updateSeenKey ?? 'nakika:updates-seen';
+    const batch = bar.dataset.updateBatch ?? '';
+
+    let seen: string | null = null;
+    try {
+      seen = localStorage.getItem(key);
+    } catch {
+      // 隐私模式 / 禁用存储：读不到就按「没看过」处理，也就是每次都显示。
+      // 宁可多一点提示，也不要抛错让整段脚本挂掉。
+    }
+
+    if (batch && seen !== batch) bar.hidden = false;
+
+    bar.querySelector('.notice-bar__close')?.addEventListener('click', () => {
+      bar.hidden = true;
+      try {
+        localStorage.setItem(key, batch);
+      } catch {
+        // 存不进去就算了：下次还会弹，但至少这次关掉了
+      }
+    });
+  }
+</script>

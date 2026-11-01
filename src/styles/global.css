@@ -1100,6 +1100,113 @@ a.series__link:hover {
   color: var(--text-faint);
 }
 
+/* --------------------------------------------- 练习题单（opinion-7） */
+/* 外形跟页尾「同课程笔记」一致（浅底面板 + 行式列表），行内是
+   「序号 │ 平台徽章 题号 题名 │ 难度·考察点」，窄屏靠 flex-wrap 折行。
+   数据来自 frontmatter 的 problems，正文里不再手写题目链接。 */
+.problems {
+  margin-top: 1.6rem;
+  padding: 1.1rem 1.15rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  /* 左侧快跳栏里的「难度与考察点 ↓」会锚到这里，别让 sticky 顶栏盖住标题 */
+  scroll-margin-top: 5rem;
+}
+.problems__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.55rem;
+}
+.problems__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.problems__meta { font-size: 0.78rem; color: var(--text-faint); }
+
+.problems__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.problem {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.32rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+.problem:hover { background: var(--bg-elevated); }
+.problem__num {
+  text-align: right;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.problem__body { min-width: 0; }
+.problem__link {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--text-muted);
+}
+.problem__link:hover .problem__name {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+.problem__badge {
+  padding: 0.05rem 0.42rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  /* 兜底：登记表里没有、靠 url: 挂上来的 OJ */
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+.problem__no {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.problem__name { font-size: 0.9rem; line-height: 1.5; }
+.problem__note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.12rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-faint);
+}
+.problem__diff { color: var(--accent-text); letter-spacing: 0.04em; }
+
+/* 平台徽章：一个平台一套色（新增平台就在这里补一行，深色再补一条） */
+.problem__badge--luogu { background: #e8f2fb; color: #1d6aa5; }
+.problem__badge--leetcode { background: #fdf0df; color: #a06412; }
+.problem__badge--codeforces { background: var(--red-soft); color: var(--red-text); }
+.problem__badge--atcoder { background: #eef1f5; color: #4f5a68; }
+@media (prefers-color-scheme: dark) {
+  .problem__badge--luogu { background: #14283a; color: #7fb8e8; }
+  .problem__badge--leetcode { background: #33240f; color: #e0a04e; }
+  .problem__badge--atcoder { background: #1e242c; color: #9aa7b8; }
+}
+
+/* 注：笔记页曾经有过「侧栏练习题单快跳栏」（.problem-aside）与三栏布局，
+   已经被砍掉 —— 现在题单只有两个入口：目录最后一行（.toc__item--problems）
+   与页尾的完整面板（.problems）。别再把它加回来：那种「左栏塞两块的吸顶列
+   会把目录可视高度吃掉，而且 scroll-spy 只滚目录、题单不跟着动」。 */
+
 /* --------------------------------------------- 上一篇/下一篇 */
 .prev-next {
   display: grid;
@@ -1226,6 +1333,24 @@ a.series__link:hover {
     overscroll-behavior: contain;
     margin: 0;
   }
+}
+
+/* 目录最后一行「练习题单」：它不是正文小节（面板在正文之后），
+   所以拿一条分隔线跟上面的标题隔开，后面跟一个题数角标。 */
+.toc__item--problems {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc__item--problems > a {
+  font-weight: 600;
+  color: var(--text);
+}
+.toc__count {
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
 }
 
 /* 当前读到哪一节：目录里对应那条点亮 */
@@ -2333,3 +2458,124 @@ a.route-chapter__name:hover { color: var(--accent-text); }
 }
 .site-footer__note a { color: var(--text-muted); text-decoration: underline; }
 .site-footer__note a:hover { color: var(--accent-text); }
+
+/* ---------------------------------------- 首页「更新提示」横幅（opinion-31） */
+/* 组件渲染出来就带 hidden，只有「这批更新没看过」时脚本才把它露出来。
+   [hidden] 这条必须留着：某些 display 声明会把 hidden 顶掉，
+   那就会出现「没内容也占一条」的尴尬。 */
+.notice-bar[hidden] { display: none; }
+.notice-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  margin: 1.5rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.notice-bar__badge {
+  flex: none;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.notice-bar__text {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.45rem;
+  margin: 0;
+  min-width: 0;
+}
+.notice-bar__text strong { color: var(--text); font-weight: 600; }
+.notice-bar__more {
+  margin-left: auto;
+  color: var(--accent-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.notice-bar__more:hover { text-decoration: underline; }
+.notice-bar__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.notice-bar__close:hover { background: var(--bg-elevated); color: var(--text); }
+
+/* ---------------------------------------- 更新日志页（opinion-31） */
+.updates { margin: 0 0 2rem; }
+.updates__month {
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.updates__list { list-style: none; margin: 0; padding: 0; }
+.update {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+}
+.update:hover { background: var(--bg-soft); }
+.update__date {
+  flex: none;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.update__kind {
+  flex: none;
+  padding: 0.02rem 0.38rem;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.update__kind--note { background: var(--accent-soft); color: var(--accent-text); }
+.update__kind--work { background: var(--rose-soft); color: var(--rose-text); }
+/* 功能条目最稀有，给一个更醒目的底色；博客用中性的 */
+.update__kind--feature { background: var(--green-soft); color: var(--green-text); }
+.update__kind--post { background: var(--bg-elevated); color: var(--text-muted); }
+.update__title { min-width: 0; color: var(--text); text-decoration: none; }
+.update__title:hover { color: var(--accent-text); text-decoration: underline; }
+/* 功能条目下面那句说明：独占一行，压暗，别跟标题抢视线 */
+.update__summary {
+  flex-basis: 100%;
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--text-faint);
+}
+.update__flag {
+  flex: none;
+  padding: 0 0.35rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}

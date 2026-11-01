@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { problemIssue } from './data/problem-platforms';
 
 /**
  * 三个内容集合：
@@ -17,6 +18,59 @@ import { glob } from 'astro/loaders';
 
 /** 所有集合共用的匹配规则：所有 md，但不含 `_` 开头的模板 */
 const CONTENT_PATTERN = ['**/*.md', '!**/_*.md'];
+
+// ---------------------------------------------------------------- 练习题单
+/**
+ * 题单条目的紧凑写法（opinion-7）—— 一条一行，**不写 URL**，地址由平台拼：
+ *
+ *     problems:
+ *       - luogu P1601 A+B Problem | 高精度加法模板 | ★
+ *       - leetcode 66:plus-one 加一 | 数组形式的整数加一 | ★
+ *
+ * 语法：`平台 题号 题名 | 考察点 | 难度`
+ *   · 平台认 key / 中文名 / 简称（luogu·洛谷·lg / leetcode·力扣·lc / …，见 data/problem-platforms.ts）；
+ *   · LeetCode 的题号拼不出地址，要用「题号:slug」两个都给，或者只写 slug；
+ *   · 考察点、难度都可以省略；
+ *   · 也想直接写对象（字段 `platform` / `id` / `no` / `title` / `note` / `difficulty` / `url`），
+ *     非 string 原样交给 schema。
+ *
+ * 平台写错、题号格式不对，会在**构建时**报错并指出是哪篇笔记 —— 手写 URL 是发现不了这类错的。
+ */
+function parseProblemShorthand(v: unknown) {
+  if (typeof v !== 'string') return v;
+  const [head = '', ...rest] = v.split('|').map((s) => s.trim());
+  const [platform = '', rawId = '', ...titleWords] = head.split(/\s+/).filter(Boolean);
+  // `66:plus-one` → 题号 66、slug plus-one
+  const [no = '', slug = rawId] = rawId.includes(':') ? rawId.split(':') : ['', rawId];
+  return {
+    platform,
+    id: slug || rawId,
+    no,
+    title: titleWords.join(' '),
+    note: rest[0] ?? '',
+    difficulty: rest[1] ?? '',
+  };
+}
+
+const problemEntry = z.preprocess(
+  parseProblemShorthand,
+  z
+    .object({
+      platform: z.string(),
+      id: z.string(),
+      /** 题号（可选）：LeetCode 这种「题号拼不出地址」的平台才需要单独写 */
+      no: z.string().default(''),
+      title: z.string().default(''),
+      note: z.string().default(''),
+      difficulty: z.string().default(''),
+      /** 登记表里没有的 OJ：直接给地址 */
+      url: z.string().default(''),
+    })
+    .superRefine((p, ctx) => {
+      const issue = problemIssue(p);
+      if (issue) ctx.addIssue({ code: 'custom', message: issue });
+    })
+);
 
 // ---------------------------------------------------------------- notes
 const notes = defineCollection({
@@ -59,6 +113,11 @@ const notes = defineCollection({
     sourcePath: z.string().default(''),
     url: z.string().default(''),
     tags: z.array(z.string()).default([]),
+    /**
+     * 练习题单（opinion-7）：笔记页尾渲染成一块「题单面板」。
+     * 写法见上面 parseProblemShorthand —— 只写平台与题号，**地址由平台拼**。
+     */
+    problems: z.array(problemEntry).default([]),
     /** true = 草稿，不发布 */
     draft: z.boolean().default(false),
     /** 是否在首页精选展示 */

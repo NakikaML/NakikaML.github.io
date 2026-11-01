@@ -14,6 +14,9 @@
  *   4f. 产物 CSS 是否关掉了编程连字（`!=` 不会被画成 `≠`）
  *   4g. 笔记页尾的「同课程笔记」列表是否真的渲染出来、高亮自己、且没有死链（opinion-8）
  *   4h. 例题 / callout 内嵌块是否真的渲染出来、没有残留围栏标记（opinion-22）
+ *   4i. 学习路线页：学科标签页 / 课程过滤 / 搜索索引是否都在（opinion-25）
+ *   4j. 练习题单：面板是否渲染、题数对不对、链接是不是 https 绝对地址（opinion-7）
+ *   4k. 更新提示与更新日志：横幅带批次指纹且默认 hidden、/updates/ 页有内容（opinion-31）
  *   5. 产物体积构成
  *
  * 用法： node scripts/verify-build.mjs
@@ -608,6 +611,148 @@ console.log('\n【4i】学习路线页（opinion-25）');
   } else {
     bad('页面没有带上交互脚本，标签页 / 课程过滤 / 搜索都会是死的');
     info('提示：见 src/pages/notes/route.astro 末尾那段 <script>');
+    failures++;
+  }
+}
+
+// --------------------------------------------------- 4j. 练习题单（opinion-7）
+// 题单的数据在 frontmatter 的 `problems` 里，地址由平台拼（src/data/problem-platforms.ts）。
+// 这条检查兜三件事，都是「构建不报错、但读者会看出问题」的类型：
+//   ① 页面上有面板，但行数跟表头写的「N 题」对不上（数据被吞了几条）；
+//   ② 链接不是 https 绝对地址（拼错了会变成站内相对链接，404 还不明显）；
+//   ③ 源码里声明了题单的已发布笔记，产物里却没有面板（组件漏渲染 / 条件写错）。
+console.log('\n【4j】练习题单（opinion-7）');
+{
+  const withPanel = [];
+  const countMismatch = [];
+  const badHref = [];
+  const missingEntry = [];
+
+  for (const id of notePageDirs) {
+    const html = fs.readFileSync(path.join(DIST, 'notes', id, 'index.html'), 'utf8');
+    if (!html.includes('class="problems"')) continue;
+    withPanel.push(id);
+
+    // 目录最后一行得是「练习题单」入口（指向 #problem-list）：
+    // 题单面板在正文之后、正文里没有这一节，少了入口读者只能一路滚到底。
+    if (!html.includes('href="#problem-list"')) missingEntry.push(id);
+
+    const rows = (html.match(/<li class="problem">/g) ?? []).length;
+    const declared = Number((html.match(/problems__meta">(\d+) 题/) ?? [])[1]);
+    if (!html.includes('problems__meta">') || !Number.isFinite(declared) || declared !== rows) {
+      countMismatch.push(`${id} → 表头 ${Number.isFinite(declared) ? declared : '?'} 题，实际 ${rows} 行`);
+    }
+
+    for (const m of html.matchAll(/<a class="problem__link" href="([^"]*)"/g)) {
+      if (!/^https:\/\//.test(m[1])) badHref.push(`${id} → ${m[1] || '(空)'}`);
+    }
+  }
+
+  // 源码侧：frontmatter 里有非空 problems 的**已发布**笔记（草稿不进产物，要排除）
+  const declaredInSrc = [];
+  for (const id of noteIds) {
+    const src = fs.readFileSync(path.join(notesSrcDir, `${id}.md`), 'utf8');
+    const fm = (/^---\r?\n([\s\S]*?)\r?\n---/.exec(src) ?? [, ''])[1];
+    if (!/^problems:[ \t]*$/m.test(fm)) continue; // 只认「声明了」的；problems: [] 不算
+    if (/^draft:[ \t]*true/m.test(fm)) continue;
+    declaredInSrc.push(id);
+  }
+  const missingPanel = declaredInSrc.filter((id) => !withPanel.includes(id));
+
+  if (missingPanel.length === 0) {
+    ok(`${declaredInSrc.length} 篇笔记声明了题单，产物里都有面板`);
+  } else {
+    bad(`${missingPanel.length} 篇声明了题单却没有面板：${missingPanel.join('、')}`);
+    info('提示：见 src/pages/notes/[id].astro 的 <ProblemList problems={d.problems} />');
+    failures++;
+  }
+  if (withPanel.length === 0) {
+    console.log('  ⚠ 目前没有页面渲染题单，跳过其余检查');
+  } else if (countMismatch.length === 0) {
+    ok(`${withPanel.length} 块题单面板：表头题数与行数一致`);
+  } else {
+    bad(`${countMismatch.length} 块题单的题数对不上：`);
+    countMismatch.slice(0, 6).forEach(info);
+    failures++;
+  }
+  if (withPanel.length > 0) {
+    if (badHref.length === 0) {
+      ok('题单链接全部是 https 绝对地址');
+    } else {
+      bad(`${badHref.length} 条题单链接不是 https：`);
+      badHref.slice(0, 6).forEach(info);
+      info('提示：平台地址在 src/data/problem-platforms.ts，题号格式错会先被 schema 拦下');
+      failures++;
+    }
+    if (missingEntry.length === 0) {
+      ok('页尾题单都在目录末尾挂了入口');
+    } else {
+      bad(`${missingEntry.length} 篇有题单但目录里没有入口：${missingEntry.join('、')}`);
+      info('提示：见 src/pages/notes/[id].astro 的 .toc__item--problems 那一行');
+      failures++;
+    }
+  }
+}
+
+// ------------------------------------------- 4k. 更新提示与更新日志（opinion-31）
+// 这条提示的价值全在「内容变了才出现」上，构建本身不会报错，所以在这里钉住三件事：
+//   ① 首页横幅要带批次指纹，而且**渲染时必须带 hidden**
+//      —— 忘了 hidden，认过的访客每次都会先看见它再被脚本藏起来（闪一下）；
+//   ② 横幅里的「全部更新 →」必须真有地方去（/updates/ 页生成了）；
+//   ③ 指纹要和源码里现算出来的一致（防止有人改成用时间戳：那样每次部署都会弹）。
+console.log('\n【4k】更新提示与更新日志（opinion-31）');
+{
+  const homePath = path.join(DIST, 'index.html');
+  const home = fs.existsSync(homePath) ? fs.readFileSync(homePath, 'utf8') : '';
+  const bar = (home.match(/<div[^>]*id="site-updates"[^>]*>/) ?? [''])[0];
+
+  if (!bar) {
+    bad('首页没有渲染更新提示横幅（#site-updates）');
+    info('提示：见 src/pages/index.astro 的 <UpdateNotice feed={updates} />');
+    failures++;
+  } else {
+    const batch = (bar.match(/data-update-batch="([^"]*)"/) ?? [])[1] ?? '';
+    if (batch) ok(`首页横幅带批次指纹 ${batch}`);
+    else {
+      bad('横幅没有批次指纹（data-update-batch 是空的）');
+      info('提示：见 utils/updates.ts 的 updateBatchId()');
+      failures++;
+    }
+    if (/\shidden(\s|>)/.test(bar)) ok('横幅默认 hidden（认过的访客不会先看到再消失）');
+    else {
+      bad('横幅没有默认 hidden —— 老访客会看到它闪一下');
+      info('提示：src/components/UpdateNotice.astro 里 <div class="notice-bar" … hidden>');
+      failures++;
+    }
+  }
+
+  const updatesPage = path.join(DIST, 'updates', 'index.html');
+  if (fs.existsSync(updatesPage)) {
+    const html = fs.readFileSync(updatesPage, 'utf8');
+    // 注意带上类名后面的边界：功能条目渲染成 `class="update update--feature"`，
+    // 只数 `class="update"` 会把它们漏掉（以前这里只数了内容条目，报出来的数字偏小）
+    const rows = (html.match(/<li class="update[ "]/g) ?? []).length;
+    if (rows > 0) ok(`/updates/ 更新日志生成，共 ${rows} 条`);
+    else {
+      bad('/updates/ 页一条都没有');
+      info('提示：见 src/pages/updates.astro，数据来自 utils/updates.ts');
+      failures++;
+    }
+    if (html.includes('update__kind--feature')) ok('更新日志里带着手写的功能条目');
+    else {
+      bad('更新日志里没有功能条目 —— src/data/feature-log.ts 被清空了？');
+      info('提示：重大功能要手写进那份文件，内容更新才是自动收的');
+      failures++;
+    }
+    if (home.includes('href="/updates/"')) ok('横幅里的「全部更新 →」有去处');
+    else {
+      bad('横幅没有链到 /updates/');
+      info('提示：src/components/UpdateNotice.astro 的 .notice-bar__more');
+      failures++;
+    }
+  } else {
+    bad('没有生成 /updates/ 页（横幅里那个链接会 404）');
+    info('提示：新建 src/pages/updates.astro');
     failures++;
   }
 }

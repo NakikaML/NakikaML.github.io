@@ -3,7 +3,9 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteCard from '../components/NoteCard.astro';
 import WorkCard from '../components/WorkCard.astro';
+import UpdateNotice from '../components/UpdateNotice.astro';
 import { contentNotes, countByCategory, byDateDesc, visible, recentNotes } from '../utils/notes';
+import { updateFeed } from '../utils/updates';
 import { projects } from '../data/projects';
 import { site } from '../site.config';
 
@@ -11,6 +13,10 @@ const notes = await contentNotes();
 // 开发服务器里包含草稿（卡片上会带「草稿」徽章），构建时草稿被剔除——见 utils/notes.ts
 const posts = visible(await getCollection('blog')).sort(byDateDesc);
 const works = visible(await getCollection('works')).sort(byDateDesc);
+
+// 「更新小提示」的数据（opinion-31）：新笔记 / 补写过的笔记 / 新作品 / 新博客。
+// 横幅默认 hidden，由组件里的脚本按 localStorage 里的批次指纹决定要不要露出来。
+const updates = updateFeed({ notes, works, posts });
 
 const cats = countByCategory(notes);
 // 这块叫「最近更新」，就得真的按最后更新时间排（opinion-11）：
@@ -70,6 +76,11 @@ const stats = [
         />
       </div>
     </section>
+
+    <!-- ------------------------------------------------ 更新提示（opinion-31）
+         默认隐藏：认过这一批的访客由 localStorage 判断后不显示（0 闪烁），
+         没 JS 就永远不出现，不会挡住 hero 和下面的内容。 -->
+    <UpdateNotice feed={updates} />
 
     <!-- ------------------------------------------------ 数据 -->
     {

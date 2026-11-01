@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { allNotes, siblings, fmtDate, noteHref, noteUpdated } from '../../utils/notes';
 import { courseSeries } from '../../utils/course-series';
 import { courseKind } from '../../data/curriculum';
+import ProblemList from '../../components/ProblemList.astro';
 import { buildToc, chapterOf, countToc } from '../../utils/toc';
 
 export async function getStaticPaths() {
@@ -35,6 +36,9 @@ const toc = buildToc(headings, chapterOf(d.title), tocNumbered);
 const tocCount = countToc(toc);
 // 目录够长才值得单独占一栏（很短的目录摆到左边反而比正文还抢眼）
 const hasToc = tocCount > 2;
+// 有练习题单时，目录最后一行多一个「练习题单」入口（opinion-7）——
+// 面板在正文之后，正文里没有这一节，但读者不该为了做题一路滚到底。
+const hasProblems = d.problems.length > 0;
 
 const date = fmtDate(d.date);
 // 「最后更新」（opinion-11）：只有 updated 比 date 晚才算数，见 utils/notes.ts
@@ -130,6 +134,17 @@ const updated = noteUpdated(note);
                   )}
                 </li>
               ))}
+              {/* 目录的最后一行：练习题单（opinion-7）。题单面板在正文之后、
+                  正文里没有对应的小节，所以它不是 heading；但读者不该为了做题
+                  一路滚到底 —— 给它一个入口，点了直接跳到页尾那块带难度与考察点的完整题单。 */}
+              {hasProblems && (
+                <li class="toc__item toc__item--problems">
+                  <a href="#problem-list">
+                    <span>练习题单</span>
+                    <span class="toc__count">{d.problems.length}</span>
+                  </a>
+                </li>
+              )}
             </ul>
           </nav>
         )
@@ -150,6 +165,10 @@ const updated = noteUpdated(note);
             </div>
           )
         }
+
+        {/* 练习题单（opinion-7）：数据全在 frontmatter 的 problems 里，
+            正文只写讲解 —— 别在正文手写题目链接（题号敲错也点得开，没人会发现）。 */}
+        {d.problems.length > 0 && <ProblemList problems={d.problems} />}
 
         {/* 页尾「同课程笔记」（opinion-8）：按课程体系列全系列并高亮当前这篇。
             顺序与章名都来自 src/data/curriculum.ts，这里只负责渲染。

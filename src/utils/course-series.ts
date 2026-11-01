@@ -25,7 +25,7 @@
 
 import { courses, draftTitles, shortTitle } from '../data/curriculum';
 import type { Note } from './notes';
-import { byChapter, chapterOf } from './toc';
+import { byChapter, byTopicOrder, chapterOf } from './toc';
 
 export interface SeriesItem {
   /** 笔记 id（= 文件名 = URL 末段） */
@@ -38,6 +38,8 @@ export interface SeriesItem {
   href: string | null;
   /** 是不是正在读的这一篇 */
   current: boolean;
+  /** 专题集合内的阅读顺序（curriculum.ts 的 `order`），课程不用它 */
+  order?: number;
   /** true = 同一 subfield 但没写进 curriculum.ts，被兜底补进来的 */
   unlisted: boolean;
 }
@@ -82,13 +84,15 @@ export function courseSeries(notes: Note[], current: Note): CourseSeries | null 
       chapter: chapterOf(title),
       href: published.has(ch.id) ? `/notes/${ch.id}/` : null,
       current: ch.id === current.id,
+      order: ch.order,
       unlisted: false,
     });
   }
 
-  // 计划内的章节：按**章号升序**排（bug-16）。别照抄 curriculum.ts 数组的顺序 ——
+  // 课程按**章号升序**排（bug-16）；别照抄 curriculum.ts 数组的顺序 ——
   // 那个数组是照依赖写的（高等数学 1,2,7,4,3,6,5,8,9,11,10），当目录印出来就是乱的。
-  items.sort(byChapter);
+  // 专题没有章号，改按 curriculum.ts 手写的 order（见 Chapter.order）。
+  items.sort(kind === 'topic' ? byTopicOrder : byChapter);
 
   // 兜底：同一门课里还没写进 curriculum.ts 的笔记。
   // 不补的话，它自己的页尾会连「高亮的那一行」都没有 —— 看着像功能坏了。
@@ -98,6 +102,7 @@ export function courseSeries(notes: Note[], current: Note): CourseSeries | null 
     .filter((n) => n.data.subfield?.trim() === course && !listed.has(n.id))
     .map((n) => ({ note: n, chapter: chapterOf(n.data.title) }))
     .sort((a, b) => a.chapter - b.chapter || a.note.data.title.localeCompare(b.note.data.title));
+
   for (const { note: n, chapter } of extras) {
     items.push({
       id: n.id,

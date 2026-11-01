@@ -53,6 +53,15 @@ export interface Chapter {
    * ⚠️ 跨课程先修**不参与任何排序**：写错只会显示得怪，不会把章序排歪。
    */
   prereq?: string[];
+  /**
+   * 专题集合内的**人工顺序**（只在 `kind: 'topic'` 的集合里有意义，越小越靠前）。
+   *
+   * 课程笔记用标题里的章号排序，但专题标题没有章号（`chapterOf` 一律返回 1），
+   * 不写 order 就会被 id 的字典序决定先后 —— 「重链剖分」会跑到「LCA」前面，
+   * 「树上 DP」会排在它自己的后续专题后面。所以专题的阅读顺序在这里手写。
+   * 没写 order 的排在最后（兜底补进来的笔记就是这种情况）。
+   */
+  order?: number;
 }
 
 export interface Course {
@@ -338,10 +347,10 @@ export const courses: Course[] = [
 
   // ================================================ 算法竞赛（专题，不是课程）
   // 它和上面几门课的区别：课程是「教材」，按章号一页页往下读；
-  // 竞赛这边是「专题」，每篇自成一个技巧单元，之间的顺序由 prereq 决定、
-  // 之后会改成按依赖深度分层（见 README 与 opinion 讨论）。
-  // 现在只有 1 篇，先把 subfield = '算法竞赛' 的笔记挂进路线，免得它落到
-  // 学习路线页底部的「其他笔记」里。攒到 5~8 篇再决定要不要拆成独立分野
+  // 竞赛这边是「专题」，每篇自成一个技巧单元，先后由手写的 `order` 决定
+  // （专题没有章号，靠章号排会退化成按 id 的字典序）。
+  // 现在 5 个专题：高精度已上线，树进阶那 4 个在计划里（树上 DP 还没写，
+  // 另外三篇是 draft）。攒到 8~10 篇再决定要不要拆成独立分野
   // （那时只需 disciplines 加一项 + global.css 补三行色值 + 这里的 discipline 改一行）。
   {
     id: '算法竞赛',
@@ -355,7 +364,17 @@ export const courses: Course[] = [
       // 高精度只要会数组和循环，所以先修到 C++ 的函数与数组为止。
       // ⚠️ `id` 就是文件名，也就是 URL：专题一律 `ac-<英文短名>`，**不带章号**
       //    （`ac-bignum` → `/notes/ac-bignum/`）。序号只会让"第几章"的错觉回来。
-      { id: 'ac-bignum', prereq: ['cpp-4-functions', 'cpp-5-arrays'] },
+      { id: 'ac-bignum', order: 1, prereq: ['cpp-4-functions', 'cpp-5-arrays'] },
+
+      // ---------------------------------------------- 树进阶（2026-11 起）
+      // 树上 DP 是后三个的前置，但笔记还没写 —— 这里先占位，学习路线页会显示成
+      // 灰色的「待发布」（标题取自 draftTitles），先修标签也照样能指过去。
+      // order 决定专题的阅读顺序（见 Chapter.order 的说明）：专题没有章号，
+      // 但读者总得有个先后，这里就是「作者认为的先后」。
+      { id: 'ac-tree-dp', order: 2, prereq: ['dsa-5-tree-and-binary-tree'] },
+      { id: 'ac-tree-diameter-center', order: 3, prereq: ['ac-tree-dp'] },
+      { id: 'ac-lca', order: 4, prereq: ['ac-tree-dp'] },
+      { id: 'ac-hld', order: 5, prereq: ['ac-tree-dp'] },
     ],
   },
 
@@ -474,6 +493,14 @@ export const draftTitles: Record<string, string> = {
   'sys-7-exceptional-control-flow': '计算机系统基础与组成原理-7 异常控制流',
   'sys-8-bus': '计算机系统基础与组成原理-8 总线',
   'sys-9-io-system': '计算机系统基础与组成原理-9 I/O系统',
+
+  // 算法竞赛的树进阶系列（2026-11）：树上 DP 还没写，另外三篇目前是 draft。
+  // 有了这四条兜底标题，学习路线页就能把它们显示成灰色的「待发布」，
+  // 先修标签也能正常说出「树上 DP」的名字；哪篇上线后会自动改用 frontmatter 的真实标题。
+  'ac-tree-dp': '算法竞赛-树上 DP',
+  'ac-tree-diameter-center': '算法竞赛-树的直径与重心',
+  'ac-lca': '算法竞赛-最近公共祖先 LCA',
+  'ac-hld': '算法竞赛-树的重链剖分',
 };
 
 /**

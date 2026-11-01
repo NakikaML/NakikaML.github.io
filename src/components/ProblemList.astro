@@ -1,0 +1,66 @@
+---
+/**
+ * ProblemList.astro —— 笔记页尾的「练习题单」面板（opinion-7）
+ * ==========================================================
+ * 数据全部来自笔记 frontmatter 的 `problems:`（写法见 src/content.config.ts 的
+ * parseProblemShorthand，平台与地址在 src/data/problem-platforms.ts）。
+ *
+ * 为什么不在正文里手写 `<a href="https://www.luogu.com.cn/problem/P1601">`：
+ *   · 题号敲错一样能点开，只是点到了另一道题 —— 构建不报错、读者也不会告诉你；
+ *   · 一行里塞满 URL，写的时候和审的时候都看不清；
+ *   · 平台配色/徽章要手写 HTML 才做得出来，正文会脏。
+ *
+ * 结构（每行）：序号 │ 平台徽章 + 题号 + 题名（整行是链接） │ 难度、考察点
+ * 顺序就是 frontmatter 里的顺序 —— 那通常就是作者的做题顺序，别在这里重排。
+ */
+import { resolveProblem } from '../data/problem-platforms';
+
+interface Props {
+  problems: {
+    platform: string;
+    id: string;
+    no: string;
+    title: string;
+    note: string;
+    difficulty: string;
+    url: string;
+  }[];
+}
+
+const { problems } = Astro.props;
+const items = problems.map((p) => resolveProblem(p));
+
+// 表头右侧：`13 题 · 洛谷 6 · LeetCode 7` —— 按首次出现的顺序统计，不排序
+const counts = new Map<string, number>();
+for (const p of items) counts.set(p.label, (counts.get(p.label) ?? 0) + 1);
+const summary = [...counts].map(([label, n]) => `${label} ${n}`).join(' · ');
+---
+
+<nav class="problems" id="problem-list" aria-label="练习题单">
+  <div class="problems__head">
+    <span class="problems__title">练习题单</span>
+    <span class="problems__meta">{items.length} 题{summary ? ` · ${summary}` : ''}</span>
+  </div>
+  <ol class="problems__list">
+    {
+      items.map((p, i) => (
+        <li class="problem">
+          <span class="problem__num">{i + 1}</span>
+          <div class="problem__body">
+            <a class="problem__link" href={p.href} target="_blank" rel="noopener noreferrer">
+              <span class={`problem__badge problem__badge--${p.platform}`}>{p.label}</span>
+              <span class="problem__no">{p.no}</span>
+              {p.title && <span class="problem__name">{p.title}</span>}
+            </a>
+            {(p.note || p.difficulty) && (
+              <p class="problem__note">
+                {p.difficulty && <span class="problem__diff">{p.difficulty}</span>}
+                {p.note && <span>{p.note}</span>}
+              </p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
