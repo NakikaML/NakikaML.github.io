@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="p 积分的几何理解：p 越大曲线衰减越快，尾部面积越容易收敛；p = 1 时面积发散">
+  <title>p 积分的几何理解：p 越大曲线衰减越快，尾部面积越容易收敛；p = 1 时面积发散</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-05-improper-p-integral"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-05-improper-p-integral)"><line x1="63.81" y1="34" x2="63.81" y2="364"/><line x1="241.94" y1="34" x2="241.94" y2="364"/><line x1="420.06" y1="34" x2="420.06" y2="364"/><line x1="598.19" y1="34" x2="598.19" y2="364"/><line x1="46" y1="339.56" x2="616" y2="339.56"/><line x1="46" y1="217.33" x2="616" y2="217.33"/><line x1="46" y1="95.11" x2="616" y2="95.11"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-05-improper-p-integral)"></g>
+  <g class="axis"><line x1="40" y1="339.56" x2="624" y2="339.56"/><line x1="63.81" y1="368" x2="63.81" y2="26"/><line x1="63.81" y1="339.56" x2="63.81" y2="343.56"/><line x1="241.94" y1="339.56" x2="241.94" y2="343.56"/><line x1="420.06" y1="339.56" x2="420.06" y2="343.56"/><line x1="598.19" y1="339.56" x2="598.19" y2="343.56"/><line x1="63.81" y1="217.33" x2="59.81" y2="217.33"/><line x1="63.81" y1="95.11" x2="59.81" y2="95.11"/></g>
+  <g clip-path="url(#clip-hm5-05-improper-p-integral)"><path d="M78.1 34 L83.1 76.6 L89.5 111.8 L93.3 127 L97.5 140.9 L102.3 153.6 L107.8 165.5 L113.7 176.2 L120.3 186.1 L127.7 195.2 L135.8 203.6 L144.8 211.4 L154.5 218.5 L165.5 225.2 L177.3 231.3 L190.9 237.2 L205.6 242.7 L221.8 247.8 L239.3 252.5 L279.5 261 L327.2 268.5 L383.5 275 L449.5 280.8 L526.5 285.9 L616 290.5" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M99.4 34 L106.1 82.1 L113.9 122.3 L118.4 140.3 L123.4 157 L128.7 171.7 L134.6 185.8 L141 198.5 L147.9 210.1 L155.5 220.8 L163.6 230.4 L172.4 239.3 L182.1 247.5 L192.8 255.1 L204.2 262 L216.8 268.4 L230.3 274.2 L245.3 279.6 L261.4 284.5 L279 289 L298.2 293.1 L342.2 300.4 L394.2 306.6 L455.9 311.8 L529.1 316.2 L616 319.8" class="curve" stroke="var(--plot-c2, #c9402e)"/><path d="M120.1 34 L126.3 91.1 L133.4 139.3 L141.7 179.8 L146.5 197.6 L151.5 213.3 L156.9 227.7 L162.8 240.7 L169.3 252.4 L176.2 262.7 L183.7 272.2 L191.8 280.4 L200.8 287.9 L210.8 294.7 L221.3 300.5 L232.7 305.6 L245 310 L258.8 314.1 L274 317.6 L290.6 320.7 L330 325.9 L378.3 329.8 L439.1 332.7 L516.3 334.8 L616 336.4" class="curve" stroke="var(--plot-c3, #4f9a76)"/></g>
+  <g><text class="tick" x="63.81" y="354.56" text-anchor="middle">0</text><text class="tick" x="241.94" y="354.56" text-anchor="middle">2</text><text class="tick" x="420.06" y="354.56" text-anchor="middle">4</text><text class="tick" x="598.19" y="354.56" text-anchor="middle">6</text><text class="tick" x="54.81" y="351.56" text-anchor="end">0</text><text class="tick" x="55.81" y="221.33" text-anchor="end">1</text><text class="tick" x="55.81" y="99.11" text-anchor="end">2</text><text class="axisname" x="622" y="332.56">x</text><text class="axisname" x="70.81" y="30">y</text></g>
+  <g></g>
+  <g><text class="note" data-color="muted" x="366.63" y="288.22" text-anchor="start">p 越大，衰减越快</text><text class="note" data-color="muted" x="366.63" y="315.11" text-anchor="start">尾部面积越容易收敛</text></g>
+  <g></g>
+  <g><line x1="46" y1="18" x2="64" y2="18" stroke="var(--plot-c1, #d78b34)" stroke-width="2"/><text class="legend" x="70" y="22">p = 1/2（发散）</text><line x1="186.72" y1="18" x2="204.72" y2="18" stroke="var(--plot-c2, #c9402e)" stroke-width="2"/><text class="legend" x="210.72" y="22">p = 1（发散）</text><line x1="313.52" y1="18" x2="331.52" y2="18" stroke="var(--plot-c3, #4f9a76)" stroke-width="2"/><text class="legend" x="337.52" y="22">p = 2（收敛）</text></g>
+</svg>

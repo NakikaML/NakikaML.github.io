@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 400" width="510" height="400" role="img" aria-label="曲边扇形的面积：ρ = ρ(θ) 与两条射线围成的区域，面积微元是 dS = ½ρ²dθ">
+  <title>曲边扇形的面积：ρ = ρ(θ) 与两条射线围成的区域，面积微元是 dS = ½ρ²dθ</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .arc { fill: none; stroke-width: 1.3; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-13-polar-area-sector"><rect x="46" y="34" width="440" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="440" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-13-polar-area-sector)"><ellipse cx="266" cy="199" rx="73.33" ry="73.33"/><ellipse cx="266" cy="199" rx="146.67" ry="146.67"/><line x1="266" y1="199" x2="1146" y2="199"/><line x1="266" y1="199" x2="888.25" y2="-423.25"/><line x1="266" y1="199" x2="266" y2="-681"/><line x1="266" y1="199" x2="-356.25" y2="-423.25"/><line x1="266" y1="199" x2="-614" y2="199"/><line x1="266" y1="199" x2="-356.25" y2="821.25"/><line x1="266" y1="199" x2="266" y2="1079"/><line x1="266" y1="199" x2="888.25" y2="821.25"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-13-polar-area-sector)"><path d="M409.5 146.6 L404.9 141.1 L399.9 135.9 L394.6 131.2 L388.6 126.6 L382.2 122.5 L375.6 118.9 L368.9 115.8 L361.6 113 L354.2 110.9 L346.9 109.2 L339.2 108 L331.6 107.2 L323.8 106.9 L315.5 107 L306.7 107.5 L296 108.6 L266 199 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.22" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-13-polar-area-sector)"></g>
+  <g class="axis"></g>
+  <g clip-path="url(#clip-hm5-13-polar-area-sector)"><path d="M427.3 199 L426.8 189.7 L425.3 180.6 L422.8 171.6 L419.3 163 L415 154.9 L409.4 146.5 L403.4 139.5 L396.3 132.6 L389.2 127 L381 121.7 L372.4 117.3 L363 113.5 L353.4 110.7 L343.2 108.6 L332.6 107.3 L321.8 106.9 L307.9 107.4 L279.1 110.4 L266.5 111 L253.4 110.4 L221 107.2 L202.1 107.1 L191.6 108.1 L181.5 110 L172 112.5 L162.5 116.1 L150.3 122.1 L138.9 130 L128.6 139.5 L120.2 149.9 L113.4 161.5 L108.7 173.2 L105.6 186.4 L104.7 199 L105.2 208.3 L106.7 217.4 L109.2 226.4 L112.7 235 L117 243.1 L122.6 251.5 L128.6 258.5 L135.7 265.4 L142.8 271 L151 276.3 L159.6 280.7 L169 284.5 L178.6 287.3 L188.8 289.4 L199.4 290.7 L210.2 291.1 L224.1 290.6 L252.9 287.6 L265.5 287 L278.6 287.6 L311 290.8 L329.9 290.9 L340.4 289.9 L350.5 288 L360 285.5 L369.5 281.9 L381.7 275.9 L393.1 268 L403.4 258.5 L411.8 248.1 L418.6 236.5 L423.3 224.8 L426.4 211.6 L427.3 199" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M266 199 L409.5 146.6" class="curve" stroke="var(--plot-c3, #4f9a76)" stroke-width="1.9" stroke-dasharray="5 4" stroke-linecap="butt"/><path d="M266 199 L296 108.6" class="curve" stroke="var(--plot-c3, #4f9a76)" stroke-width="1.9" stroke-dasharray="5 4" stroke-linecap="butt"/></g>
+  <g class="arc-layer" clip-path="url(#clip-hm5-13-polar-area-sector)"><path d="M307.3 183.9 L307.1 183.3 L306.9 182.7 L306.6 182.1 L306.4 181.5 L306.1 180.9 L305.8 180.3 L305.5 179.7 L305.2 179.1 L304.9 178.5 L304.6 177.9 L304.3 177.3 L304 176.8 L303.6 176.2 L303.3 175.6 L302.9 175.1 L302.6 174.5 L302.2 174 L301.8 173.4 L301.4 172.9 L301 172.4 L300.6 171.8 L300.2 171.3 L299.8 170.8 L299.4 170.3 L298.9 169.8 L298.5 169.3 L298 168.8 L297.6 168.4 L297.1 167.9 L296.7 167.4 L296.2 167 L295.7 166.5 L295.2 166.1 L294.7 165.7 L294.2 165.2 L293.7 164.8 L293.2 164.4 L292.7 164 L292.1 163.6 L291.6 163.2 L291.1 162.8 L290.5 162.5 L290 162.1 L289.4 161.7 L288.8 161.4 L288.3 161.1 L287.7 160.7 L287.1 160.4 L286.5 160.1 L286 159.8 L285.4 159.5 L284.8 159.2 L284.2 158.9 L283.6 158.7 L283 158.4 L282.4 158.2 L281.7 157.9 L281.1 157.7 L280.5 157.5 L279.9 157.2" class="arc" stroke="var(--plot-c2, #c9402e)"/></g>
+  <g></g>
+  <g></g>
+  <g><text class="note" data-color="red" x="339.33" y="172.6" text-anchor="start">dθ</text><text class="note" data-color="accent" x="379.67" y="122" text-anchor="start">ρ = ρ(θ)</text><text class="note" data-color="ink" x="277" y="219.53" text-anchor="start">O</text><text class="note" data-color="ink" x="343" y="135.93" text-anchor="start">dS = ½ρ²dθ</text></g>
+  <g></g>
+  <g></g>
+</svg>

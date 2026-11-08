@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img" aria-label="偶函数在对称区间上的积分：左右两半的面积相等，因此等于右半面积的两倍（偶倍）">
+  <title>偶函数在对称区间上的积分：左右两半的面积相等，因此等于右半面积的两倍（偶倍）</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .guide line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1; stroke-dasharray: none; }
+  svg .guide-label { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-03-1-even-parity"><rect x="46" y="34" width="530" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="530" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-03-1-even-parity)"><line x1="90.17" y1="34" x2="90.17" y2="364"/><line x1="200.58" y1="34" x2="200.58" y2="364"/><line x1="311" y1="34" x2="311" y2="364"/><line x1="421.42" y1="34" x2="421.42" y2="364"/><line x1="531.83" y1="34" x2="531.83" y2="364"/><line x1="46" y1="329.86" x2="576" y2="329.86"/><line x1="46" y1="216.07" x2="576" y2="216.07"/><line x1="46" y1="102.28" x2="576" y2="102.28"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-03-1-even-parity)"><path d="M90.2 102.3 L104 129.8 L117.8 155.6 L131.6 179.6 L145.4 201.8 L152.7 213 L159.2 222.3 L165.6 231.2 L173 241 L179.4 249.1 L186.8 257.9 L193.2 265.1 L200.6 273 L207 279.4 L214.4 286.3 L221.7 292.7 L228.2 297.9 L235.5 303.3 L242 307.6 L249.4 312.1 L255.8 315.6 L263.2 319.2 L269.6 321.9 L276 324.2 L283.4 326.3 L289.8 327.8 L297.2 329 L303.6 329.6 L311 329.9 L90.2 329.9 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.2" stroke="none"/><path d="M311 329.9 L318.4 329.6 L324.8 329 L332.2 327.8 L338.6 326.3 L346 324.2 L352.4 321.9 L359.8 318.8 L366.2 315.6 L372.6 312.1 L380 307.6 L387.4 302.6 L393.8 297.9 L401.2 291.9 L407.6 286.3 L415 279.4 L421.4 273 L428.8 265.1 L435.2 257.9 L442.6 249.1 L449 241 L456.4 231.2 L462.8 222.3 L470.2 211.6 L476.6 201.8 L490.4 179.6 L504.2 155.6 L518 129.8 L531.8 102.3 L531.8 329.9 L311 329.9 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.2" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-03-1-even-parity)"></g>
+  <g class="guide" clip-path="url(#clip-hm5-03-1-even-parity)"><line x1="90.17" y1="34" x2="90.17" y2="364"/><line x1="311" y1="34" x2="311" y2="364" stroke-dasharray="4 4"/><line x1="531.83" y1="34" x2="531.83" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="329.86" x2="584" y2="329.86"/><line x1="311" y1="368" x2="311" y2="26"/><line x1="90.17" y1="329.86" x2="90.17" y2="333.86"/><line x1="200.58" y1="329.86" x2="200.58" y2="333.86"/><line x1="311" y1="329.86" x2="311" y2="333.86"/><line x1="421.42" y1="329.86" x2="421.42" y2="333.86"/><line x1="531.83" y1="329.86" x2="531.83" y2="333.86"/><line x1="311" y1="216.07" x2="307" y2="216.07"/><line x1="311" y1="102.28" x2="307" y2="102.28"/></g>
+  <g clip-path="url(#clip-hm5-03-1-even-parity)"><path d="M59.2 34 L74.9 69.8 L90.6 103.2 L106.5 134.7 L122.2 163.5 L138.1 190.3 L153.8 214.5 L169.4 236.4 L185.1 255.9 L200.8 273.2 L216.5 288.2 L232.2 300.9 L248.1 311.4 L263.7 319.4 L279.6 325.3 L295.3 328.7 L311 329.9 L326.7 328.7 L342.4 325.3 L358.3 319.4 L373.9 311.4 L389.6 301 L405.3 288.4 L421 273.4 L436.9 255.9 L452.8 236.1 L468.5 214.2 L484.1 190 L499.8 163.5 L515.7 134.3 L531.4 103.2 L547.1 69.8 L562.8 34" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="90.17" y="344.86" text-anchor="middle">-2</text><text class="tick" x="200.58" y="344.86" text-anchor="middle">-1</text><text class="tick" x="311" y="344.86" text-anchor="middle">0</text><text class="tick" x="421.42" y="344.86" text-anchor="middle">1</text><text class="tick" x="531.83" y="344.86" text-anchor="middle">2</text><text class="tick" x="302" y="341.86" text-anchor="end">0</text><text class="tick" x="303" y="220.07" text-anchor="end">1</text><text class="tick" x="303" y="106.28" text-anchor="end">2</text><text class="axisname" x="582" y="322.86">x</text><text class="axisname" x="318" y="30">y</text><text class="guide-label" x="90.17" y="29" text-anchor="middle">−a</text><text class="guide-label" x="531.83" y="29" text-anchor="middle">a</text></g>
+  <g></g>
+  <g><text class="note" data-color="ink" x="178.5" y="267.28" text-anchor="middle">S</text><text class="note" data-color="ink" x="443.5" y="267.28" text-anchor="middle">S</text><text class="note" data-color="accent" x="311" y="68.14" text-anchor="middle">偶函数：∫₋ₐᵃ = 2∫₀ᵃ</text></g>
+  <g></g>
+  <g></g>
+</svg>

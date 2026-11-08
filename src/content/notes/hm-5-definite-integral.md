@@ -6,15 +6,13 @@ subject: 数学
 subfield: 高等数学
 topic: 定积分
 difficulty: 基础
-date: "2026-10-17"
+date: "2026-11-07"
 tags: [高等数学, 定积分, 牛顿-莱布尼茨公式, 变限积分, 换元法, 分部积分, 反常积分, 微元法]
-draft: true
+draft: false
 featured: false
 ---
 
 ## 定积分的概念与性质
-
-第四章解决了"如何求原函数"的问题，但积分的另一个起源——求面积、求路程、求累积量——尚未触及。本章从黎曼和的极限出发，将积分从"求导的逆运算"拓展为"连续量的累积工具"，并建立定积分的性质体系，为后续计算（牛莱公式、换元分部、几何应用）打下地基。
 
 ### 定积分的定义
 
@@ -55,7 +53,7 @@ $$
 
 #### 定积分的几何意义
 
-![定积分 ∫ₐᵇ f(x)dx 的几何含义：x 轴上方的面积取正、下方取负](/notes-assets/hm5-01-definite-integral-geometry.jpg)
+![定积分的几何意义：x 轴上方的面积取正、下方的面积取负，代数和才是定积分的值](/notes-assets/hm5-01-definite-integral-geometry.svg)
 
 $$
 \int_{a}^{b} f(x) \, dx = \text{（$x$ 轴上方面积）} - \text{（$x$ 轴下方面积）}
@@ -121,7 +119,7 @@ $$
 = \int_{0}^{1} \sqrt{1 + x} \, dx
 $$
 
-**评注**：这一步只是"翻译"——把和式极限写成定积分形式。具体计算需用牛莱公式（见 5.2）。关键技巧是识别 $\frac{1}{n} \to dx$，$\frac{i}{n} \to x$。
+**注**：这一步只是"翻译"——把和式极限写成定积分形式。具体计算需用牛莱公式。关键技巧是识别 $\frac{1}{n} \to dx$，$\frac{i}{n} \to x$。
 
 :::
 
@@ -170,7 +168,9 @@ $$
 
 此式对 $a, b, c$ 的任意相对位置均成立。
 
-![定积分的区间可加性：拆分点 c 可以在区间内部，也可以在区间外](/notes-assets/hm5-02-interval-additivity.jpg)
+![区间可加性（c 在区间内）：曲边梯形被 x = c 切成两块，∫ₐᵇ = ∫ₐᶜ + ∫ᶜᵇ](/notes-assets/hm5-02-1-interval-additivity-inside.svg)
+
+![区间可加性（c 在区间外）：把 a 到 c 整段切成 a→b 与 b→c 两块，∫ₐᶜ = ∫ₐᵇ + ∫ᵇᶜ，等式同样成立](/notes-assets/hm5-02-2-interval-additivity-outside.svg)
 
 #### 保号性
 
@@ -256,7 +256,7 @@ $$
 
 ## 微积分基本公式
 
-上一节用定义计算定积分极其繁琐（例 1 仅算 $\int_{0}^{1} x^{2} dx$ 就用了一页）。本节建立微分与积分的桥梁——变限积分函数的求导法则和牛顿-莱布尼茨公式——从此不定积分的全部技术（换元、分部）都可以为定积分服务。这是微积分史上最重要的一步。
+直接用定义计算定积分极其繁琐。本节建立微分与积分的桥梁——变限积分函数的求导法则和牛顿-莱布尼茨公式——从此不定积分的全部技术（换元、分部）都可以为定积分服务。这是微积分史上最重要的一步。
 
 ### 变限积分函数
 
@@ -659,7 +659,9 @@ $$
 | 偶函数 | $\displaystyle\int_{-a}^{a} f(x) \, dx = 2\int_{0}^{a} f(x) \, dx$ | 偶倍 |
 | 奇函数 | $\displaystyle\int_{-a}^{a} f(x) \, dx = 0$ | 奇零 |
 
-![奇函数与偶函数在对称区间上的积分：偶函数的面积翻倍，奇函数的面积相消](/notes-assets/hm5-03-symmetric-interval-parity.jpg)
+![偶函数在对称区间上：左右两半面积相等，积分等于右半面积的两倍（偶倍）](/notes-assets/hm5-03-1-even-parity.svg)
+
+![奇函数在对称区间上：左右两半面积大小相等、符号相反，加起来为 0（奇零）](/notes-assets/hm5-03-2-odd-parity.svg)
 
 :::tip 对称区间结论的证明思路
 $\int_{-a}^{a} = \int_{-a}^{0} + \int_{0}^{a}$，前者令 $x = -t$ 换元化为 $\int_{0}^{a} f(-x)\,dx$。奇函数 $f(-x) = -f(x)$ 两项抵消；偶函数 $f(-x) = f(x)$ 两项叠加。
@@ -981,7 +983,7 @@ $$
 
 > **关键**：右边**两个反常积分都收敛**时，左边才收敛；只要有一个发散，整体发散。拆分点不限于 $0$，任意有限点均可。
 
-![无穷限反常积分：把上限推向 +∞ 时曲边梯形面积的极限](/notes-assets/hm5-04-improper-infinite-limit.jpg)
+![无穷限反常积分：先把上限取成有限的 t 算出曲边梯形面积，再让 t 趋于 +∞ 取极限](/notes-assets/hm5-04-improper-infinite-limit.svg)
 
 #### 广义牛莱公式
 
@@ -1047,7 +1049,7 @@ $$
 
 **结论**：$\int_{a}^{+\infty} \frac{dx}{x^{p}} \ (a > 0)$ **$p > 1$ 收敛，$p \le 1$ 发散。**
 
-![无穷限 p 积分的几何理解：p 越大，曲线衰减越快，面积越容易收敛](/notes-assets/hm5-05-improper-p-integral.jpg)
+![无穷限 p 积分的几何理解：p 越大曲线衰减越快，尾部面积越容易收敛；p ≤ 1 时尾部面积发散](/notes-assets/hm5-05-improper-p-integral.svg)
 
 **评注**：这是判敛的"标尺"——比较判别法的基础。记住：$\int_{1}^{+\infty} \frac{1}{x}\,dx$ 发散（尽管 $\frac{1}{x} \to 0$），$\int_{1}^{+\infty} \frac{1}{x^{2}}\,dx$ 收敛。
 
@@ -1085,7 +1087,7 @@ $$
 
 > **关键**：右边**两个瑕积分都收敛**时，左边才收敛；只要有一个发散，整体发散。这与双向无穷限反常积分的处理逻辑完全一致。
 
-![瑕积分：被积函数在瑕点处无界，积分要取单侧极限](/notes-assets/hm5-06-improper-discontinuity.jpg)
+![瑕积分：被积函数在瑕点 a 处无界，积分要先把下限取成 t，再让 t 趋于 a 的右极限](/notes-assets/hm5-06-improper-discontinuity.svg)
 
 #### 瑕积分的牛莱公式
 
@@ -1228,7 +1230,7 @@ $$
 S = \int_{a}^{b} \lvert f(x) - g(x) \rvert \, dx
 $$
 
-![X 型区域：用上曲边减下曲边作被积函数](/notes-assets/hm5-07-x-type-region-area.jpg)
+![X 型区域：上下两条曲边加左右两条竖直线，面积用上曲边减下曲边作被积函数](/notes-assets/hm5-07-x-type-region-area.svg)
 
 **总结**：以上、下曲边的函数差作被积函数，该分割时就分割。
 
@@ -1240,9 +1242,9 @@ $$
 S = \int_{c}^{d} \lvert \varphi(y) - \psi(y) \rvert \, dy
 $$
 
-![Y 型区域：由左右两条曲边和两条水平直线围成](/notes-assets/hm5-08-y-type-region.jpg)
+![Y 型区域：左右两条曲边加上下两条水平线围成](/notes-assets/hm5-08-y-type-region.svg)
 
-![Y 型区域的面积计算：用右曲边减左曲边](/notes-assets/hm5-09-y-type-region-area.jpg)
+![Y 型区域的面积微元：在高度 y 处取一条水平窄条，宽度是右曲边减左曲边 ψ(y) − φ(y)](/notes-assets/hm5-09-y-type-region-area.svg)
 
 **总结**：以右、左曲边的函数差作被积函数。
 
@@ -1261,7 +1263,7 @@ $$
 
 **解**：解方程组 $\begin{cases} y^{2} = 2x \\ y = x - 4 \end{cases}$ 得交点 $(2, -2)$ 和 $(8, 4)$。
 
-![例 1 的图形：y²=2x 与直线 y=x-4 所围区域](/notes-assets/hm5-10-area-example-two-curves.jpg)
+![例 1 的图形：抛物线 y² = 2x 与直线 y = x − 4 交于 (2, −2) 和 (8, 4)，所围区域按 Y 型一次积完](/notes-assets/hm5-10-area-example-two-curves.svg)
 
 **法一（X 型·需拆分为两段）**：
 
@@ -1302,7 +1304,7 @@ $$
 
 **解**：
 
-![摆线 x=a(t-sin t)、y=a(1-cos t) 的一拱](/notes-assets/hm5-11-cycloid-graph.jpg)
+![摆线 x = a(t − sin t)、y = a(1 − cos t) 的一拱，与 x 轴围成的面积是 3πa²](/notes-assets/hm5-11-cycloid-graph.svg)
 
 $$
 \begin{aligned}
@@ -1329,7 +1331,7 @@ $$
 
 有序数对 $(\rho, \theta)$ 称为点 $M$ 的**极坐标**。
 
-![极坐标系：极点、极轴、极径 ρ 与极角 θ](/notes-assets/hm5-12-polar-coordinates.jpg)
+![极坐标系：极点 O、极轴、极径 ρ 与极角 θ，点 M 的极坐标记作 (ρ, θ)](/notes-assets/hm5-12-polar-coordinates.svg)
 
 **极坐标与直角坐标的互化**：
 
@@ -1350,7 +1352,7 @@ $$
 S = \int_{\alpha}^{\beta} \frac{1}{2} \rho^{2}(\theta) \, d\theta
 $$
 
-![曲边扇形的面积：ρ=ρ(θ) 与两条射线围成的区域](/notes-assets/hm5-13-polar-area-sector.jpg)
+![曲边扇形的面积：ρ = ρ(θ) 与两条射线围成的区域，面积微元 dS = ½ρ²dθ](/notes-assets/hm5-13-polar-area-sector.svg)
 
 微元解释：取 $[\theta, \theta+d\theta]$ 上的小扇形，面积 $dS = \frac{1}{2}\rho^{2}(\theta)\,d\theta$（类比扇形面积 $S_{\text{扇}} = \frac{1}{2}r^{2}\theta$），积分即得。
 
@@ -1360,7 +1362,7 @@ $$
 S = \int_{\alpha}^{\beta} \frac{1}{2} [\rho_{1}^{2}(\theta) - \rho_{2}^{2}(\theta)] \, d\theta
 $$
 
-![两条极坐标曲线之间的面积](/notes-assets/hm5-14-polar-area-between-curves.jpg)
+![两条极坐标曲线 ρ₁(θ)、ρ₂(θ) 之间、夹在两条射线之间的区域，面积按两者平方差的一半积分](/notes-assets/hm5-14-polar-area-between-curves.svg)
 
 :::example 例 3 · 极坐标求心形线面积
 计算 $\rho = a(1 + \cos \theta)\ (a > 0)$ 所围图形的面积。
@@ -1369,7 +1371,7 @@ $$
 
 **解**：
 
-![心形线 ρ=a(1+cosθ) 的图形](/notes-assets/hm5-15-cardioid-graph.jpg)
+![心形线 ρ = a(1 + cos θ) 的图形：关于极轴对称，尖点在极点](/notes-assets/hm5-15-cardioid-graph.svg)
 
 $$
 \begin{aligned}
@@ -1574,7 +1576,7 @@ $$
 ds = \sqrt{(dx)^{2} + (dy)^{2}}
 $$
 
-![弧长微元：无穷小段上以弦长代替弧长](/notes-assets/hm5-22-arc-length-element.jpg)
+![弧长微元：在小段曲线上用弦长近似弧长，ds = √(dx² + dy²)](/notes-assets/hm5-22-arc-length-element.svg)
 
 这就是**弧长微元**。所有弧长公式都是 $ds$ 在不同坐标系下的具体表达式——积分即得总弧长：
 

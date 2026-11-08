@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="定积分的几何意义：x 轴上方的面积取正、下方的面积取负，两者代数和才是定积分的值">
+  <title>定积分的几何意义：x 轴上方的面积取正、下方的面积取负，两者代数和才是定积分的值</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .guide line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1; stroke-dasharray: none; }
+  svg .guide-label { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-01-definite-integral-geometry"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-01-definite-integral-geometry)"><line x1="181" y1="34" x2="181" y2="364"/><line x1="331" y1="34" x2="331" y2="364"/><line x1="481" y1="34" x2="481" y2="364"/><line x1="46" y1="311.89" x2="616" y2="311.89"/><line x1="46" y1="225.05" x2="616" y2="225.05"/><line x1="46" y1="138.21" x2="616" y2="138.21"/><line x1="46" y1="51.37" x2="616" y2="51.37"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-01-definite-integral-geometry)"><path d="M91 89.6 L102.2 109.9 L113.5 129.3 L124.7 147.7 L136 165.1 L147.3 181.6 L158.5 197 L169.7 211.5 L181 225.1 L91 225.1 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.2" stroke="none"/><path d="M181 225.1 L191 236.2 L199.8 245.4 L208.5 254 L218.5 263 L228.5 271.3 L237.3 278 L246 284 L256 290.2 L264.8 295 L274.8 299.7 L284.8 303.6 L293.5 306.5 L303.5 309 L312.3 310.5 L321 311.5 L331 311.9 L341 311.5 L349.8 310.5 L358.5 309 L368.5 306.5 L377.3 303.6 L387.3 299.7 L397.3 295 L406 290.2 L416 284 L424.8 278 L434.8 270.3 L443.5 263 L453.5 254 L462.3 245.4 L472.3 234.9 L481 225.1 L181 225.1 Z" class="fill" fill="var(--plot-c2, #c9402e)" fill-opacity="0.2" stroke="none"/><path d="M481 225.1 L492.2 211.5 L503.5 197 L514.8 181.6 L526 165.1 L537.3 147.7 L548.5 129.3 L559.8 109.9 L571 89.6 L571 225.1 L481 225.1 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.2" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-01-definite-integral-geometry)"></g>
+  <g class="guide" clip-path="url(#clip-hm5-01-definite-integral-geometry)"><line x1="91" y1="34" x2="91" y2="364"/><line x1="571" y1="34" x2="571" y2="364"/></g>
+  <g class="axis"><line x1="40" y1="225.05" x2="624" y2="225.05"/><line x1="331" y1="368" x2="331" y2="26"/><line x1="181" y1="225.05" x2="181" y2="229.05"/><line x1="331" y1="225.05" x2="331" y2="229.05"/><line x1="481" y1="225.05" x2="481" y2="229.05"/><line x1="331" y1="311.89" x2="327" y2="311.89"/><line x1="331" y1="138.21" x2="327" y2="138.21"/><line x1="331" y1="51.37" x2="327" y2="51.37"/></g>
+  <g clip-path="url(#clip-hm5-01-definite-integral-geometry)"><path d="M62.7 34 L79.5 67.7 L96.3 99.4 L113.2 128.8 L129.8 155.7 L146.5 180.5 L163.3 203.4 L180.2 224.1 L196.8 242.4 L213.7 258.8 L230.3 272.8 L247.2 284.8 L264 294.6 L280.6 302.1 L297.5 307.6 L314.1 310.8 L331 311.9 L347.9 310.8 L364.7 307.5 L381.6 302 L398.2 294.5 L414.8 284.8 L431.7 272.8 L448.3 258.8 L465.2 242.4 L482 223.8 L498.7 203.4 L515.3 180.8 L532.2 155.7 L549 128.4 L565.7 99.4 L582.5 67.7 L599.3 34" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="181" y="240.05" text-anchor="middle">-1</text><text class="tick" x="331" y="240.05" text-anchor="middle">0</text><text class="tick" x="481" y="240.05" text-anchor="middle">1</text><text class="tick" x="323" y="315.89" text-anchor="end">-1</text><text class="tick" x="322" y="237.05" text-anchor="end">0</text><text class="tick" x="323" y="142.21" text-anchor="end">1</text><text class="tick" x="323" y="55.37" text-anchor="end">2</text><text class="axisname" x="622" y="218.05">x</text><text class="axisname" x="338" y="30">y</text><text class="guide-label" x="91" y="29" text-anchor="middle">a</text><text class="guide-label" x="571" y="29" text-anchor="middle">b</text></g>
+  <g></g>
+  <g><text class="note" data-color="accent" x="136" y="199" text-anchor="middle">+</text><text class="note" data-color="red" x="331" y="272.82" text-anchor="middle">−</text><text class="note" data-color="accent" x="526" y="199" text-anchor="middle">+</text></g>
+  <g></g>
+  <g></g>
+</svg>

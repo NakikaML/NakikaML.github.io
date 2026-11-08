@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 400" width="510" height="400" role="img" aria-label="两条极坐标曲线 ρ = ρ₁(θ) 与 ρ = ρ₂(θ) 之间、夹在两条射线之间的区域，面积是两者平方差的一半积分">
+  <title>两条极坐标曲线 ρ = ρ₁(θ) 与 ρ = ρ₂(θ) 之间、夹在两条射线之间的区域，面积是两者平方差的一半积分</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .arc { fill: none; stroke-width: 1.3; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-14-polar-area-between-curves"><rect x="46" y="34" width="440" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="440" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-14-polar-area-between-curves)"><ellipse cx="266" cy="199" rx="62.86" ry="62.86"/><ellipse cx="266" cy="199" rx="125.71" ry="125.71"/><line x1="266" y1="199" x2="1146" y2="199"/><line x1="266" y1="199" x2="888.25" y2="-423.25"/><line x1="266" y1="199" x2="266" y2="-681"/><line x1="266" y1="199" x2="-356.25" y2="-423.25"/><line x1="266" y1="199" x2="-614" y2="199"/><line x1="266" y1="199" x2="-356.25" y2="821.25"/><line x1="266" y1="199" x2="266" y2="1079"/><line x1="266" y1="199" x2="888.25" y2="821.25"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-14-polar-area-between-curves)"><path d="M404.1 156.3 L400.5 146 L396.2 136.1 L391.1 126.5 L385.3 117.4 L378.9 108.7 L371.8 100.5 L364.1 92.8 L355.9 85.8 L347.1 79.3 L337.9 73.6 L328.3 68.6 L318.4 64.3 L308.1 60.7 L297.7 57.9 L287 56 L276.2 54.8 L272 114.4 L278.3 115 L284.6 116.2 L290.7 117.8 L296.7 119.9 L302.6 122.4 L308.2 125.4 L313.6 128.8 L318.7 132.5 L323.6 136.7 L328.1 141.2 L332.2 146 L336 151.1 L339.4 156.5 L342.4 162.1 L345 167.9 L347.1 173.9 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.22" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-14-polar-area-between-curves)"></g>
+  <g class="axis"></g>
+  <g clip-path="url(#clip-hm5-14-polar-area-between-curves)"><path d="M410.6 199 L409.9 184.6 L407.7 170.4 L404.2 156.5 L399.6 143.7 L393.4 130.7 L386 118.4 L377.4 106.8 L368.2 96.8 L358.2 87.6 L346.6 79 L334.3 71.6 L321.3 65.4 L308.5 60.8 L294.6 57.3 L280.4 55.1 L266 54.4 L251.6 55.1 L237.4 57.3 L224.2 60.6 L210.7 65.4 L197.7 71.6 L185.4 79 L173.8 87.6 L163.8 96.8 L154.6 106.8 L146 118.4 L138.6 130.7 L132.4 143.7 L127.6 157.2 L124.1 171.2 L122.1 185.4 L121.4 199 L122.1 213.4 L124.1 226.8 L127.6 240.8 L132.4 254.3 L138.2 266.6 L145.6 279 L154.1 290.6 L163.8 301.2 L174.4 310.9 L186 319.4 L197.7 326.4 L210.7 332.6 L223.5 337.2 L237.4 340.7 L251.6 342.9 L266 343.6 L279.6 342.9 L293.8 340.9 L307.8 337.4 L321.3 332.6 L334.3 326.4 L346.6 319 L358.2 310.4 L368.2 301.2 L377.4 291.2 L386 279.6 L393.4 267.3 L399.6 254.3 L404.2 241.5 L407.7 227.6 L409.9 213.4 L410.6 199" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M350.9 199 L350.4 190.6 L349.2 182.2 L347.1 174 L344.4 166.5 L340.8 158.9 L336.4 151.7 L331.4 144.9 L326 139 L319.7 133.3 L313.3 128.6 L306.1 124.2 L298.5 120.6 L290.5 117.8 L282.3 115.7 L274.4 114.6 L266 114.1 L257.6 114.6 L249.7 115.7 L241.5 117.8 L233.5 120.6 L225.9 124.2 L218.7 128.6 L212.3 133.3 L206 139 L200.3 145.3 L195.6 151.7 L191.2 158.9 L187.6 166.5 L184.8 174.5 L182.7 182.7 L181.5 191 L181.1 199 L181.6 207.4 L182.8 215.8 L184.9 224 L187.6 231.5 L191.2 239.1 L195.6 246.3 L200.3 252.7 L206 259 L212.3 264.7 L219 269.7 L226.3 274 L233.5 277.4 L241.5 280.2 L249.7 282.3 L258 283.5 L266 283.9 L274.4 283.4 L282.8 282.2 L290.5 280.2 L298.5 277.4 L306.1 273.8 L313 269.7 L319.7 264.7 L326 259 L331.4 253.1 L336.4 246.3 L340.8 239.1 L344.4 231.5 L347.2 223.5 L349.3 215.3 L350.4 207.4 L350.9 199" class="curve" stroke="var(--plot-c3, #4f9a76)"/></g>
+  <g class="arc-layer" clip-path="url(#clip-hm5-14-polar-area-between-curves)"><path d="M299 188.8 L298.8 188.1 L298.6 187.5 L298.4 186.8 L298.1 186.2 L297.8 185.5 L297.6 184.9 L297.3 184.3 L297 183.7 L296.7 183 L296.3 182.4 L296 181.8 L295.7 181.2 L295.3 180.6 L294.9 180.1 L294.5 179.5 L294.1 178.9 L293.7 178.4 L293.3 177.8 L292.9 177.3 L292.4 176.7 L292 176.2 L291.5 175.7 L291.1 175.2 L290.6 174.7 L290.1 174.2 L289.6 173.7 L289.1 173.3 L288.6 172.8 L288 172.4 L287.5 171.9 L286.9 171.5 L286.4 171.1 L285.8 170.7 L285.3 170.3 L284.7 169.9 L284.1 169.5 L283.5 169.2 L282.9 168.8 L282.3 168.5 L281.7 168.2 L281.1 167.9 L280.4 167.6 L279.8 167.3 L279.2 167 L278.5 166.8 L277.9 166.5 L277.2 166.3 L276.6 166.1 L275.9 165.9 L275.2 165.7 L274.6 165.5 L273.9 165.3 L273.2 165.2 L272.6 165.1 L271.9 164.9 L271.2 164.8 L270.5 164.7 L269.8 164.6 L269.1 164.6 L268.4 164.5" class="arc" stroke="var(--plot-c2, #c9402e)"/></g>
+  <g></g>
+  <g></g>
+  <g><text class="note" data-color="accent" x="382.29" y="126.71" text-anchor="start">ρ₁(θ)</text><text class="note" data-color="green" x="325.71" y="153.74" text-anchor="start">ρ₂(θ)</text><text class="note" data-color="red" x="292.4" y="186.43" text-anchor="end">α</text><text class="note" data-color="red" x="294.29" y="109.74" text-anchor="end">β</text></g>
+  <g></g>
+  <g></g>
+</svg>

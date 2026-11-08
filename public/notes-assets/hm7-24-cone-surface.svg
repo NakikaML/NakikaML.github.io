@@ -1,0 +1,570 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 470" width="600" height="470" role="img" aria-label="圆锥面：yOz 面内的直线 z = y·cot α 绕 z 轴旋转，得到顶点在原点的圆锥面">
+  <title>圆锥面：yOz 面内的直线 z = y·cot α 绕 z 轴旋转，得到顶点在原点的圆锥面</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .axisname3d { font-size: 13px; font-style: italic; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }
+  svg .sf-accent { fill: var(--plot-c1, #d78b34); stroke: var(--plot-c1, #d78b34); stroke-opacity: 0.2; stroke-width: 0.5; }
+  svg .st-red { stroke: var(--plot-c2, #c9402e); }
+  svg .st-green { stroke: var(--plot-c3, #4f9a76); }
+  svg .st-axis { stroke: var(--plot-axis, #9a8d7d); }</style>
+  <g class="scene">
+  <path class="sf-accent" d="M309 79 L310 59 L253 61 L256 80 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M361 82 L366 62 L310 59 L309 79 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M256 80 L253 61 L198 66 L205 85 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M308 99 L309 79 L256 80 L259 100 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M411 88 L420 69 L366 62 L361 82 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M357 101 L361 82 L309 79 L308 99 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M259 100 L256 80 L205 85 L212 105 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M403 107 L411 88 L361 82 L357 101 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M307 119 L308 99 L259 100 L263 120 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M205 85 L198 66 L147 75 L158 94 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M352 121 L357 101 L308 99 L307 119 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M263 120 L259 100 L212 105 L220 124 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M456 97 L468 79 L420 69 L411 88 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M394 126 L403 107 L357 101 L352 121 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M212 105 L205 85 L158 94 L169 113 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M307 139 L307 119 L263 120 L266 140 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M347 141 L352 121 L307 119 L307 139 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M266 140 L263 120 L220 124 L227 143 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M444 116 L456 97 L411 88 L403 107 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M220 124 L212 105 L169 113 L180 131 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M385 145 L394 126 L352 121 L347 141 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M306 158 L307 139 L266 140 L270 159 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M342 160 L347 141 L307 139 L306 158 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M158 94 L147 75 L104 88 L118 105 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M432 134 L444 116 L403 107 L394 126 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M270 159 L266 140 L227 143 L234 163 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M227 143 L220 124 L180 131 L191 150 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M377 165 L385 145 L347 141 L342 160 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M169 113 L158 94 L118 105 L132 123 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M305 178 L306 158 L270 159 L273 179 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M338 180 L342 160 L306 158 L305 178 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M494 110 L509 92 L468 79 L456 97 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M420 153 L432 134 L394 126 L385 145 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M273 179 L270 159 L234 163 L242 182 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M234 163 L227 143 L191 150 L202 169 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M180 131 L169 113 L132 123 L146 141 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M368 184 L377 165 L342 160 L338 180 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M479 127 L494 110 L456 97 L444 116 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M408 171 L420 153 L385 145 L377 165 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M305 198 L305 178 L273 179 L276 199 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M333 200 L338 180 L305 178 L305 198 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M191 150 L180 131 L146 141 L160 159 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M242 182 L234 163 L202 169 L213 187 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M464 145 L479 127 L444 116 L432 134 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M276 199 L273 179 L242 182 L249 202 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M360 203 L368 184 L338 180 L333 200 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M396 190 L408 171 L377 165 L368 184 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M449 162 L464 145 L432 134 L420 153 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M202 169 L191 150 L160 159 L174 177 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M304 218 L305 198 L276 199 L280 219 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M118 105 L104 88 L68 103 L85 120 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M328 219 L333 200 L305 198 L304 218 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M249 202 L242 182 L213 187 L224 206 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M280 219 L276 199 L249 202 L256 221 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M132 123 L118 105 L85 120 L102 136 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M351 222 L360 203 L333 200 L328 219 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M384 208 L396 190 L368 184 L360 203 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M434 180 L449 162 L420 153 L408 171 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M213 187 L202 169 L174 177 L188 195 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M146 141 L132 123 L102 136 L118 153 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M303 238 L304 218 L280 219 L283 238 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M256 221 L249 202 L224 206 L235 225 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M324 239 L328 219 L304 218 L303 238 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M524 125 L541 109 L509 92 L494 110 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M420 197 L434 180 L408 171 L396 190 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M283 238 L280 219 L256 221 L263 240 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M372 227 L384 208 L360 203 L351 222 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M224 206 L213 187 L188 195 L202 212 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M343 241 L351 222 L328 219 L324 239 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M160 159 L146 141 L118 153 L135 170 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M507 141 L524 125 L494 110 L479 127 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M405 215 L420 197 L396 190 L384 208 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M263 240 L256 221 L235 225 L245 244 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M489 158 L507 141 L479 127 L464 145 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M174 177 L160 159 L135 170 L151 187 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M303 258 L303 238 L283 238 L286 258 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M319 259 L324 239 L303 238 L303 258 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M235 225 L224 206 L202 212 L216 230 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M360 245 L372 227 L351 222 L343 241 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M286 258 L283 238 L263 240 L271 260 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M472 174 L489 158 L464 145 L449 162 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M334 260 L343 241 L324 239 L319 259 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M188 195 L174 177 L151 187 L168 203 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M390 232 L405 215 L384 208 L372 227 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M455 190 L472 174 L449 162 L434 180 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M271 260 L263 240 L245 244 L256 262 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M245 244 L235 225 L216 230 L230 248 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M202 212 L188 195 L168 203 L184 220 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M348 263 L360 245 L343 241 L334 260 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M302 278 L303 258 L286 258 L290 278 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M314 278 L319 259 L303 258 L302 278 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M438 207 L455 190 L434 180 L420 197 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M375 250 L390 232 L372 227 L360 245 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M290 278 L286 258 L271 260 L278 279 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M326 280 L334 260 L319 259 L314 278 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M85 120 L68 103 L43 121 L62 136 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M216 230 L202 212 L184 220 L201 237 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M256 262 L245 244 L230 248 L244 266 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M421 223 L438 207 L420 197 L405 215 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M102 136 L85 120 L62 136 L80 151 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M278 279 L271 260 L256 262 L267 281 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M360 267 L375 250 L360 245 L348 263 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M336 282 L348 263 L334 260 L326 280 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M118 153 L102 136 L80 151 L98 167 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M230 248 L216 230 L201 237 L217 254 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M403 239 L421 223 L405 215 L390 232 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M135 170 L118 153 L98 167 L117 182 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M301 297 L302 278 L290 278 L293 298 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M309 298 L314 278 L302 278 L301 297 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M267 281 L256 262 L244 266 L258 284 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M293 298 L290 278 L278 279 L285 298 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M317 299 L326 280 L314 278 L309 298 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M151 187 L135 170 L117 182 L135 198 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M386 256 L403 239 L390 232 L375 250 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M345 285 L360 267 L348 263 L336 282 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M244 266 L230 248 L217 254 L234 270 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M285 298 L278 279 L267 281 L278 300 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M544 142 L562 127 L541 109 L524 125 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M168 203 L151 187 L135 198 L153 213 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M324 300 L336 282 L326 280 L317 299 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M525 157 L544 142 L524 125 L507 141 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M369 272 L386 256 L375 250 L360 267 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M184 220 L168 203 L153 213 L172 229 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M506 172 L525 157 L507 141 L489 158 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M278 300 L267 281 L258 284 L272 302 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M258 284 L244 266 L234 270 L250 287 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M487 187 L506 172 L489 158 L472 174 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M330 302 L345 285 L336 282 L324 300 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M201 237 L184 220 L172 229 L190 244 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M301 317 L301 297 L293 298 L297 317 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M305 318 L309 298 L301 297 L301 317 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M469 202 L487 187 L472 174 L455 190 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M297 317 L293 298 L285 298 L293 318 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M352 288 L369 272 L360 267 L345 285 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M309 318 L317 299 L309 298 L305 318 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M217 254 L201 237 L190 244 L208 260 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M450 217 L469 202 L455 190 L438 207 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M293 318 L285 298 L278 300 L289 318 Z" fill-opacity="0.23"/>
+  <path class="sf-accent" d="M272 302 L258 284 L250 287 L267 304 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M312 319 L324 300 L317 299 L309 318 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M431 232 L450 217 L438 207 L421 223 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M234 270 L217 254 L208 260 L227 275 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M289 318 L278 300 L272 302 L286 319 Z" fill-opacity="0.24"/>
+  <path class="sf-accent" d="M334 305 L352 288 L345 285 L330 302 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M412 247 L431 232 L421 223 L403 239 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M315 320 L330 302 L324 300 L312 319 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M250 287 L234 270 L227 275 L245 291 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M394 262 L412 247 L403 239 L386 256 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M286 319 L272 302 L267 304 L283 320 Z" fill-opacity="0.25"/>
+  <path class="sf-accent" d="M375 277 L394 262 L386 256 L369 272 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M317 321 L334 305 L330 302 L315 320 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M267 304 L250 287 L245 291 L263 306 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M356 292 L375 277 L369 272 L352 288 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M300 337 L301 317 L297 317 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L305 318 L301 317 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L297 317 L293 318 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L309 318 L305 318 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L293 318 L289 318 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L312 319 L309 318 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M337 307 L356 292 L352 288 L334 305 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M283 320 L267 304 L263 306 L282 322 Z" fill-opacity="0.26"/>
+  <path class="sf-accent" d="M300 337 L289 318 L286 319 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L315 320 L312 319 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L286 319 L283 320 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M319 322 L337 307 L334 305 L317 321 Z" fill-opacity="0.3"/>
+  <path class="sf-accent" d="M300 337 L317 321 L315 320 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L283 320 L282 322 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L319 322 L317 321 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L282 322 L281 323 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M282 322 L263 306 L261 309 L281 323 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M300 337 L319 324 L319 322 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M263 306 L245 291 L242 295 L261 309 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M245 291 L227 275 L223 281 L242 295 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M227 275 L208 260 L203 267 L223 281 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M300 337 L281 323 L281 324 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M208 260 L190 244 L184 252 L203 267 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M319 324 L339 310 L337 307 L319 322 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M190 244 L172 229 L165 238 L184 252 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M300 337 L319 325 L319 324 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M172 229 L153 213 L146 224 L165 238 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M153 213 L135 198 L126 210 L146 224 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M135 198 L117 182 L107 196 L126 210 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M300 337 L281 324 L281 326 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M339 310 L358 296 L356 292 L337 307 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M117 182 L98 167 L88 182 L107 196 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M98 167 L80 151 L68 168 L88 182 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M300 337 L318 326 L319 325 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M80 151 L62 136 L49 154 L68 168 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M62 136 L43 121 L30 139 L49 154 Z" fill-opacity="0.28"/>
+  <path class="sf-accent" d="M358 296 L378 283 L375 277 L356 292 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M300 337 L281 326 L283 327 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M281 323 L261 309 L261 312 L281 324 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M300 337 L317 328 L318 326 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M378 283 L397 269 L394 262 L375 277 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M300 337 L283 327 L285 328 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L314 329 L317 328 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M319 325 L339 313 L339 310 L319 324 Z" fill-opacity="0.33"/>
+  <line class="st-axis" x1="300" y1="337.2" x2="300" y2="288.3" stroke-width="1.1"/>
+  <path class="sf-accent" d="M300 337 L285 328 L288 329 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M397 269 L417 255 L412 247 L394 262 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M300 337 L311 330 L314 329 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L288 329 L291 330 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M261 309 L242 295 L242 299 L261 312 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M300 337 L307 330 L311 330 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M417 255 L436 242 L431 232 L412 247 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M300 337 L291 330 L295 330 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L303 331 L307 330 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L295 330 L299 331 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M300 337 L299 331 L303 331 L300 337 Z" fill-opacity="0.17"/>
+  <path class="sf-accent" d="M281 324 L261 312 L263 314 L281 326 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M436 242 L456 228 L450 217 L431 232 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M339 313 L358 300 L358 296 L339 310 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M318 326 L337 315 L339 313 L319 325 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M456 228 L475 214 L469 202 L450 217 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M242 295 L223 281 L222 286 L242 299 Z" fill-opacity="0.29"/>
+  <line class="st-axis" x1="300" y1="337.2" x2="274.4" y2="348.4" stroke-width="1.1"/>
+  <path class="sf-accent" d="M475 214 L495 201 L487 187 L469 202 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M495 201 L514 187 L506 172 L487 187 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M281 326 L263 314 L266 317 L283 327 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M223 281 L203 267 L203 274 L222 286 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M514 187 L533 173 L525 157 L506 172 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M358 300 L377 288 L378 283 L358 296 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M317 328 L333 318 L337 315 L318 326 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M261 312 L242 299 L244 303 L263 314 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M533 173 L553 160 L544 142 L525 157 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M553 160 L572 146 L562 127 L544 142 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M283 327 L266 317 L270 319 L285 328 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M203 267 L184 252 L183 261 L203 274 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M337 315 L355 304 L358 300 L339 313 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M314 329 L328 320 L333 318 L317 328 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M377 288 L397 276 L397 269 L378 283 Z" fill-opacity="0.33"/>
+  <line class="st-axis" x1="300" y1="288.3" x2="300" y2="239.5" stroke-width="1.1"/>
+  <path class="sf-accent" d="M285 328 L270 319 L276 321 L288 329 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M184 252 L165 238 L164 248 L183 261 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M242 299 L222 286 L225 292 L244 303 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M311 330 L322 322 L328 320 L314 329 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M263 314 L244 303 L248 307 L266 317 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M397 276 L416 264 L417 255 L397 269 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M288 329 L276 321 L283 323 L291 330 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M165 238 L146 224 L144 235 L164 248 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M307 330 L315 323 L322 322 L311 330 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M333 318 L350 308 L355 304 L337 315 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M355 304 L373 294 L377 288 L358 300 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M291 330 L283 323 L291 324 L295 330 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M303 331 L307 324 L315 323 L307 330 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M295 330 L291 324 L299 324 L299 331 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M299 331 L299 324 L307 324 L303 331 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M416 264 L435 251 L436 242 L417 255 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M146 224 L126 210 L125 223 L144 235 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M222 286 L203 274 L206 280 L225 292 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M266 317 L248 307 L255 310 L270 319 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M126 210 L107 196 L105 210 L125 223 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M328 320 L342 312 L350 308 L333 318 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M244 303 L225 292 L231 297 L248 307 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M435 251 L454 239 L456 228 L436 242 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M373 294 L392 283 L397 276 L377 288 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M107 196 L88 182 L86 197 L105 210 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M203 274 L183 261 L188 269 L206 280 Z" fill-opacity="0.31"/>
+  <line class="st-axis" x1="300" y1="239.5" x2="300" y2="190.6" stroke-width="1.1"/>
+  <path class="sf-accent" d="M350 308 L366 299 L373 294 L355 304 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M270 319 L255 310 L264 313 L276 321 Z" fill-opacity="0.36"/>
+  <line class="st-axis" x1="274.4" y1="348.4" x2="248.8" y2="359.6" stroke-width="1.1"/>
+  <path class="sf-accent" d="M454 239 L474 227 L475 214 L456 228 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M322 322 L333 314 L342 312 L328 320 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M88 182 L68 168 L67 184 L86 197 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M276 321 L264 313 L274 316 L283 323 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M392 283 L410 272 L416 264 L397 276 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M474 227 L493 215 L495 201 L475 214 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M183 261 L164 248 L169 258 L188 269 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M68 168 L49 154 L47 172 L67 184 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M315 323 L322 316 L333 314 L322 322 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M225 292 L206 280 L214 287 L231 297 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M248 307 L231 297 L240 302 L255 310 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M283 323 L274 316 L286 317 L291 324 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M307 324 L310 317 L322 316 L315 323 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M342 312 L356 303 L366 299 L350 308 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M49 154 L30 139 L28 159 L47 172 Z" fill-opacity="0.29"/>
+  <path class="sf-accent" d="M493 215 L512 202 L514 187 L495 201 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M291 324 L286 317 L298 318 L299 324 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M299 324 L298 318 L310 317 L307 324 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M366 299 L383 289 L392 283 L373 294 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M164 248 L144 235 L150 246 L169 258 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M410 272 L428 261 L435 251 L416 264 Z" fill-opacity="0.35"/>
+  <line class="st-axis" x1="300" y1="190.6" x2="300" y2="141.7" stroke-width="1.1"/>
+  <path class="sf-accent" d="M512 202 L532 190 L533 173 L514 187 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M255 310 L240 302 L252 305 L264 313 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M206 280 L188 269 L197 277 L214 287 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M333 314 L344 307 L356 303 L342 312 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M231 297 L214 287 L225 293 L240 302 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M144 235 L125 223 L131 235 L150 246 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M532 190 L551 178 L553 160 L533 173 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M428 261 L447 250 L454 239 L435 251 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M383 289 L399 279 L410 272 L392 283 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M264 313 L252 305 L266 308 L274 316 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M356 303 L370 294 L383 289 L366 299 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M322 316 L329 309 L344 307 L333 314 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M551 178 L570 165 L572 146 L553 160 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M188 269 L169 258 L179 267 L197 277 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M125 223 L105 210 L113 224 L131 235 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M274 316 L266 308 L281 310 L286 317 Z" fill-opacity="0.39"/>
+  <line class="st-axis" x1="248.8" y1="359.6" x2="223.2" y2="370.8" stroke-width="1.1"/>
+  <path class="sf-accent" d="M310 317 L314 311 L329 309 L322 316 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M447 250 L465 239 L474 227 L454 239 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M286 317 L281 310 L297 311 L298 318 Z" fill-opacity="0.39"/>
+  <line class="st-axis" x1="300" y1="141.7" x2="300" y2="92.9" stroke-width="1.1"/>
+  <path class="sf-accent" d="M298 318 L297 311 L314 311 L310 317 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M240 302 L225 293 L240 298 L252 305 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M214 287 L197 277 L210 284 L225 293 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M399 279 L416 270 L428 261 L410 272 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M105 210 L86 197 L94 212 L113 224 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M344 307 L355 299 L370 294 L356 303 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M169 258 L150 246 L162 257 L179 267 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M465 239 L483 228 L493 215 L474 227 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M370 294 L384 286 L399 279 L383 289 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M252 305 L240 298 L257 301 L266 308 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M86 197 L67 184 L75 201 L94 212 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M329 309 L337 302 L355 299 L344 307 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M416 270 L432 260 L447 250 L428 261 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M483 228 L502 217 L512 202 L493 215 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M197 277 L179 267 L195 275 L210 284 Z" fill-opacity="0.35"/>
+  <line class="st-axis" x1="300" y1="92.9" x2="300" y2="44" stroke-width="1.1"/>
+  <path class="sf-accent" d="M225 293 L210 284 L228 290 L240 298 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M266 308 L257 301 L276 304 L281 310 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M150 246 L131 235 L145 247 L162 257 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M67 184 L47 172 L56 190 L75 201 Z" fill-opacity="0.31"/>
+  <path class="sf-accent" d="M314 311 L317 304 L337 302 L329 309 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M281 310 L276 304 L297 305 L297 311 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M355 299 L365 291 L384 286 L370 294 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M297 311 L297 305 L317 304 L314 311 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M384 286 L398 277 L416 270 L399 279 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M502 217 L520 206 L532 190 L512 202 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M47 172 L28 159 L38 178 L56 190 Z" fill-opacity="0.31"/>
+  <line class="st-axis" x1="223.2" y1="370.8" x2="197.5" y2="382" stroke-width="1.1"/>
+  <path class="sf-accent" d="M432 260 L449 250 L465 239 L447 250 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M131 235 L113 224 L128 237 L145 247 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M240 298 L228 290 L249 294 L257 301 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M179 267 L162 257 L180 266 L195 275 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M337 302 L344 295 L365 291 L355 299 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M520 206 L538 195 L551 178 L532 190 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M210 284 L195 275 L216 282 L228 290 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M398 277 L412 269 L432 260 L416 270 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M257 301 L249 294 L272 297 L276 304 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M449 250 L465 241 L483 228 L465 239 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M365 291 L376 284 L398 277 L384 286 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M113 224 L94 212 L111 227 L128 237 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M317 304 L320 297 L344 295 L337 302 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M538 195 L557 184 L570 165 L551 178 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M276 304 L272 297 L296 298 L297 305 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M297 305 L296 298 L320 297 L317 304 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M162 257 L145 247 L166 257 L180 266 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M228 290 L216 282 L240 287 L249 294 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M94 212 L75 201 L93 216 L111 227 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M465 241 L482 231 L502 217 L483 228 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M195 275 L180 266 L204 274 L216 282 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M344 295 L351 288 L376 284 L365 291 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M412 269 L426 260 L449 250 L432 260 Z" fill-opacity="0.38"/>
+  <line class="st-axis" x1="197.5" y1="382" x2="171.9" y2="393.3" stroke-width="1.1"/>
+  <path class="sf-accent" d="M376 284 L387 276 L412 269 L398 277 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M145 247 L128 237 L151 248 L166 257 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M249 294 L240 287 L267 290 L272 297 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M320 297 L324 291 L351 288 L344 295 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M75 201 L56 190 L76 206 L93 216 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M482 231 L498 221 L520 206 L502 217 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M272 297 L267 290 L295 292 L296 298 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M296 298 L295 292 L324 291 L320 297 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M216 282 L204 274 L232 280 L240 287 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M426 260 L440 252 L465 241 L449 250 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M180 266 L166 257 L192 266 L204 274 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M351 288 L358 281 L387 276 L376 284 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M56 190 L38 178 L59 196 L76 206 Z" fill-opacity="0.33"/>
+  <path class="sf-accent" d="M128 237 L111 227 L136 239 L151 248 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M387 276 L398 268 L426 260 L412 269 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M498 221 L515 212 L538 195 L520 206 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M240 287 L232 280 L262 283 L267 290 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M324 291 L327 284 L358 281 L351 288 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M440 252 L454 243 L482 231 L465 241 Z" fill-opacity="0.38"/>
+  <line class="st-axis" x1="171.9" y1="393.3" x2="146.3" y2="404.5" stroke-width="1.1"/>
+  <path class="sf-accent" d="M166 257 L151 248 L180 258 L192 266 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M267 290 L262 283 L295 285 L295 292 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M204 274 L192 266 L223 272 L232 280 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M295 292 L295 285 L327 284 L324 291 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M111 227 L93 216 L121 230 L136 239 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M515 212 L532 202 L557 184 L538 195 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M358 281 L366 274 L398 268 L387 276 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M398 268 L409 261 L440 252 L426 260 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M454 243 L468 234 L498 221 L482 231 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M232 280 L223 272 L258 277 L262 283 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M93 216 L76 206 L106 221 L121 230 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M151 248 L136 239 L168 250 L180 258 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M327 284 L330 278 L366 274 L358 281 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M192 266 L180 258 L215 265 L223 272 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M262 283 L258 277 L294 278 L295 285 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M295 285 L294 278 L330 278 L327 284 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M409 261 L420 253 L454 243 L440 252 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M366 274 L373 267 L409 261 L398 268 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M468 234 L482 226 L515 212 L498 221 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M76 206 L59 196 L91 213 L106 221 Z" fill-opacity="0.35"/>
+  <path class="sf-accent" d="M136 239 L121 230 L156 242 L168 250 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M223 272 L215 265 L253 270 L258 277 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M330 278 L334 271 L373 267 L366 274 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M180 258 L168 250 L206 258 L215 265 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M420 253 L431 245 L468 234 L454 243 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M482 226 L496 217 L532 202 L515 212 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M258 277 L253 270 L293 272 L294 278 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M294 278 L293 272 L334 271 L330 278 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M373 267 L380 260 L420 253 L409 261 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M121 230 L106 221 L144 234 L156 242 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M215 265 L206 258 L248 263 L253 270 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M168 250 L156 242 L197 251 L206 258 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M334 271 L337 264 L380 260 L373 267 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M431 245 L442 238 L482 226 L468 234 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M253 270 L248 263 L293 265 L293 272 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M380 260 L388 253 L431 245 L420 253 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M293 272 L293 265 L337 264 L334 271 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M106 221 L91 213 L132 226 L144 234 Z" fill-opacity="0.36"/>
+  <path class="sf-accent" d="M206 258 L197 251 L243 257 L248 263 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M156 242 L144 234 L189 244 L197 251 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M442 238 L453 230 L496 217 L482 226 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M337 264 L341 258 L388 253 L380 260 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M388 253 L395 246 L442 238 L431 245 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M248 263 L243 257 L292 259 L293 265 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M293 265 L292 259 L341 258 L337 264 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M144 234 L132 226 L180 236 L189 244 Z" fill-opacity="0.38"/>
+  <path class="sf-accent" d="M197 251 L189 244 L239 250 L243 257 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M341 258 L344 251 L395 246 L388 253 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M395 246 L402 239 L453 230 L442 238 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M243 257 L239 250 L291 252 L292 259 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M292 259 L291 252 L344 251 L341 258 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M189 244 L180 236 L234 243 L239 250 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M344 251 L347 244 L402 239 L395 246 Z" fill-opacity="0.4"/>
+  <path class="sf-accent" d="M239 250 L234 243 L290 246 L291 252 Z" fill-opacity="0.39"/>
+  <path class="sf-accent" d="M291 252 L290 246 L347 244 L344 251 Z" fill-opacity="0.4"/>
+  <line class="st-green" x1="310.3" y1="137.1" x2="293.1" y2="137" stroke-width="1.8"/>
+  <line class="st-green" x1="293.1" y1="137" x2="276" y2="137.5" stroke-width="1.8"/>
+  <line class="st-green" x1="327.4" y1="137.7" x2="310.3" y2="137.1" stroke-width="1.8"/>
+  <line class="st-green" x1="276" y1="137.5" x2="259.1" y2="138.5" stroke-width="1.8"/>
+  <line class="st-green" x1="344.2" y1="138.7" x2="327.4" y2="137.7" stroke-width="1.8"/>
+  <line class="st-green" x1="259.1" y1="138.5" x2="242.5" y2="139.9" stroke-width="1.8"/>
+  <line class="st-green" x1="360.7" y1="140.3" x2="344.2" y2="138.7" stroke-width="1.8"/>
+  <line class="st-green" x1="242.5" y1="139.9" x2="226.4" y2="141.9" stroke-width="1.8"/>
+  <line class="st-green" x1="376.8" y1="142.3" x2="360.7" y2="140.3" stroke-width="1.8"/>
+  <line class="st-green" x1="226.4" y1="141.9" x2="210.8" y2="144.3" stroke-width="1.8"/>
+  <line class="st-green" x1="392.3" y1="144.9" x2="376.8" y2="142.3" stroke-width="1.8"/>
+  <line class="st-green" x1="210.8" y1="144.3" x2="195.8" y2="147.2" stroke-width="1.8"/>
+  <line class="st-green" x1="407.1" y1="147.8" x2="392.3" y2="144.9" stroke-width="1.8"/>
+  <line class="st-green" x1="195.8" y1="147.2" x2="181.7" y2="150.5" stroke-width="1.8"/>
+  <line class="st-green" x1="421" y1="151.3" x2="407.1" y2="147.8" stroke-width="1.8"/>
+  <line class="st-green" x1="181.7" y1="150.5" x2="168.5" y2="154.3" stroke-width="1.8"/>
+  <line class="st-green" x1="434.1" y1="155.1" x2="421" y2="151.3" stroke-width="1.8"/>
+  <line class="st-green" x1="168.5" y1="154.3" x2="156.2" y2="158.4" stroke-width="1.8"/>
+  <line class="st-green" x1="446.1" y1="159.2" x2="434.1" y2="155.1" stroke-width="1.8"/>
+  <line class="st-green" x1="156.2" y1="158.4" x2="145.1" y2="162.8" stroke-width="1.8"/>
+  <line class="st-green" x1="457" y1="163.8" x2="446.1" y2="159.2" stroke-width="1.8"/>
+  <line class="st-green" x1="145.1" y1="162.8" x2="135.1" y2="167.6" stroke-width="1.8"/>
+  <line class="st-green" x1="466.7" y1="168.6" x2="457" y2="163.8" stroke-width="1.8"/>
+  <line class="st-green" x1="135.1" y1="167.6" x2="126.4" y2="172.7" stroke-width="1.8"/>
+  <line class="st-green" x1="475.1" y1="173.7" x2="466.7" y2="168.6" stroke-width="1.8"/>
+  <line class="st-green" x1="126.4" y1="172.7" x2="119.1" y2="178" stroke-width="1.8"/>
+  <line class="st-green" x1="482.3" y1="179" x2="475.1" y2="173.7" stroke-width="1.8"/>
+  <line class="st-green" x1="119.1" y1="178" x2="113.1" y2="183.5" stroke-width="1.8"/>
+  <line class="st-green" x1="488" y1="184.6" x2="482.3" y2="179" stroke-width="1.8"/>
+  <line class="st-green" x1="113.1" y1="183.5" x2="108.5" y2="189.1" stroke-width="1.8"/>
+  <line class="st-green" x1="492.3" y1="190.3" x2="488" y2="184.6" stroke-width="1.8"/>
+  <line class="st-red" x1="300" y1="337.2" x2="305.4" y2="334" stroke-width="2.4"/>
+  <line class="st-red" x1="305.4" y1="334" x2="310.8" y2="330.8" stroke-width="2.4"/>
+  <line class="st-red" x1="310.8" y1="330.8" x2="316.1" y2="327.7" stroke-width="2.4"/>
+  <line class="st-green" x1="108.5" y1="189.1" x2="105.3" y2="194.9" stroke-width="1.8"/>
+  <line class="st-green" x1="495.1" y1="196" x2="492.3" y2="190.3" stroke-width="1.8"/>
+  <line class="st-red" x1="316.1" y1="327.7" x2="321.5" y2="324.5" stroke-width="2.4"/>
+  <line class="st-red" x1="321.5" y1="324.5" x2="326.9" y2="321.3" stroke-width="2.4"/>
+  <line class="st-green" x1="105.3" y1="194.9" x2="103.7" y2="200.7" stroke-width="1.8"/>
+  <line class="st-red" x1="326.9" y1="321.3" x2="332.3" y2="318.1" stroke-width="2.4"/>
+  <line class="st-green" x1="496.5" y1="201.9" x2="495.1" y2="196" stroke-width="1.8"/>
+  <line class="st-red" x1="332.3" y1="318.1" x2="337.6" y2="314.9" stroke-width="2.4"/>
+  <line class="st-red" x1="337.6" y1="314.9" x2="343" y2="311.8" stroke-width="2.4"/>
+  <line class="st-green" x1="103.7" y1="200.7" x2="103.5" y2="206.6" stroke-width="1.8"/>
+  <line class="st-red" x1="343" y1="311.8" x2="348.4" y2="308.6" stroke-width="2.4"/>
+  <line class="st-green" x1="496.3" y1="207.8" x2="496.5" y2="201.9" stroke-width="1.8"/>
+  <line class="st-red" x1="348.4" y1="308.6" x2="353.8" y2="305.4" stroke-width="2.4"/>
+  <line class="st-red" x1="353.8" y1="305.4" x2="359.2" y2="302.2" stroke-width="2.4"/>
+  <line class="st-green" x1="103.5" y1="206.6" x2="104.9" y2="212.4" stroke-width="1.8"/>
+  <line class="st-red" x1="359.2" y1="302.2" x2="364.5" y2="299" stroke-width="2.4"/>
+  <line class="st-green" x1="494.7" y1="213.6" x2="496.3" y2="207.8" stroke-width="1.8"/>
+  <line class="st-red" x1="364.5" y1="299" x2="369.9" y2="295.8" stroke-width="2.4"/>
+  <line class="st-red" x1="369.9" y1="295.8" x2="375.3" y2="292.7" stroke-width="2.4"/>
+  <line class="st-green" x1="104.9" y1="212.4" x2="107.7" y2="218.2" stroke-width="1.8"/>
+  <line class="st-red" x1="375.3" y1="292.7" x2="380.7" y2="289.5" stroke-width="2.4"/>
+  <line class="st-green" x1="491.5" y1="219.4" x2="494.7" y2="213.6" stroke-width="1.8"/>
+  <line class="st-red" x1="380.7" y1="289.5" x2="386.1" y2="286.3" stroke-width="2.4"/>
+  <line class="st-red" x1="386.1" y1="286.3" x2="391.4" y2="283.1" stroke-width="2.4"/>
+  <line class="st-green" x1="107.7" y1="218.2" x2="112" y2="223.9" stroke-width="1.8"/>
+  <line class="st-green" x1="486.9" y1="225" x2="491.5" y2="219.4" stroke-width="1.8"/>
+  <line class="st-red" x1="391.4" y1="283.1" x2="396.8" y2="279.9" stroke-width="2.4"/>
+  <line class="st-red" x1="396.8" y1="279.9" x2="402.2" y2="276.8" stroke-width="2.4"/>
+  <path d="M300 44 L296.8 52 L303.2 52 Z" fill="var(--plot-axis, #9a8d7d)"/>
+  <line class="st-red" x1="402.2" y1="276.8" x2="407.6" y2="273.6" stroke-width="2.4"/>
+  <line class="st-green" x1="112" y1="223.9" x2="117.7" y2="229.4" stroke-width="1.8"/>
+  <line class="st-green" x1="480.9" y1="230.5" x2="486.9" y2="225" stroke-width="1.8"/>
+  <line class="st-red" x1="407.6" y1="273.6" x2="412.9" y2="270.4" stroke-width="2.4"/>
+  <line class="st-red" x1="412.9" y1="270.4" x2="418.3" y2="267.2" stroke-width="2.4"/>
+  <line class="st-green" x1="117.7" y1="229.4" x2="124.9" y2="234.8" stroke-width="1.8"/>
+  <line class="st-red" x1="418.3" y1="267.2" x2="423.7" y2="264" stroke-width="2.4"/>
+  <line class="st-green" x1="473.6" y1="235.8" x2="480.9" y2="230.5" stroke-width="1.8"/>
+  <line class="st-red" x1="423.7" y1="264" x2="429.1" y2="260.9" stroke-width="2.4"/>
+  <line class="st-red" x1="429.1" y1="260.9" x2="434.5" y2="257.7" stroke-width="2.4"/>
+  <line class="st-green" x1="124.9" y1="234.8" x2="133.3" y2="239.9" stroke-width="1.8"/>
+  <line class="st-green" x1="464.9" y1="240.8" x2="473.6" y2="235.8" stroke-width="1.8"/>
+  <line class="st-red" x1="434.5" y1="257.7" x2="439.8" y2="254.5" stroke-width="2.4"/>
+  <line class="st-red" x1="439.8" y1="254.5" x2="445.2" y2="251.3" stroke-width="2.4"/>
+  <line class="st-green" x1="133.3" y1="239.9" x2="143" y2="244.7" stroke-width="1.8"/>
+  <line class="st-red" x1="445.2" y1="251.3" x2="450.6" y2="248.1" stroke-width="2.4"/>
+  <line class="st-green" x1="454.9" y1="245.6" x2="464.9" y2="240.8" stroke-width="1.8"/>
+  <line class="st-red" x1="450.6" y1="248.1" x2="456" y2="245" stroke-width="2.4"/>
+  <line class="st-green" x1="143" y1="244.7" x2="153.9" y2="249.2" stroke-width="1.8"/>
+  <line class="st-red" x1="456" y1="245" x2="461.4" y2="241.8" stroke-width="2.4"/>
+  <line class="st-green" x1="443.8" y1="250.1" x2="454.9" y2="245.6" stroke-width="1.8"/>
+  <line class="st-red" x1="461.4" y1="241.8" x2="466.7" y2="238.6" stroke-width="2.4"/>
+  <line class="st-red" x1="466.7" y1="238.6" x2="472.1" y2="235.4" stroke-width="2.4"/>
+  <line class="st-green" x1="153.9" y1="249.2" x2="165.9" y2="253.4" stroke-width="1.8"/>
+  <line class="st-green" x1="431.5" y1="254.2" x2="443.8" y2="250.1" stroke-width="1.8"/>
+  <line class="st-red" x1="472.1" y1="235.4" x2="477.5" y2="232.2" stroke-width="2.4"/>
+  <path d="M146.3 404.5 L154.9 404.2 L152.4 398.3 Z" fill="var(--plot-axis, #9a8d7d)"/>
+  <line class="st-red" x1="477.5" y1="232.2" x2="482.9" y2="229.1" stroke-width="2.4"/>
+  <line class="st-green" x1="165.9" y1="253.4" x2="179" y2="257.2" stroke-width="1.8"/>
+  <line class="st-green" x1="418.3" y1="257.9" x2="431.5" y2="254.2" stroke-width="1.8"/>
+  <line class="st-red" x1="482.9" y1="229.1" x2="488.2" y2="225.9" stroke-width="2.4"/>
+  <line class="st-green" x1="179" y1="257.2" x2="192.9" y2="260.6" stroke-width="1.8"/>
+  <line class="st-red" x1="488.2" y1="225.9" x2="493.6" y2="222.7" stroke-width="2.4"/>
+  <line class="st-green" x1="404.2" y1="261.2" x2="418.3" y2="257.9" stroke-width="1.8"/>
+  <line class="st-red" x1="493.6" y1="222.7" x2="499" y2="219.5" stroke-width="2.4"/>
+  <line class="st-green" x1="192.9" y1="260.6" x2="207.7" y2="263.6" stroke-width="1.8"/>
+  <line class="st-green" x1="389.2" y1="264.1" x2="404.2" y2="261.2" stroke-width="1.8"/>
+  <line class="st-red" x1="499" y1="219.5" x2="504.4" y2="216.3" stroke-width="2.4"/>
+  <line class="st-green" x1="207.7" y1="263.6" x2="223.2" y2="266.1" stroke-width="1.8"/>
+  <line class="st-green" x1="373.6" y1="266.6" x2="389.2" y2="264.1" stroke-width="1.8"/>
+  <line class="st-red" x1="504.4" y1="216.3" x2="509.8" y2="213.2" stroke-width="2.4"/>
+  <line class="st-green" x1="223.2" y1="266.1" x2="239.3" y2="268.2" stroke-width="1.8"/>
+  <line class="st-green" x1="357.5" y1="268.5" x2="373.6" y2="266.6" stroke-width="1.8"/>
+  <line class="st-red" x1="509.8" y1="213.2" x2="515.1" y2="210" stroke-width="2.4"/>
+  <line class="st-green" x1="239.3" y1="268.2" x2="255.8" y2="269.7" stroke-width="1.8"/>
+  <line class="st-green" x1="340.9" y1="270" x2="357.5" y2="268.5" stroke-width="1.8"/>
+  <line class="st-green" x1="255.8" y1="269.7" x2="272.6" y2="270.8" stroke-width="1.8"/>
+  <line class="st-green" x1="324" y1="271" x2="340.9" y2="270" stroke-width="1.8"/>
+  <line class="st-green" x1="272.6" y1="270.8" x2="289.7" y2="271.4" stroke-width="1.8"/>
+  <line class="st-green" x1="306.9" y1="271.4" x2="324" y2="271" stroke-width="1.8"/>
+  <line class="st-green" x1="289.7" y1="271.4" x2="306.9" y2="271.4" stroke-width="1.8"/>
+  </g>
+  <g class="labels">
+  <text class="figname" x="20" y="22" fill="var(--plot-ink, #241d17)">圆锥面  z² = (x² + y²)cot²α</text>
+  <text class="axisname3d" x="300" y="22.01" text-anchor="middle" fill="var(--plot-ink, #241d17)">z</text>
+  <text class="axisname3d" x="131.92" y="410.78" text-anchor="middle" fill="var(--plot-ink, #241d17)">x</text>
+  <circle cx="300" cy="337.2" r="3.2" fill="var(--plot-ink, #241d17)"/>
+  <text class="note" data-color="ink" x="312" y="351.2" text-anchor="start">顶点</text>
+  </g>
+</svg>

@@ -171,6 +171,35 @@ const PROBES = {
     [0, 0, 2, 'θ=π/2：点 (0, 2)'],
     [0, -0.5, Math.sin((2 * Math.PI) / 3), 'θ=2π/3：点 (-0.5, √3/2)'],
   ],
+  'hm5-01-definite-integral-geometry': [
+    [0, 1, 0, 'f(1) = 0（零点）'],
+    [0, -1, 0, 'f(−1) = 0（零点）'],
+    [0, 0, -1, 'f(0) = −1'],
+  ],
+  'hm5-03-1-even-parity': [[0, 2, 2, 'f(2) = 2²/2 = 2'], [0, 0, 0, '偶函数过原点']],
+  'hm5-03-2-odd-parity': [[0, 2, 2, 'f(2) = 2³/4 = 2'], [0, -2, -2, 'f(−2) = −2']],
+  'hm5-04-improper-infinite-limit': [[0, 2, 0.5, '1/2 = 0.5'], [0, 1, 1, '1/1 = 1']],
+  'hm5-05-improper-p-integral': [
+    [0, 4, 0.5, 'p = 1/2：1/√4 = 0.5'],
+    [1, 4, 0.25, 'p = 1：1/4 = 0.25'],
+    [2, 2, 0.25, 'p = 2：1/4 = 0.25'],
+  ],
+  'hm5-06-improper-discontinuity': [[0, 4, 0.5, '1/√4 = 0.5'], [0, 1, 1, '1/√1 = 1']],
+  'hm5-07-x-type-region-area': [
+    [0, 0, 2.2, '上曲边 f(0) = 2.2'],
+    [1, 0, 0.7, '下曲边 g(0) = 0.7'],
+  ],
+  'hm5-10-area-example-two-curves': [
+    [0, 2, -2, '抛物线过交点 (2, −2)'],
+    [0, 8, 4, '抛物线过交点 (8, 4)'],
+    [1, 2, -2, '直线过 (2, −2)'],
+    [1, 8, 4, '直线过 (8, 4)'],
+  ],
+  'hm5-11-cycloid-graph': [
+    [0, 0, 0, 't=0：(0, 0)'],
+    [0, Math.PI, 2, 't=π：最高点 (πa, 2a)'],
+  ],
+  'hm5-22-arc-length-element': [[0, 2.3, 0.22 * 2.3 * 2.3 + 0.5, 'Q 点落在曲线上']],
 };
 
 // 切线 / 弦这类直线的斜率期望值。SVG 坐标 y 轴向下，所以画出来的斜率应是 −k。
@@ -184,9 +213,81 @@ const SLOPE_PROBES = {
   'hm2-02-geometric-meaning': [[1, 1, 'f′(1) = 2·0.5·1 = 1']],
 };
 
+/**
+ * 填充区域的面积校验 —— 这一章的图说的就是「这块面积等于多少」，
+ * 所以光看曲线过不过点不够，得把填色多边形的面积算出来，跟独立算的积分值对账。
+ * 期望值由测试里自己的 Simpson 求积给出（不复用 build-plots 的采样器）。
+ */
+const FILL_AREAS = {
+  'hm5-01-definite-integral-geometry': [
+    [0, (x) => x * x - 1, -1.6, -1, '左边正面积'],
+    [1, (x) => x * x - 1, -1, 1, '中间负面积'],
+    [2, (x) => x * x - 1, 1, 1.6, '右边正面积'],
+  ],
+  'hm5-07-x-type-region-area': [
+    [0, (x) => 2.2 + 0.55 * x - (0.7 + 0.15 * x * x), -1, 2, '上曲边减下曲边'],
+  ],
+  'hm5-02-1-interval-additivity-inside': [
+    [0, (x) => 2 + Math.sin(x), 0, 2.5, '∫ₐᶜ 那块'],
+    [1, (x) => 2 + Math.sin(x), 2.5, 5, '∫ᶜᵇ 那块'],
+  ],
+  'hm5-02-2-interval-additivity-outside': [
+    [0, (x) => 2 + Math.sin(x), 0, 2.5, '∫ₐᵇ 那块'],
+    [1, (x) => 2 + Math.sin(x), 2.5, 5, '∫ᵇᶜ 那块'],
+  ],
+  'hm5-08-y-type-region': [
+    [0, (y) => 2.6 + 0.4 * y - (0.9 + 0.15 * y * y), -1, 2, '右曲边减左曲边'],
+  ],
+  'hm5-10-area-example-two-curves': [
+    [0, (y) => y + 4 - (y * y) / 2, -2, 4, 'y²=2x 与 y=x−4 围成（应为 18）'],
+  ],
+  'hm5-11-cycloid-graph': [
+    [0, (t) => (1 - Math.cos(t)) ** 2, 0, 2 * Math.PI, '摆线一拱（应为 3π）'],
+  ],
+};
+
+/** 绘图区的四边留白，与 build-plots.mjs 的 PAD 保持一致（换算屏幕坐标要用） */
+const PADP = { top: 34, right: 24, bottom: 36, left: 46 };
+
+/** 独立实现的 Simpson 求积 —— 和 build-plots 里那套采样没关系 */
+function simpson(f, a, b, n = 2000) {
+  if (n % 2) n++;
+  const h = (b - a) / n;
+  let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+  return (s * h) / 3;
+}
+
+/** 填色多边形（屏幕坐标）→ 用鞋带公式求它在数据空间里的面积 */
+function fillAreas(svg, fig) {
+  const w = fig.width - PADP.left - PADP.right;
+  const h = fig.height - PADP.top - PADP.bottom;
+  const toData = ([sx, sy]) => [
+    fig.x[0] + ((sx - PADP.left) / w) * (fig.x[1] - fig.x[0]),
+    fig.y[0] + ((PADP.top + h - sy) / h) * (fig.y[1] - fig.y[0]),
+  ];
+  return [...svg.matchAll(/<path d="([^"]+)" class="fill/g)].map((m) => {
+    const pts = [...m[1].matchAll(/([ML])(-?[\d.]+) (-?[\d.]+)/g)].map((p) =>
+      toData([Number(p[2]), Number(p[3])])
+    );
+    let s = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const [x1, y1] = pts[i];
+      const [x2, y2] = pts[(i + 1) % pts.length];
+      s += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(s / 2);
+  });
+}
+
 // ---------------------------------------------------------------- 工具
+/**
+ * 只取「曲线」那类 <path>（class="curve"）。
+ * 填充、角度弧、箭头尖也都是 <path>，全算进来就没法和规格里的曲线数对账了。
+ * 文档顺序：curves → segments → tangents（填充和弧是另外的元素组）。
+ */
 const pathsOf = (svg) =>
-  [...svg.matchAll(/<path d="([^"]+)"/g)].map((m) =>
+  [...svg.matchAll(/<path d="([^"]+)" class="curve/g)].map((m) =>
     [...m[1].matchAll(/([ML])(-?[\d.]+) (-?[\d.]+)/g)].map((p) => [Number(p[2]), Number(p[3])])
   );
 
@@ -242,7 +343,10 @@ const fail = (msg) => {
   console.log(`  ✗ ${msg}`);
 };
 
-const figures = ONLY ? FIGURES.filter((f) => f.id.includes(ONLY)) : FIGURES;
+// disabled 的图不生成，也就不检查（规格还在文件里备查）
+const figures = (ONLY ? FIGURES.filter((f) => f.id.includes(ONLY)) : FIGURES).filter(
+  (f) => !f.disabled
+);
 console.log(`\n检查生成图${ONLY ? `（只查 ${ONLY}）` : ''}：`);
 
 for (const fig of figures) {
@@ -256,17 +360,60 @@ for (const fig of figures) {
   }
 
   const svg = fs.readFileSync(file, 'utf8');
-  const paths = pathsOf(svg);
   const kb = (Buffer.byteLength(svg) / 1024).toFixed(1);
   let bad = 0;
+
+  // 三维图走另一套检查：二维那几项（曲线条数、面积、切线斜率）对它没意义，
+  // 真正会出错的是「投影算歪了、图被裁在画布外」。
+  if (fig.threeD) {
+    const nums = [...svg.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [
+      Number(m[1]),
+      Number(m[2]),
+    ]);
+    for (const m of svg.matchAll(/<line x1="(-?[\d.]+)" y1="(-?[\d.]+)" x2="(-?[\d.]+)" y2="(-?[\d.]+)"/g)) {
+      nums.push([Number(m[1]), Number(m[2])], [Number(m[3]), Number(m[4])]);
+    }
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const [x, y] of nums) {
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+      if (x < -1 || x > fig.width + 1 || y < -1 || y > fig.height + 1) {
+        fail(`${fig.id}：投影后的点跑到画布外 (${x}, ${y})`);
+        bad++;
+        break;
+      }
+    }
+    if (!bad) {
+      const cover = ((maxX - minX) / fig.width) * 100;
+      console.log(
+        `  ✓ ${fig.id.padEnd(30)}${kb.padStart(6)} KB · 三维 ${nums.length} 个顶点 · ` +
+          `占据 x ${minX.toFixed(0)}–${maxX.toFixed(0)} / y ${minY.toFixed(0)}–${maxY.toFixed(0)}（横向 ${cover.toFixed(0)}%）`
+      );
+    }
+    if (SHOW_ART) console.log(art(svg, fig.width, fig.height));
+    continue;
+  }
+
+  const paths = pathsOf(svg);
 
   if (paths.length !== expectPaths) {
     fail(`${fig.id}：有 ${paths.length} 条折线，规格里是 ${expectPaths} 条曲线`);
     bad++;
   }
 
-  // 范围：坐标不能跑到画布外面（说明裁剪漏了）
+  // 范围：坐标不能跑到画布外面（说明裁剪漏了）。
+  // 只查 fn 曲线 —— 参数曲线和极坐标曲线不预裁剪，靠 <g clip-path> 剪，
+  // 数据坐标本来就可能落在画布外（比如摆线右侧那一拱伸出去的部分）。
+  const declares = fig.curves ?? [];
   for (const [i, pts] of paths.entries()) {
+    const c = declares[i];
+    if (!c || c.parametric || c.polar) continue;
     for (const [x, y] of pts) {
       if (x < -0.5 || x > fig.width + 0.5 || y < -0.5 || y > fig.height + 0.5) {
         fail(`${fig.id}：第 ${i + 1} 条折线有点跑到画布外 (${x}, ${y})`);
@@ -318,10 +465,34 @@ for (const fig of figures) {
     }
   }
 
+  // 面积：填色多边形算出来的面积，要等于独立求积的结果
+  const areaChecks = FILL_AREAS[fig.id] ?? [];
+  let areaWorst = 0;
+  if (areaChecks.length) {
+    const areas = fillAreas(svg, fig);
+    for (const [idx, f, a, b, label] of areaChecks) {
+      const want = Math.abs(simpson(f, a, b));
+      const got = areas[idx];
+      if (got == null) {
+        fail(`${fig.id}：${label} —— 找不到第 ${idx + 1} 块填充`);
+        bad++;
+        continue;
+      }
+      const rel = Math.abs(got - want) / (want || 1);
+      areaWorst = Math.max(areaWorst, rel);
+      // 多边形是采样近似 + 抽稀过的，0.5% 以内就算对
+      if (rel > 0.005) {
+        fail(`${fig.id}：${label} 面积 ${got.toFixed(3)}，应为 ${want.toFixed(3)}（差 ${(rel * 100).toFixed(2)}%）`);
+        bad++;
+      }
+    }
+  }
+
   if (!bad) {
     const bits = [`${expectPaths} 条折线`];
     if (probes.length) bits.push(`${probes.length} 个期望点最大偏差 ${worst.toFixed(2)}px`);
     if (slopeProbes.length) bits.push(`${slopeProbes.length} 条切线斜率对`);
+    if (areaChecks.length) bits.push(`${areaChecks.length} 块面积最大误差 ${(areaWorst * 100).toFixed(2)}%`);
     console.log(`  ✓ ${fig.id.padEnd(30)}${kb.padStart(6)} KB · ${bits.join(' · ')}`);
   }
 
@@ -329,7 +500,7 @@ for (const fig of figures) {
 }
 
 if (failed === 0) {
-  console.log(`\n✅ 生成图全部通过（${FIGURES.length} 张）\n`);
+  console.log(`\n✅ 生成图全部通过（${figures.length} 张）\n`);
 } else {
   console.log(`\n❌ 有 ${failed} 处不对\n`);
   process.exitCode = 1;

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="弧长微元：在小段曲线上用弦长近似弧长，ds = √(dx² + dy²)">
+  <title>弧长微元：在小段曲线上用弦长近似弧长，ds = √(dx² + dy²)</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-22-arc-length-element"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-22-arc-length-element)"><line x1="199.46" y1="34" x2="199.46" y2="364"/><line x1="418.69" y1="34" x2="418.69" y2="364"/><line x1="46" y1="254" x2="616" y2="254"/><line x1="46" y1="96.86" x2="616" y2="96.86"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-22-arc-length-element)"></g>
+  <g class="axis"><line x1="199.46" y1="364" x2="199.46" y2="368"/><line x1="418.69" y1="364" x2="418.69" y2="368"/><line x1="46" y1="254" x2="42" y2="254"/><line x1="46" y1="96.86" x2="42" y2="96.86"/></g>
+  <g clip-path="url(#clip-hm5-22-arc-length-element)"><path d="M46 329.5 L81.6 325.2 L117.3 319.1 L152.9 311.1 L188.5 301.4 L224.1 289.8 L259.8 276.4 L295.4 261.1 L331 244.1 L366.6 225.2 L402.3 204.5 L437.9 181.9 L473.5 157.6 L509.1 131.4 L544.8 103.3 L580.4 73.5 L616 41.8" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M199.5 298 L484.5 298" class="curve" stroke="var(--plot-c3, #4f9a76)" stroke-width="1.9" stroke-dasharray="5 4" stroke-linecap="butt"/><path d="M484.5 298 L484.5 149.7" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="1.9" stroke-dasharray="5 4" stroke-linecap="butt"/></g>
+  <g><text class="tick" x="199.46" y="379" text-anchor="middle">1</text><text class="tick" x="418.69" y="379" text-anchor="middle">2</text><text class="tick" x="38" y="258" text-anchor="end">1</text><text class="tick" x="38" y="100.86" text-anchor="end">2</text></g>
+  <g><circle cx="199.46" cy="298" r="3.4" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="187.46" y="302" text-anchor="end">P</text><circle cx="484.46" cy="149.72" r="3.4" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="494.46" y="143.72" text-anchor="start">Q</text></g>
+  <g><text class="note" data-color="green" x="341.96" y="324.71" text-anchor="middle">dx</text><text class="note" data-color="red" x="510.77" y="222.57" text-anchor="start">dy</text><text class="note" data-color="ink" x="291.54" y="197.43" text-anchor="end">ds（弦长）</text><text class="note" data-color="ink" x="396.77" y="73.29" text-anchor="middle">ds = √(dx² + dy²)</text></g>
+  <g></g>
+  <g></g>
+</svg>

@@ -170,7 +170,6 @@ export const courseDeps: Array<[string, string]> = [
   // 这门课的真正前置是 C++：第 3 章「程序的机器级表示」直接从 C 程序讲到栈帧与指针。
   // （原来是挂在「数据结构与算法」下，但那门课对它几乎用不上。）
   ['计算机系统基础与组成原理', 'C++程序设计基础'],
-  ['JavaWeb开发', 'Java程序设计基础'],
   // 跨分野：离散数学是数据结构与算法的先修（集合与关系 → 图论/逻辑，正是 DSA 的地基）。
   // 它在图上画成一条跨带连线，不参与两条带内部的「列」计算。
   ['数据结构与算法', '离散数学'],
@@ -199,7 +198,7 @@ export const courseDeps: Array<[string, string]> = [
  * 列号全图共用，所以同一个列号在两条带里落在同一条竖线上。
  *
  *        第 0 列              第 1 列                 第 2 列              第 3 列
- *                          ┌ Java程序设计基础              JavaWeb开发          系统基础与组成原理
+ *                          ┌ Java程序设计基础                                 系统基础与组成原理
  *                          │ C++程序设计基础               数据结构与算法       计算机网络
  *   高等数学 ┐            │
  *   线性代数 ┴────────────┴ 离散数学 / 概率论与数理统计
@@ -332,15 +331,6 @@ export const courses: Course[] = [
     aliases: ['Java', 'Java基础'],
     at: [1, 0],
     note: 'Java 语法与面向对象基础（先修，笔记规划中）',
-    chapters: [],
-    planned: true,
-  },
-  {
-    id: 'JavaWeb开发',
-    discipline: 'cs',
-    aliases: ['JavaWeb', 'Web开发', 'Web'],
-    at: [2, 0],
-    note: 'Servlet / Spring 方向的 Web 开发笔记（规划中）',
     chapters: [],
     planned: true,
   },

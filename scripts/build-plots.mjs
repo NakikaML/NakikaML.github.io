@@ -111,6 +111,9 @@ function tokenize(src) {
  * @param {object} extra    额外常数（如极坐标里的 a）
  */
 function compile(src, varname = 'x', extra = {}) {
+  // varname 可以是单个名字，也可以是名字数组（三维曲面的 x(u,v)、y(u,v)、z(u,v)）。
+  // 内部统一按「变量表」求值，单变量的调用方式保持原样。
+  const varNames = Array.isArray(varname) ? varname : [varname];
   const tokens = tokenize(src);
   let i = 0;
 
@@ -204,10 +207,10 @@ function compile(src, varname = 'x', extra = {}) {
         if (args.length !== 1) fail(`${name}() 只接受一个参数`);
         return { k: 'call', name, a: args[0] };
       }
-      if (name === varname) return { k: 'var' };
+      if (varNames.includes(name)) return { k: 'var', name };
       if (name in extra) return { k: 'num', v: extra[name] };
       if (name in CONSTS) return { k: 'num', v: CONSTS[name] };
-      fail(`未知标识符 ${name}（自变量是 ${varname}）`);
+      fail(`未知标识符 ${name}（自变量是 ${varNames.join('、')}）`);
     }
 
     fail(`这里不该出现 "${tk.t}"`);
@@ -216,21 +219,27 @@ function compile(src, varname = 'x', extra = {}) {
 
   const ast = parseExpr();
   if (i < tokens.length) fail(`第 ${tokens[i].at + 1} 个字符之后多出内容`);
-  return (v) => evalNode(ast, v);
 
-  function evalNode(n, v) {
+  // 单变量：沿用 f(x) 的调用姿势；多变量：f({u, v})
+  if (varNames.length === 1) {
+    const name = varNames[0];
+    return (v) => evalNode(ast, { [name]: v });
+  }
+  return (env) => evalNode(ast, env);
+
+  function evalNode(n, env) {
     switch (n.k) {
       case 'num':
         return n.v;
       case 'var':
-        return v;
+        return env[n.name];
       case 'neg':
-        return -evalNode(n.a, v);
+        return -evalNode(n.a, env);
       case 'call':
-        return FUNCS[n.name](evalNode(n.a, v));
+        return FUNCS[n.name](evalNode(n.a, env));
       case 'bin': {
-        const l = evalNode(n.l, v);
-        const r = evalNode(n.r, v);
+        const l = evalNode(n.l, env);
+        const r = evalNode(n.r, env);
         switch (n.op) {
           case '+':
             return l + r;
@@ -485,7 +494,28 @@ function simplify(pts, eps = 0.35) {
     const [bx, by] = pts[b];
     const dx = bx - ax;
     const dy = by - ay;
-    const len = Math.hypot(dx, dy) || 1e-9;
+    const len = Math.hypot(dx, dy);
+
+    // 首尾重合的闭合折线（比如「曲线 + 回到起点」的填充多边形）会把这条
+    // 基准线退化成一点：d = |…|/len 全是 0，整块就被压成一个点了。
+    // 这时候改用「离起点最远的那个点」切一刀，两边各自再递归。
+    if (len < eps) {
+      let far = -1;
+      let farD = -1;
+      for (let i = a + 1; i < b; i++) {
+        const d = Math.hypot(pts[i][0] - ax, pts[i][1] - ay);
+        if (d > farD) {
+          farD = d;
+          far = i;
+        }
+      }
+      if (far > a && far < b) {
+        keep[far] = 1;
+        stack.push([a, far], [far, b]);
+      }
+      continue;
+    }
+
     let far = -1;
     let farD = -1;
     for (let i = a + 1; i < b; i++) {
@@ -530,7 +560,366 @@ const COLOR = {
   green: 'var(--plot-c3, #4f9a76)',
 };
 
+// ------------------------------------------------------------------ 三维
+/**
+ * 三维示意图：参数曲面 → 正交投影 → 画家算法 → 填充着色。
+ *
+ * 为什么用「画家算法 + 半透明」而不是隐藏线消除：
+ *   教材上的立体图习惯画成半透明网格（远处的东西隐约可见），这样读者能同时看到
+ *   前后两半。半透明还有个附带好处 —— 排序偶尔出一点小错也几乎看不出来。
+ *
+ * 坐标约定：方位角 θ 绕 z 轴（θ=0 时 +x 朝屏幕左下方、+y 朝右下方），仰角 φ 抬高视点。
+ * 屏幕右 / 屏幕上 / 指向相机 三个基向量由 θ、φ 算出，所以任何视角都不用改代码。
+ */
+function renderThreeD(fig) {
+  const W = fig.width;
+  const H = fig.height;
+  const D = fig.threeD ?? {};
+  const rad = (d) => (d * Math.PI) / 180;
+
+  const theta = rad(D.azimuth ?? 40);
+  const phi = rad(D.elevation ?? 20);
+
+  const ct = Math.cos(theta);
+  const st = Math.sin(theta);
+  const cp = Math.cos(phi);
+  const sp = Math.sin(phi);
+
+  // 「哪个坐标轴朝上」可以指定：默认 z（右手系常规视点）。
+  // 画绕 y 轴旋转的立体时，如果 y 还在屏幕里斜着躺，读者根本看不出「这是个旋转体」，
+  // 所以允许把 y 摆成竖直方向 —— 只是换了个相机位置，几何一点没变。
+  const AXIS_IDX = { x: 0, y: 1, z: 2 };
+  const upIdx = AXIS_IDX[D.upAxis ?? 'z'] ?? 2;
+  const plane = [0, 1, 2].filter((k) => k !== upIdx);
+  // h1 × h2 必须等于「上」方向，否则画面会镜像
+  const isCyclic = (a, b, c) =>
+    (a === 0 && b === 1 && c === 2) || (a === 1 && b === 2 && c === 0) || (a === 2 && b === 0 && c === 1);
+  const [i1, i2] = isCyclic(plane[0], plane[1], upIdx) ? plane : [plane[1], plane[0]];
+  const h1 = [0, 0, 0];
+  const h2 = [0, 0, 0];
+  const upv = [0, 0, 0];
+  h1[i1] = 1;
+  h2[i2] = 1;
+  upv[upIdx] = 1;
+
+  const R = [0, 1, 2].map((k) => -st * h1[k] + ct * h2[k]); //              屏幕右
+  const U = [0, 1, 2].map((k) => -sp * (ct * h1[k] + st * h2[k]) + cp * upv[k]); // 屏幕上
+  const V = [0, 1, 2].map((k) => cp * (ct * h1[k] + st * h2[k]) + sp * upv[k]); //  指向相机
+
+  const basis = (p) => [
+    p[0] * R[0] + p[1] * R[1] + p[2] * R[2],
+    p[0] * U[0] + p[1] * U[1] + p[2] * U[2],
+    p[0] * V[0] + p[1] * V[1] + p[2] * V[2],
+  ];
+
+  // ---- 自动适配画布：先把所有几何用「单位缩放」投影一遍，量出边界，
+  // 再反算缩放比和原点。手填 scale / origin 的版本试错成本太高 ——
+  // 椭球面的远角动不动就顶到画布外面去。
+  let scale = D.scale;
+  let ox = D.origin?.[0];
+  let oy = D.origin?.[1];
+  if (D.autoFit !== false) {
+    const bx = [];
+    const by = [];
+    const note = (p) => {
+      const q = basis(p);
+      if (q.every(Number.isFinite)) {
+        bx.push(q[0]);
+        by.push(q[1]);
+      }
+    };
+    for (const surf of D.surfaces ?? []) {
+      const fx = compile(surf.x, ['u', 'v'], surf.consts ?? {});
+      const fy = compile(surf.y, ['u', 'v'], surf.consts ?? {});
+      const fz = compile(surf.z, ['u', 'v'], surf.consts ?? {});
+      const [u0, u1] = surf.u;
+      const [v0, v1] = surf.v;
+      const k = 14;
+      for (let i = 0; i <= k; i++) {
+        for (let j = 0; j <= k; j++) {
+          const u = u0 + ((u1 - u0) * i) / k;
+          const v = v0 + ((v1 - v0) * j) / k;
+          note([fx({ u, v }), fy({ u, v }), fz({ u, v })]);
+        }
+      }
+    }
+    for (const ax of D.axes ?? []) {
+      note(ax.from ?? [0, 0, 0]);
+      note(ax.to);
+    }
+    for (const c of D.curves ?? []) {
+      const fx = compile(c.x, 't', c.consts ?? {});
+      const fy = compile(c.y, 't', c.consts ?? {});
+      const fz = compile(c.z, 't', c.consts ?? {});
+      const [t0, t1] = c.t;
+      for (let i = 0; i <= 32; i++) {
+        const t = t0 + ((t1 - t0) * i) / 32;
+        note([fx(t), fy(t), fz(t)]);
+      }
+    }
+    for (const pt of D.points ?? []) note(pt.p);
+
+    const padL = 30;
+    const padR = 24;
+    const padT = 44; // 顶上给标题留位置
+    const padB = 24;
+    const spanX = Math.max(...bx) - Math.min(...bx) || 1;
+    const spanY = Math.max(...by) - Math.min(...by) || 1;
+    scale = Math.min((W - padL - padR) / spanX, (H - padT - padB) / spanY);
+    // 水平居中；竖直从顶部留白处开始排 —— 否则窄高的图会全部挤在左边
+    ox = (W - spanX * scale) / 2 - Math.min(...bx) * scale;
+    oy = padT + Math.max(...by) * scale;
+  }
+
+  const project = (p) => {
+    const [X, Y, Z] = basis(p);
+    return [ox + X * scale, oy - Y * scale, Z];
+  };
+  const P = (x, y, z) => project([x, y, z]);
+
+  // 光源固定在左上前方：三张图的光照方向一致，拼在一起才像一套图
+  const L = [-0.42, -0.48, 0.77];
+  const Ln = Math.hypot(...L);
+
+  /** 待排序的图元：depth 越大越靠近相机，最后画 */
+  const items = [];
+  const push = (depth, svg) => items.push({ depth, svg });
+
+  // ---------------------------------------------------------- 曲面
+  for (const surf of D.surfaces ?? []) {
+    const fx = compile(surf.x, ['u', 'v'], surf.consts ?? {});
+    const fy = compile(surf.y, ['u', 'v'], surf.consts ?? {});
+    const fz = compile(surf.z, ['u', 'v'], surf.consts ?? {});
+    const nu = surf.nu ?? 22;
+    const nv = surf.nv ?? 22;
+    const [u0, u1] = surf.u;
+    const [v0, v1] = surf.v;
+    const at = (u, v) => [fx({ u, v }), fy({ u, v }), fz({ u, v })];
+
+    const color = surf.color ?? 'accent';
+    const alpha = surf.opacity ?? 0.8;
+
+    for (let i = 0; i < nu; i++) {
+      for (let j = 0; j < nv; j++) {
+        const ua = u0 + ((u1 - u0) * i) / nu;
+        const ub = u0 + ((u1 - u0) * (i + 1)) / nu;
+        const va = v0 + ((v1 - v0) * j) / nv;
+        const vb = v0 + ((v1 - v0) * (j + 1)) / nv;
+
+        const p00 = at(ua, va);
+        const p10 = at(ub, va);
+        const p11 = at(ub, vb);
+        const p01 = at(ua, vb);
+        const corners = [p00, p10, p11, p01];
+        if (!corners.every((c) => c.every(Number.isFinite))) continue;
+
+        // 法向量 = 两个切向的叉积；取绝对值当漫反射，避免背面全黑
+        const du = [p10[0] - p00[0], p10[1] - p00[1], p10[2] - p00[2]];
+        const dv = [p01[0] - p00[0], p01[1] - p00[1], p01[2] - p00[2]];
+        const nx = du[1] * dv[2] - du[2] * dv[1];
+        const ny = du[2] * dv[0] - du[0] * dv[2];
+        const nz = du[0] * dv[1] - du[1] * dv[0];
+        const nl = Math.hypot(nx, ny, nz) || 1;
+        const lam = Math.abs((nx * L[0] + ny * L[1] + nz * L[2]) / (nl * Ln));
+
+        const q = corners.map(project);
+        const depth = (q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4;
+        // 坐标只留整数：640px 的画布上 1px 的误差看不出来，但能省下近一半体积
+        const d =
+          q.map((p, k) => `${k ? 'L' : 'M'}${num(p[0], 0)} ${num(p[1], 0)}`).join(' ') + ' Z';
+        push(
+          depth,
+          `<path class="sf-${color}" d="${d}" fill-opacity="${num(alpha * (0.42 + 0.58 * lam), 2)}"/>`
+        );
+      }
+    }
+  }
+
+  // ---------------------------------------------------------- 坐标轴
+  const headSize = 8;
+  for (const ax of D.axes ?? []) {
+    const from = ax.from ?? [0, 0, 0];
+    const to = ax.to;
+    const a = project(from);
+    const b = project(to);
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    const ux = (b[0] - a[0]) / len;
+    const uy = (b[1] - a[1]) / len;
+    const color = COLOR[ax.color] ?? COLOR.axis;
+
+    // 轴线切成 6 段分别入队：穿过曲面内部的那几段排在后面先画，
+    // 于是被半透明曲面盖住 —— 看起来就像「藏在立体里的坐标轴」。
+    const N = 6;
+    for (let k = 0; k < N; k++) {
+      const t0 = k / N;
+      const t1 = (k + 1) / N;
+      const p0 = [a[0] + (b[0] - a[0]) * t0, a[1] + (b[1] - a[1]) * t0];
+      const p1 = [a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1];
+      const depth = a[2] + (b[2] - a[2]) * ((t0 + t1) / 2);
+      push(
+        depth,
+        `<line class="st-${ax.color ?? 'axis'}" x1="${num(p0[0], 1)}" y1="${num(p0[1], 1)}" x2="${num(
+          p1[0],
+          1
+        )}" y2="${num(p1[1], 1)}" stroke-width="1.1"/>`
+      );
+    }
+    if (ax.arrow !== false) {
+      // 箭头永远画在最上面，免得被曲面吃掉
+      push(
+        b[2] + 1000,
+        `<path d="M${num(b[0], 1)} ${num(b[1], 1)} L${num(b[0] - ux * headSize + uy * 3.2, 1)} ${num(
+          b[1] - uy * headSize - ux * 3.2,
+          1
+        )} L${num(b[0] - ux * headSize - uy * 3.2, 1)} ${num(
+          b[1] - uy * headSize + ux * 3.2,
+          1
+        )} Z" fill="${color}"/>`
+      );
+    }
+  }
+
+  // ---------------------------------------------------------- 三维线段（旋转轴、半径、母线）
+  for (const ln of D.lines3d ?? []) {
+    const a = project(ln.from);
+    const b = project(ln.to);
+    const color = COLOR[ln.color] ?? COLOR.ink;
+    const N = 5;
+    for (let k = 0; k < N; k++) {
+      const t0 = k / N;
+      const t1 = (k + 1) / N;
+      const p0 = [a[0] + (b[0] - a[0]) * t0, a[1] + (b[1] - a[1]) * t0];
+      const p1 = [a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1];
+      push(
+        a[2] + (b[2] - a[2]) * ((t0 + t1) / 2) + (ln.onTop ? 1000 : 0),
+        `<line class="st-${ln.color ?? 'ink'}" x1="${num(p0[0], 1)}" y1="${num(
+          p0[1],
+          1
+        )}" x2="${num(p1[0], 1)}" y2="${num(p1[1], 1)}" stroke-width="${ln.width ?? 1.4}"${
+          ln.dash ? ` stroke-dasharray="${ln.dash}"` : ''
+        }/>`
+      );
+    }
+  }
+
+  // ---------------------------------------------------------- 空间曲线（截面曲线等）
+  for (const c of D.curves ?? []) {
+    const fx = compile(c.x, 't', c.consts ?? {});
+    const fy = compile(c.y, 't', c.consts ?? {});
+    const fz = compile(c.z, 't', c.consts ?? {});
+    const n = c.samples ?? 72;
+    const [t0, t1] = c.t;
+    const pts = [];
+    for (let k = 0; k <= n; k++) {
+      const t = t0 + ((t1 - t0) * k) / n;
+      pts.push(P(fx(t), fy(t), fz(t)));
+    }
+    const color = c.color ?? 'red';
+    // 逐段入队，遮挡关系和曲面一致；线宽内联，颜色走 st-<color> 类名
+    for (let k = 0; k < pts.length - 1; k++) {
+      push(
+        (pts[k][2] + pts[k + 1][2]) / 2 + 1000,
+        `<line class="st-${color}" x1="${num(pts[k][0], 1)}" y1="${num(pts[k][1], 1)}" x2="${num(
+          pts[k + 1][0],
+          1
+        )}" y2="${num(pts[k + 1][1], 1)}" stroke-width="${c.width ?? 1.8}"/>`
+      );
+    }
+  }
+
+  // ---------------------------------------------------------- 排序后输出
+  items.sort((x, y) => x.depth - y.depth);
+  const scene = items.map((it) => it.svg).join('\n  ');
+
+  // ---------------------------------------------------------- 文字标注（永远画在最上层）
+  const texts = [];
+  if (fig.title) {
+    texts.push(
+      `<text class="figname" x="20" y="22" fill="${COLOR.ink}">${richText(fig.title)}</text>`
+    );
+  }
+  for (const ax of D.axes ?? []) {
+    if (!ax.label) continue;
+    const b = project(ax.to);
+    // labelAt 给的是三维点（更准），没给就在箭头旁边偏移一点
+    const [lx, ly] = ax.labelAt ? project(ax.labelAt) : [b[0] + 10, b[1] + 6];
+    texts.push(
+      `<text class="axisname3d" x="${num(lx)}" y="${num(ly)}" text-anchor="middle" fill="${
+        COLOR[ax.color] ?? COLOR.ink
+      }">${richText(ax.label)}</text>`
+    );
+  }
+  for (const pt of D.points ?? []) {
+    const p = project(pt.p);
+    texts.push(
+      `<circle cx="${num(p[0], 1)}" cy="${num(p[1], 1)}" r="3.2" fill="${COLOR.ink}"/>`
+    );
+    if (pt.label) {
+      texts.push(
+        `<text class="note" data-color="${pt.color ?? 'ink'}" x="${num(p[0] + (pt.dx ?? 9))}" y="${num(
+          p[1] + (pt.dy ?? -8)
+        )}" text-anchor="start">${richText(pt.label)}</text>`
+      );
+    }
+  }
+  for (const n of fig.notes ?? []) {
+    if (!Array.isArray(n.at3)) continue;
+    const p = project(n.at3);
+    texts.push(
+      `<text class="note" data-color="${n.color ?? 'muted'}" x="${num(p[0] + (n.dx ?? 0))}" y="${num(
+        p[1] + (n.dy ?? 0)
+      )}" text-anchor="${n.anchor ?? 'start'}">${richText(n.text)}</text>`
+    );
+  }
+
+  // 每种曲面一个类：把 fill/stroke 的颜色写进 <style> 一次，
+  // 比在每个 <path> 上重复一遍 var(--plot-c1, #d78b34) 省下几百字节 × 几百个格子
+  const sfColors = [...new Set((D.surfaces ?? []).map((sf) => sf.color ?? 'accent'))];
+  // 曲线 / 线段 / 坐标轴都是一条条 <line>，数量同样可观 —— 描边色也走类名
+  const stColors = [
+    ...new Set([
+      ...(D.curves ?? []).map((c) => c.color ?? 'red'),
+      ...(D.lines3d ?? []).map((l) => l.color ?? 'ink'),
+      ...(D.axes ?? []).map((a) => a.color ?? 'axis'),
+    ]),
+  ];
+  const sfCss = [
+    ...sfColors.map(
+      (c) =>
+        `  svg .sf-${c} { fill: ${COLOR[c] ?? COLOR.accent}; stroke: ${COLOR[c] ?? COLOR.accent}; ` +
+        `stroke-opacity: 0.2; stroke-width: 0.5; }`
+    ),
+    ...stColors.map((c) => `  svg .st-${c} { stroke: ${COLOR[c] ?? COLOR.ink}; }`),
+  ].join('\n');
+
+  const style = `
+  svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .axisname3d { font-size: 13px; font-style: italic; }
+  svg .note { font-size: 12px; fill: ${COLOR.muted}; }
+  svg .note[data-color="accent"] { fill: ${COLOR.accent}; }
+  svg .note[data-color="red"] { fill: ${COLOR.red}; }
+  svg .note[data-color="green"] { fill: ${COLOR.green}; }
+  svg .note[data-color="ink"] { fill: ${COLOR.ink}; }
+${sfCss}`.trim();
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(
+    fig.alt ?? fig.id
+  )}">
+  <title>${esc(fig.alt ?? fig.id)}</title>
+  <style>${style}</style>
+  <g class="scene">
+  ${scene}
+  </g>
+  <g class="labels">
+  ${texts.join('\n  ')}
+  </g>
+</svg>
+`;
+}
+
 function renderFigure(fig) {
+  if (fig.threeD) return renderThreeD(fig);
   const f = makeFrame(fig);
   const { L, T, w, h, sx, sy, x0, x1, y0, y1, W, H, right, bottom } = f;
   const clipId = `clip-${fig.id}`;
@@ -551,9 +940,11 @@ function renderFigure(fig) {
   const grid = [];
   const axis = [];
   const labels = [];
+  // bare：纯示意图（如「区间可加性」的条形图），不要网格、刻度、坐标轴
+  const bare = !!fig.bare;
 
   // 网格
-  for (const t of xTickList) {
+  if (!bare) for (const t of xTickList) {
     const X = sx(t.v);
     if (X > L + 0.5 && X < right - 0.5) {
       grid.push(`<line x1="${num(X)}" y1="${num(T)}" x2="${num(X)}" y2="${num(bottom)}"/>`);
@@ -561,7 +952,7 @@ function renderFigure(fig) {
   }
   for (const t of yTickList) {
     const Y = sy(t.v);
-    if (Y > T + 0.5 && Y < bottom - 0.5) {
+    if (Y > T + 0.5 && Y < bottom - 0.5 && !bare) {
       grid.push(`<line x1="${num(L)}" y1="${num(Y)}" x2="${num(right)}" y2="${num(Y)}"/>`);
     }
   }
@@ -588,8 +979,8 @@ function renderFigure(fig) {
   }
 
   // 轴线（各画一整条，超出绘图区的部分靠 clip 剪掉）
-  const axisY = y0 <= 0 && y1 >= 0 ? sy(0) : null;
-  const axisX = x0 <= 0 && x1 >= 0 ? sx(0) : null;
+  const axisY = !bare && y0 <= 0 && y1 >= 0 ? sy(0) : null;
+  const axisX = !bare && x0 <= 0 && x1 >= 0 ? sx(0) : null;
   if (axisY !== null) {
     axis.push(`<line x1="${num(L - 6)}" y1="${num(axisY)}" x2="${num(right + 8)}" y2="${num(axisY)}"/>`);
   }
@@ -598,7 +989,7 @@ function renderFigure(fig) {
   }
 
   // 刻度 + 文字
-  for (const t of xTickList) {
+  for (const t of bare ? [] : xTickList) {
     const X = sx(t.v);
     const Y = axisY ?? bottom;
     axis.push(`<line x1="${num(X)}" y1="${num(Y)}" x2="${num(X)}" y2="${num(Y + 4)}"/>`);
@@ -606,7 +997,7 @@ function renderFigure(fig) {
       `<text class="tick" x="${num(X)}" y="${num(Y + 15)}" text-anchor="middle">${esc(t.label)}</text>`
     );
   }
-  for (const t of yTickList) {
+  for (const t of bare ? [] : yTickList) {
     const Y = sy(t.v);
     const X = axisX ?? L;
     if (Math.abs(t.v) < 1e-9 && axisX !== null) {
@@ -621,12 +1012,13 @@ function renderFigure(fig) {
     );
   }
 
-  // 额外刻度：a / b / C / x₀ 这类「正文里点名的位置」，比普通刻度更显眼
+  // 额外刻度：a / b / C / x₀ 这类「正文里点名的位置」，比普通刻度更显眼。
+  // dy 用来把这些标记压到第二行 —— 否则 x = 0 处的「a」会和刻度的「0」叠在一起。
   for (const m of fig.xMarks ?? []) {
     const X = sx(m.x);
     const Y = axisY ?? bottom;
     labels.push(
-      `<text class="tick tick--mark" x="${num(X)}" y="${num(Y + 15)}" text-anchor="middle">${richText(
+      `<text class="tick tick--mark" x="${num(X)}" y="${num(Y + (m.dy ?? 15))}" text-anchor="middle">${richText(
         m.label
       )}</text>`
     );
@@ -642,8 +1034,8 @@ function renderFigure(fig) {
   }
 
   // 轴名
-  if (axisY !== null) labels.push(`<text class="axisname" x="${num(right + 6)}" y="${num(axisY - 7)}">x</text>`);
-  if (axisX !== null) labels.push(`<text class="axisname" x="${num(axisX + 7)}" y="${num(T - 4)}">y</text>`);
+  if (axisY !== null && !bare) labels.push(`<text class="axisname" x="${num(right + 6)}" y="${num(axisY - 7)}">x</text>`);
+  if (axisX !== null && !bare) labels.push(`<text class="axisname" x="${num(axisX + 7)}" y="${num(T - 4)}">y</text>`);
 
   // ---- 虚线：竖直渐近线 + 水平辅助线（值域边界、介值定理里的 C）
   const asym = [];
@@ -668,13 +1060,162 @@ function renderFigure(fig) {
 
   const rect = { left: L, top: T, right, bottom };
 
+  // ---- 坐标换算（带夹紧）：填充多边形可能跑到画外。夹到绘图区边界上，
+  // 视觉效果与「让 clipPath 剪掉」完全一样（外面本来就要剪），
+  // 但坐标不会越界、path 数据也短。
+  const spanX = x1 - x0;
+  const spanYd = y1 - y0;
+  const px = (x) => sx(Math.max(x0, Math.min(x1, x)));
+  const py = (y) => sy(Math.max(y0, Math.min(y1, y)));
+
+  /**
+   * 把一个「边界规格」采成数据坐标点列。四种写法：
+   *   { fn, var?, from, to }  一元函数（var 缺省 'x'；写 'y' 时点 = (f(t), t)）
+   *   { param: { x, y, t } }  参数曲线
+   *   { polar: { rho, theta } } 极坐标曲线 ρ = ρ(θ)
+   *   { point: [x, y] }       退化成一个点（扇形的顶点就用它）
+   */
+  function boundaryPoints(spec, n = 240) {
+    if (spec.point) return [[spec.point[0], spec.point[1]]];
+
+    if (spec.param) {
+      const p = spec.param;
+      const fx = compile(p.x, p.var ?? 't', p.consts ?? {});
+      const fy = compile(p.y, p.var ?? 't', p.consts ?? {});
+      const total = p.samples ?? n;
+      const [t0, t1] = p.t;
+      const out = [];
+      for (let i = 0; i <= total; i++) {
+        const t = t0 + ((t1 - t0) * i) / total;
+        out.push([fx(t), fy(t)]);
+      }
+      return out;
+    }
+
+    if (spec.polar) {
+      const q = spec.polar;
+      const fr = compile(q.rho, 't', q.consts ?? {});
+      const total = q.samples ?? n;
+      const [a, b] = q.theta;
+      const out = [];
+      for (let i = 0; i <= total; i++) {
+        const t = a + ((b - a) * i) / total;
+        const r = fr(t);
+        out.push([r * Math.cos(t), r * Math.sin(t)]);
+      }
+      return out;
+    }
+
+    const v = spec.var ?? 'x';
+    const fn = compile(spec.fn, v, spec.consts ?? {});
+    const [a, b] = spec.range ?? [0, 1];
+    const out = [];
+    for (let i = 0; i <= n; i++) {
+      const t = a + ((b - a) * i) / n;
+      out.push(v === 'x' ? [t, fn(t)] : [fn(t), t]);
+    }
+    return out;
+  }
+
+  // ---- 面积填充（定积分的几何意义、两个函数围成的区域、极坐标扇形都靠它）
+  const fills = [];
+  for (const fl of fig.fills ?? []) {
+    let upper = fl.upper;
+    let lower = fl.lower;
+
+    // 简写：{ fn, from, to, baseline } = 曲线到某条水平线之间的面积
+    if (fl.fn) {
+      const varName = fl.var ?? 'x';
+      const range = [fl.from, fl.to];
+      upper = { fn: fl.fn, var: varName, range, consts: fl.consts };
+      lower = { fn: String(fl.baseline ?? 0), var: varName, range };
+    } else {
+      // 完整写法里 from/to 挂在外面，这里补进各自的 range
+      const range = fl.from != null ? [fl.from, fl.to] : null;
+      if (range) {
+        upper = { ...upper, range: upper.range ?? range };
+        lower = { ...lower, range: lower.range ?? range };
+      }
+    }
+
+    const up = boundaryPoints(upper);
+    const lo = boundaryPoints(lower);
+    const poly = lo.length === 1 ? [...up, lo[0]] : [...up, ...[...lo].reverse()];
+
+    // 和曲线一样抽稀，但容差更细（0.12px）：填充的「面积」本身就是要表达的信息，
+    // 容差放大会让小块区域的面积误差逼近 0.5%（曲线只要形状对，面积不对不行）。
+    const screenPts = simplify(
+      poly.map(([x, y]) => [px(x), py(y)]),
+      0.12
+    );
+    const d = screenPts
+      .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${num(x, 1)} ${num(y, 1)}`)
+      .join(' ');
+    fills.push(
+      `<path d="${d} Z" class="fill" fill="${COLOR[fl.color] ?? COLOR.accent}" fill-opacity="${
+        fl.opacity ?? 0.2
+      }" stroke="none"/>`
+    );
+  }
+
+  // ---- 边界实线（面积图里的 x = a、x = b 是「边界」不是「渐近线」，所以是实线）
+  const guides = [];
+  for (const g of fig.vguides ?? []) {
+    if (g.x < x0 - 1e-6 || g.x > x1 + 1e-6) continue;
+    const X = px(g.x);
+    guides.push(
+      `<line x1="${num(X)}" y1="${num(T)}" x2="${num(X)}" y2="${num(bottom)}"${
+        g.dash ? ` stroke-dasharray="${g.dash}"` : ''
+      }/>`
+    );
+    if (g.label) {
+      // 标签必须放进未裁剪的 labels 组：guide 组带 clip-path，
+      // 而这里 y = T - 4 正好落在裁剪框外面，写进 guides 里会被整条裁掉（曾经如此）
+      labels.push(
+        `<text class="guide-label" x="${num(X)}" y="${num(T - 5)}" text-anchor="middle">${richText(
+          g.label
+        )}</text>`
+      );
+    }
+  }
+  for (const g of fig.hbars ?? []) {
+    if (g.y < y0 - 1e-6 || g.y > y1 + 1e-6) continue;
+    const Y = py(g.y);
+    guides.push(
+      `<line x1="${num(L)}" y1="${num(Y)}" x2="${num(right)}" y2="${num(Y)}"${
+        g.dash ? ` stroke-dasharray="${g.dash}"` : ''
+      }/>`
+    );
+    if (g.label) {
+      // 同上：hbars 的标签也在裁剪框边缘，放进 labels 才看得见
+      labels.push(
+        `<text class="guide-label" x="${num(right - 4)}" y="${num(Y - 5)}" text-anchor="end">${richText(
+          g.label
+        )}</text>`
+      );
+    }
+  }
+
   // ---- 曲线
   const curves = [];
   for (const c of fig.curves ?? []) {
     const stroke = COLOR[c.color] ?? COLOR.ink;
     let lines;
 
-    if (c.parametric) {
+    if (c.polar) {
+      // 极坐标简写：ρ = ρ(θ)，内部按参数曲线画
+      const q = c.polar;
+      const fr = compile(q.rho, 't', q.consts ?? {});
+      const total = q.samples ?? 1200;
+      const [a, b] = q.theta;
+      const pts = [];
+      for (let i = 0; i <= total; i++) {
+        const t = a + ((b - a) * i) / total;
+        const r = fr(t);
+        pts.push([sx(r * Math.cos(t)), sy(r * Math.sin(t))]);
+      }
+      lines = [pts];
+    } else if (c.parametric) {
       const p = c.parametric;
       const fx = compile(p.x, p.var ?? 't', p.consts ?? {});
       const fy = compile(p.y, p.var ?? 't', p.consts ?? {});
@@ -731,6 +1272,69 @@ function renderFigure(fig) {
         t.dash ? ` stroke-dasharray="${t.dash}"` : ''
       }/>`
     );
+  }
+
+  // ---- 箭头（极限箭头、微元标注、坐标轴方向都靠它）
+  const arrows = [];
+  const HEAD = 7;
+  for (const a of fig.arrows ?? []) {
+    const x1s = sx(a.from[0]);
+    const y1s = sy(a.from[1]);
+    const x2s = sx(a.to[0]);
+    const y2s = sy(a.to[1]);
+    const len = Math.hypot(x2s - x1s, y2s - y1s);
+    if (len < 1) continue;
+    const ux = (x2s - x1s) / len;
+    const uy = (y2s - y1s) / len;
+    const color = COLOR[a.color] ?? COLOR.ink;
+    // 线身收在箭头根部，免得线头从三角形尖上戳出来
+    const shorten = a.head === false ? 0 : Math.min(HEAD * 0.85, len * 0.6);
+    arrows.push(
+      `<line x1="${num(x1s)}" y1="${num(y1s)}" x2="${num(x2s - ux * shorten)}" y2="${num(
+        y2s - uy * shorten
+      )}" class="arrow" stroke="${color}"${a.dash ? ` stroke-dasharray="${a.dash}"` : ''}/>`
+    );
+    if (a.head !== false) {
+      const bx = x2s - ux * HEAD;
+      const by = y2s - uy * HEAD;
+      const nx = -uy;
+      const ny = ux;
+      arrows.push(
+        `<path d="M${num(x2s)} ${num(y2s)} L${num(bx + nx * HEAD * 0.45)} ${num(
+          by + ny * HEAD * 0.45
+        )} L${num(bx - nx * HEAD * 0.45)} ${num(by - ny * HEAD * 0.45)} Z" fill="${color}"/>`
+      );
+    }
+  }
+
+  // ---- 角度弧（极坐标里的 θ）：按折线采样，非等比缩放下也不会变成歪椭圆
+  const arcs = [];
+  for (const r of fig.arcs ?? []) {
+    const [cx, cy] = r.center;
+    const total = 60;
+    const pts = [];
+    for (let i = 0; i <= total; i++) {
+      const t = r.from + ((r.to - r.from) * i) / total;
+      pts.push([cx + r.radius * Math.cos(t), cy + r.radius * Math.sin(t)]);
+    }
+    const d = pts
+      .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${num(px(x), 1)} ${num(py(y), 1)}`)
+      .join(' ');
+    const color = COLOR[r.color] ?? COLOR.ink;
+    arcs.push(
+      `<path d="${d}" class="arc" stroke="${color}"${r.dash ? ` stroke-dasharray="${r.dash}"` : ''}/>`
+    );
+    if (r.label) {
+      const tm = r.from + (r.to - r.from) * (r.labelAt ?? 0.5);
+      const lr = r.labelRadius ?? r.radius;
+      arcs.push(
+        `<text class="note" data-color="${r.color ?? 'ink'}" x="${num(
+          px(cx + lr * Math.cos(tm))
+        )}" y="${num(py(cy + lr * Math.sin(tm))) + 4}" text-anchor="middle">${richText(
+          r.label
+        )}</text>`
+      );
+    }
   }
 
   // ---- 关键点：实心 / 空心圆点，以及「曲线与水平线的交点」
@@ -827,13 +1431,26 @@ function renderFigure(fig) {
   // ---- 组装
   // 每条选择器都带 svg 前缀：这份 <style> 万一被内联进页面，
   // 也只能命中 svg 里的元素，不会污染站点自己的 .curve / .tick 之类。
+  // 只给用到的图加对应样式：不然每张图都多几条用不上的规则，
+  // 已提交的 27 个 SVG 会全部变成「已修改」，纯属噪音。
+  const extraCss = [
+    (fig.vguides?.length ?? 0) + (fig.hbars?.length ?? 0) > 0
+      ? `  svg .guide line { stroke: ${COLOR.axis}; stroke-width: 1; stroke-dasharray: none; }\n` +
+        `  svg .guide-label { font-size: 11px; fill: ${COLOR.muted}; }`
+      : '',
+    fig.arrows?.length ? `  svg .arrow { stroke-width: 1.3; fill: none; }` : '',
+    fig.arcs?.length ? `  svg .arc { fill: none; stroke-width: 1.3; }` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
   const style = `
   svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
   svg .grid line, svg .grid ellipse { stroke: ${COLOR.grid}; stroke-width: 1; fill: none; }
   svg .axis line { stroke: ${COLOR.axis}; stroke-width: 1.2; }
   svg .asym line { stroke: ${COLOR.asym}; stroke-width: 1; stroke-dasharray: 5 5; }
   svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-  svg .tick { font-size: 11px; fill: ${COLOR.muted}; }
+${extraCss ? `${extraCss}\n` : ''}  svg .tick { font-size: 11px; fill: ${COLOR.muted}; }
   svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: ${COLOR.ink}; }
   svg .axisname { font-size: 12px; font-style: italic; fill: ${COLOR.ink}; }
   svg .legend { font-size: 12px; fill: ${COLOR.ink}; }
@@ -853,15 +1470,23 @@ function renderFigure(fig) {
       fig.background ?? 'none'
     }" rx="6"/>`,
     `<g class="grid" clip-path="url(#${clipId})">${grid.join('')}</g>`,
+    // 空图层不输出：不然每张用不到填充/箭头的图都会多出几行空 <g>，
+    // 已提交的旧图会全部变成「已修改」，diff 全是噪音。
+    fills.length ? `<g class="fill-layer" clip-path="url(#${clipId})">${fills.join('')}</g>` : '',
     `<g class="asym" clip-path="url(#${clipId})">${asym.join('')}</g>`,
+    guides.length ? `<g class="guide" clip-path="url(#${clipId})">${guides.join('')}</g>` : '',
     `<g class="axis">${axis.join('')}</g>`,
     `<g clip-path="url(#${clipId})">${curves.join('')}</g>`,
+    arcs.length ? `<g class="arc-layer" clip-path="url(#${clipId})">${arcs.join('')}</g>` : '',
+    arrows.length ? `<g class="arrow-layer">${arrows.join('')}</g>` : '',
     `<g>${labels.join('')}</g>`,
     `<g>${dots.join('')}</g>`,
     `<g>${notes.join('')}</g>`,
     `<g>${heading.join('')}</g>`,
     `<g>${legend.join('')}</g>`,
-  ].join('\n  ');
+    ]
+    .filter(Boolean)
+    .join('\n  ');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(
     fig.alt ?? fig.id
@@ -939,6 +1564,10 @@ const CONCAVE_F = '0.35*x^2 + 0.35';
 const CONVEX_F = '2.45 - 0.35*x^2';
 const CURVE_A = -1.8;
 const CURVE_B = 1.8;
+
+// 区间可加性那两张图共用的函数：全程为正，填出来的曲边梯形一眼就能比较大小
+const ADD_F = '2 + sin(x)';
+const addAt = (x) => 2 + Math.sin(x);
 
 export const FIGURES = [
   {
@@ -1516,6 +2145,1415 @@ export const FIGURES = [
       { label: 'x = 1', color: 'asym' },
     ],
   },
+  // ── 第 5 章（定积分）─────────────────────────────────────────────
+  // 这一章的函数图几乎都要「画出面积」：fills 负责填色区域，vguides 负责
+  // x = a / x = b 这种边界（实线，不是渐近线的虚线），xbars 式的东西用 hbars。
+  {
+    id: 'hm5-01-definite-integral-geometry',
+    alt: '定积分的几何意义：x 轴上方的面积取正、下方的面积取负，两者代数和才是定积分的值',
+    width: 640,
+    height: 400,
+    x: [-1.9, 1.9],
+    y: [-1.6, 2.2],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      { fn: 'x^2-1', from: -1.6, to: -1, baseline: 0, color: 'accent' },
+      { fn: 'x^2-1', from: -1, to: 1, baseline: 0, color: 'red' },
+      { fn: 'x^2-1', from: 1, to: 1.6, baseline: 0, color: 'accent' },
+    ],
+    curves: [{ fn: 'x^2-1', color: 'accent' }],
+    vguides: [
+      { x: -1.6, label: 'a' },
+      { x: 1.6, label: 'b' },
+    ],
+    notes: [
+      { x: -1.3, y: 0.3, text: '+', color: 'accent', anchor: 'middle' },
+      { x: 0, y: -0.55, text: '−', color: 'red', anchor: 'middle' },
+      { x: 1.3, y: 0.3, text: '+', color: 'accent', anchor: 'middle' },
+    ],
+  },
+  // 区间可加性：**带函数、把面积填出来**的两张对照图。
+  // 只画两条色条说明不了「为什么可加」——得分明看见曲边梯形被 c 切成两块。
+  // 两张图的坐标系完全相同，翻页就是纯对照。
+  {
+    id: 'hm5-02-1-interval-additivity-inside',
+    alt: '区间可加性（c 在区间内）：曲边梯形被 x = c 处的分界线切成两块，A、C、B 三点在曲线上，∫ₐᵇ = ∫ₐᶜ + ∫ᶜᵇ',
+    width: 640,
+    height: 400,
+    x: [-0.6, 5.6],
+    y: [-0.5, 3.7],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      { fn: ADD_F, from: 0, to: 2.5, baseline: 0, color: 'accent' },
+      { fn: ADD_F, from: 2.5, to: 5, baseline: 0, color: 'green' },
+    ],
+    curves: [{ fn: ADD_F, color: 'ink' }],
+    // 三条分界线只从 x 轴画到曲线 —— 正好把两块曲边梯形围出来，
+    // 画满整个高度反而像「渐近线」，也压住了曲线。
+    segments: [
+      { points: [[0, 0], [0, addAt(0)]], color: 'axis', width: 1.2 },
+      { points: [[2.5, 0], [2.5, addAt(2.5)]], color: 'axis', width: 1.2 },
+      { points: [[5, 0], [5, addAt(5)]], color: 'axis', width: 1.2 },
+    ],
+    // 函数上的 A、C、B 三点（与 x 轴上的 a、c、b 对应）
+    dots: [
+      { x: 0, y: addAt(0), color: 'ink', r: 3.4, label: 'A', dx: -11, dy: -5, anchor: 'end' },
+      { x: 2.5, y: addAt(2.5), color: 'ink', r: 3.4, label: 'C', dx: 10, dy: -9 },
+      { x: 5, y: addAt(5), color: 'ink', r: 3.4, label: 'B', dx: 10, dy: -6 },
+    ],
+    xMarks: [
+      { x: 0, label: 'a', dy: 28 },
+      { x: 2.5, label: 'c', dy: 28 },
+      { x: 5, label: 'b', dy: 28 },
+    ],
+    notes: [
+      { x: 1.25, y: 0.55, text: '∫ₐᶜ', anchor: 'middle', color: 'accent' },
+      { x: 3.75, y: 0.55, text: '∫ᶜᵇ', anchor: 'middle', color: 'green' },
+      { x: 5.35, y: 3.35, text: 'y = f(x)', anchor: 'end', color: 'ink' },
+      { x: 5.35, y: 3.0, text: '∫ₐᵇ = ∫ₐᶜ + ∫ᶜᵇ', anchor: 'end', color: 'muted' },
+    ],
+  },
+  {
+    id: 'hm5-02-2-interval-additivity-outside',
+    alt: '区间可加性（c 在区间外）：a 到 c 整段被 x = b 处的分界线切成两块，A、B、C 三点在曲线上，∫ₐᶜ = ∫ₐᵇ + ∫ᵇᶜ',
+    width: 640,
+    height: 400,
+    x: [-0.6, 5.6],
+    y: [-0.5, 3.7],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      { fn: ADD_F, from: 0, to: 2.5, baseline: 0, color: 'accent' },
+      { fn: ADD_F, from: 2.5, to: 5, baseline: 0, color: 'green' },
+    ],
+    curves: [{ fn: ADD_F, color: 'ink' }],
+    segments: [
+      { points: [[0, 0], [0, addAt(0)]], color: 'axis', width: 1.2 },
+      { points: [[2.5, 0], [2.5, addAt(2.5)]], color: 'axis', width: 1.2 },
+      { points: [[5, 0], [5, addAt(5)]], color: 'axis', width: 1.2 },
+    ],
+    dots: [
+      { x: 0, y: addAt(0), color: 'ink', r: 3.4, label: 'A', dx: -11, dy: -5, anchor: 'end' },
+      { x: 2.5, y: addAt(2.5), color: 'ink', r: 3.4, label: 'B', dx: 10, dy: -9 },
+      { x: 5, y: addAt(5), color: 'ink', r: 3.4, label: 'C', dx: 10, dy: -6 },
+    ],
+    xMarks: [
+      { x: 0, label: 'a', dy: 28 },
+      { x: 2.5, label: 'b', dy: 28 },
+      { x: 5, label: 'c', dy: 28 },
+    ],
+    notes: [
+      { x: 1.25, y: 0.55, text: '∫ₐᵇ', anchor: 'middle', color: 'accent' },
+      { x: 3.75, y: 0.55, text: '∫ᵇᶜ', anchor: 'middle', color: 'green' },
+      { x: 5.35, y: 3.35, text: 'y = f(x)', anchor: 'end', color: 'ink' },
+      { x: 5.35, y: 3.0, text: '∫ₐᶜ = ∫ₐᵇ + ∫ᵇᶜ', anchor: 'end', color: 'muted' },
+    ],
+  },
+  // 对称区间上的奇偶性：一图一条（和 1~3 章的做法一致），两张框完全一样，方便对照
+  {
+    id: 'hm5-03-1-even-parity',
+    alt: '偶函数在对称区间上的积分：左右两半的面积相等，因此等于右半面积的两倍（偶倍）',
+    width: 600,
+    height: 400,
+    x: [-2.4, 2.4],
+    y: [-0.3, 2.6],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      { fn: 'x^2/2', from: -2, to: 0, baseline: 0, color: 'accent' },
+      { fn: 'x^2/2', from: 0, to: 2, baseline: 0, color: 'accent' },
+    ],
+    curves: [{ fn: 'x^2/2', color: 'accent' }],
+    vguides: [
+      { x: -2, label: '−a' },
+      { x: 0, dash: '4 4' },
+      { x: 2, label: 'a' },
+    ],
+    notes: [
+      { x: -1.2, y: 0.55, text: 'S', anchor: 'middle', color: 'ink' },
+      { x: 1.2, y: 0.55, text: 'S', anchor: 'middle', color: 'ink' },
+      { x: 0, y: 2.3, text: '偶函数：∫₋ₐᵃ = 2∫₀ᵃ', anchor: 'middle', color: 'accent' },
+    ],
+  },
+  {
+    id: 'hm5-03-2-odd-parity',
+    alt: '奇函数在对称区间上的积分：左右两半面积大小相等、符号相反，加起来为 0（奇零）',
+    width: 600,
+    height: 400,
+    x: [-2.4, 2.4],
+    y: [-2.2, 2.2],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      { fn: 'x^3/4', from: -2, to: 0, baseline: 0, color: 'red' },
+      { fn: 'x^3/4', from: 0, to: 2, baseline: 0, color: 'accent' },
+    ],
+    curves: [{ fn: 'x^3/4', color: 'accent' }],
+    vguides: [
+      { x: -2, label: '−a' },
+      { x: 0, dash: '4 4' },
+      { x: 2, label: 'a' },
+    ],
+    notes: [
+      { x: -1.15, y: -0.62, text: '−S', anchor: 'middle', color: 'red' },
+      { x: 1.15, y: 0.62, text: 'S', anchor: 'middle', color: 'accent' },
+      { x: 0, y: 1.85, text: '奇函数：∫₋ₐᵃ = 0', anchor: 'middle', color: 'red' },
+    ],
+  },
+  {
+    id: 'hm5-04-improper-infinite-limit',
+    alt: '无穷限反常积分：先把上限取成有限的 t 算出曲边梯形面积，再让 t 趋于 +∞ 取极限',
+    width: 640,
+    height: 400,
+    x: [-0.4, 6.2],
+    y: [-0.3, 2.4],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 4 },
+    fills: [{ fn: '1/x', from: 1, to: 3, baseline: 0, color: 'accent' }],
+    curves: [{ fn: '1/x', color: 'accent', domain: [0.16, 6.2] }],
+    vguides: [
+      { x: 1, label: 'a' },
+      { x: 3, dash: '5 4', label: 't' },
+    ],
+    arrows: [{ from: [3.5, 0.16], to: [5.9, 0.16], color: 'red' }],
+    notes: [
+      { x: 2, y: 0.32, text: '∫ₐᵗ', anchor: 'middle', color: 'ink' },
+      { x: 5.5, y: 0.42, text: 't → +∞', anchor: 'end', color: 'red' },
+    ],
+  },
+  {
+    id: 'hm5-05-improper-p-integral',
+    alt: 'p 积分的几何理解：p 越大曲线衰减越快，尾部面积越容易收敛；p = 1 时面积发散',
+    width: 640,
+    height: 400,
+    x: [-0.2, 6.2],
+    y: [-0.2, 2.5],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 5 },
+    curves: [
+      { fn: '1/sqrt(x)', color: 'accent' },
+      { fn: '1/x', color: 'red' },
+      { fn: '1/x^2', color: 'green' },
+    ],
+    legend: [
+      { label: 'p = 1/2（发散）', color: 'accent' },
+      { label: 'p = 1（发散）', color: 'red' },
+      { label: 'p = 2（收敛）', color: 'green' },
+    ],
+    notes: [
+      { x: 3.4, y: 0.42, text: 'p 越大，衰减越快', color: 'muted' },
+      { x: 3.4, y: 0.2, text: '尾部面积越容易收敛', color: 'muted' },
+    ],
+  },
+  {
+    id: 'hm5-06-improper-discontinuity',
+    alt: '瑕积分：被积函数在瑕点 a 处无界，积分要先把下限取成 t 再让 t 趋于 a 的右侧极限',
+    width: 640,
+    height: 400,
+    x: [-0.35, 4.2],
+    y: [-0.3, 4.6],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 6 },
+    fills: [{ fn: '1/sqrt(x)', from: 0.5, to: 3, baseline: 0, color: 'accent' }],
+    curves: [{ fn: '1/sqrt(x)', color: 'accent', domain: [0.045, 4.2] }],
+    vguides: [
+      { x: 0, dash: '5 4', label: 'a（瑕点）' },
+      { x: 0.5, label: 't' },
+    ],
+    arrows: [{ from: [1.3, 0.2], to: [0.15, 0.2], color: 'red' }],
+    notes: [
+      { x: 1.8, y: 0.42, text: '∫ₜᵇ', anchor: 'middle', color: 'ink' },
+      { x: 1.4, y: 3.9, text: 'x → a⁺ 时 f(x) → ∞', color: 'red' },
+    ],
+  },
+  {
+    id: 'hm5-07-x-type-region-area',
+    alt: 'X 型区域：上下两条曲边加左右两条竖直线，面积用上曲边减下曲边作被积函数',
+    width: 640,
+    height: 400,
+    x: [-1.8, 2.8],
+    y: [-0.3, 3.9],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      {
+        upper: { fn: '2.2+0.55*x', range: [-1, 2] },
+        lower: { fn: '0.7+0.15*x^2', range: [-1, 2] },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      { fn: '2.2+0.55*x', color: 'accent' },
+      { fn: '0.7+0.15*x^2', color: 'green' },
+    ],
+    vguides: [
+      { x: -1, label: 'a' },
+      { x: 2, label: 'b' },
+    ],
+    notes: [
+      { x: 2.35, y: 3.5, text: 'y = f(x)', anchor: 'end', color: 'accent' },
+      { x: 2.35, y: 1.62, text: 'y = g(x)', anchor: 'end', color: 'green' },
+      { x: 1.35, y: 1.3, text: 'S', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  {
+    id: 'hm5-08-y-type-region',
+    alt: 'Y 型区域：左右两条曲边加上下两条水平线，面积用右曲边减左曲边作被积函数',
+    width: 640,
+    height: 400,
+    x: [0.2, 4.2],
+    y: [-1.6, 2.6],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 5 },
+    fills: [
+      {
+        upper: { fn: '2.6+0.4*y', var: 'y', range: [-1, 2] },
+        lower: { fn: '0.9+0.15*y^2', var: 'y', range: [-1, 2] },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      { parametric: { x: '2.6+0.4*t', y: 't', t: [-1, 2] }, color: 'accent' },
+      { parametric: { x: '0.9+0.15*t^2', y: 't', t: [-1, 2] }, color: 'green' },
+    ],
+    hbars: [
+      { y: -1, label: 'c' },
+      { y: 2, label: 'd' },
+    ],
+    notes: [
+      { x: 3.9, y: 2.15, text: 'x = ψ(y)', anchor: 'end', color: 'accent' },
+      { x: 0.95, y: -0.72, text: 'x = φ(y)', anchor: 'start', color: 'green' },
+      { x: 1.95, y: 0.55, text: 'S', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  {
+    id: 'hm5-09-y-type-region-area',
+    alt: 'Y 型区域的面积元：在高度 y 处取一条水平窄条，宽度是右曲边减左曲边 ψ(y) − φ(y)',
+    width: 640,
+    height: 400,
+    x: [0.2, 4.2],
+    y: [-1.6, 2.6],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 5 },
+    fills: [
+      {
+        upper: { fn: '2.6+0.4*y', var: 'y', range: [-1, 2] },
+        lower: { fn: '0.9+0.15*y^2', var: 'y', range: [-1, 2] },
+        color: 'accent',
+        opacity: 0.16,
+      },
+    ],
+    curves: [
+      { parametric: { x: '2.6+0.4*t', y: 't', t: [-1, 2] }, color: 'accent' },
+      { parametric: { x: '0.9+0.15*t^2', y: 't', t: [-1, 2] }, color: 'green' },
+    ],
+    // 代表窄条：y = 0.6 处从 φ(0.6) 到 ψ(0.6)
+    segments: [
+      {
+        points: [
+          [0.9 + 0.15 * 0.36, 0.6],
+          [2.6 + 0.4 * 0.6, 0.6],
+        ],
+        color: 'red',
+        width: 3,
+      },
+    ],
+    hbars: [{ y: 0.6, dash: '4 4' }],
+    notes: [
+      { x: 2.6, y: 0.92, text: 'ψ(y) − φ(y)', anchor: 'middle', color: 'red' },
+      { x: 3.75, y: 0.36, text: 'y', anchor: 'start', color: 'muted' },
+    ],
+  },
+  {
+    id: 'hm5-10-area-example-two-curves',
+    alt: '例 1 的图形：抛物线 y² = 2x 与直线 y = x − 4 交于 (2, −2) 与 (8, 4)，所围区域按 Y 型一次积完',
+    width: 660,
+    height: 420,
+    x: [-0.6, 9.2],
+    y: [-3.6, 5.2],
+    xTick: { type: 'num', target: 6 },
+    yTick: { type: 'num', target: 5 },
+    fills: [
+      {
+        upper: { fn: 'y+4', var: 'y', range: [-2, 4] },
+        lower: { fn: 'y^2/2', var: 'y', range: [-2, 4] },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      { parametric: { x: 't^2/2', y: 't', t: [-3.2, 5] }, color: 'accent' },
+      { parametric: { x: 't+4', y: 't', t: [-3.2, 5] }, color: 'green' },
+    ],
+    dots: [
+      { x: 2, y: -2, color: 'ink', label: '(2, −2)', dx: 10, dy: 16, anchor: 'start' },
+      { x: 8, y: 4, color: 'ink', label: '(8, 4)', dx: -10, dy: -10, anchor: 'end' },
+    ],
+    notes: [
+      { x: 1.1, y: 3.6, text: 'y² = 2x', anchor: 'start', color: 'accent' },
+      { x: 6.0, y: 1.2, text: 'y = x − 4', anchor: 'start', color: 'green' },
+      { x: 5.2, y: 2.6, text: 'S = 18', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  {
+    id: 'hm5-11-cycloid-graph',
+    alt: '摆线 x = a(t − sin t)、y = a(1 − cos t) 的一拱，与 x 轴围成的面积是 3πa²',
+    width: 660,
+    height: 400,
+    x: [-0.6, 7.2],
+    y: [-0.5, 2.6],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 4 },
+    fills: [
+      {
+        upper: {
+          param: { x: 't-sin(t)', y: '1-cos(t)', t: [0, 2 * Math.PI], samples: 600 },
+        },
+        lower: { fn: '0', range: [0, 2 * Math.PI] },
+        color: 'accent',
+        opacity: 0.2,
+      },
+    ],
+    curves: [
+      { parametric: { x: 't-sin(t)', y: '1-cos(t)', t: [0, 2 * Math.PI], samples: 800 }, color: 'accent' },
+    ],
+    vguides: [{ x: 2 * Math.PI, dash: '5 4', label: '2πa' }],
+    xMarks: [{ x: Math.PI, label: 'πa' }],
+    dots: [
+      { x: 0, y: 0, color: 'ink', r: 3.2 },
+      { x: 2 * Math.PI, y: 0, color: 'ink', r: 3.2 },
+      { x: Math.PI, y: 2, color: 'ink', r: 3.2, label: '最高点 2a', dx: 10, dy: -9 },
+    ],
+    notes: [{ x: 3.1, y: 0.55, text: 'S = 3πa²', anchor: 'middle', color: 'ink' }],
+  },
+  // 极坐标系：等比例画布（x 跨度 4.8、y 跨度 3.6，配 510×400 → 1 单位像素相同），
+  // 否则角度弧和射线会被拉歪。
+  {
+    id: 'hm5-12-polar-coordinates',
+    alt: '极坐标系：极点 O、极轴、极径 ρ 与极角 θ；点 M 的极坐标写作 (ρ, θ)',
+    width: 510,
+    height: 400,
+    x: [-0.8, 4.0],
+    y: [-1.4, 2.2],
+    bare: true,
+    polarGrid: { rays: 45, circles: [1, 2, 3] },
+    segments: [
+      { points: [[0, 0], [3.85, 0]], color: 'accent', width: 1.6 },
+      { points: [[0, 0], [1.9, 1.25]], color: 'green', width: 1.6 },
+    ],
+    arrows: [{ from: [3.55, 0], to: [3.95, 0], color: 'accent' }],
+    arcs: [{ center: [0, 0], radius: 0.85, from: 0, to: Math.atan2(1.25, 1.9), color: 'red', label: 'θ', labelRadius: 1.12 }],
+    dots: [
+      { x: 0, y: 0, color: 'ink', r: 3.4 },
+      { x: 1.9, y: 1.25, color: 'ink', r: 3.6, label: 'M(ρ, θ)', dx: 10, dy: -8 },
+    ],
+    notes: [
+      { x: -0.14, y: -0.2, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 3.3, y: -0.26, text: '极轴', anchor: 'middle', color: 'accent' },
+      { x: 1.18, y: 0.86, text: 'ρ', anchor: 'middle', color: 'green' },
+    ],
+  },
+  {
+    id: 'hm5-13-polar-area-sector',
+    alt: '曲边扇形的面积：ρ = ρ(θ) 与两条射线围成的区域，面积微元是 dS = ½ρ²dθ',
+    width: 510,
+    height: 400,
+    x: [-3.0, 3.0],
+    y: [-2.25, 2.25],
+    bare: true,
+    polarGrid: { rays: 45, circles: [1, 2] },
+    fills: [
+      {
+        upper: { polar: { rho: '1.7+0.5*cos(2*t)', theta: [0.35, 1.25] } },
+        lower: { point: [0, 0] },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      { polar: { rho: '1.7+0.5*cos(2*t)', theta: [0, 2 * Math.PI] }, color: 'accent' },
+    ],
+    segments: [
+      { points: [[0, 0], [1.7 * 0 + (1.7 + 0.5 * Math.cos(0.7)) * Math.cos(0.35), (1.7 + 0.5 * Math.cos(0.7)) * Math.sin(0.35)]], color: 'green', dash: '5 4' },
+      { points: [[0, 0], [(1.7 + 0.5 * Math.cos(2.5)) * Math.cos(1.25), (1.7 + 0.5 * Math.cos(2.5)) * Math.sin(1.25)]], color: 'green', dash: '5 4' },
+    ],
+    arcs: [{ center: [0, 0], radius: 0.6, from: 0.35, to: 1.25, color: 'red' }],
+    notes: [
+      { x: 1.0, y: 0.36, text: 'dθ', anchor: 'start', color: 'red' },
+      { x: 1.55, y: 1.05, text: 'ρ = ρ(θ)', anchor: 'start', color: 'accent' },
+      { x: 0.15, y: -0.28, text: 'O', anchor: 'start', color: 'ink' },
+      { x: 1.05, y: 0.86, text: 'dS = ½ρ²dθ', anchor: 'start', color: 'ink' },
+    ],
+  },
+  {
+    id: 'hm5-14-polar-area-between-curves',
+    alt: '两条极坐标曲线 ρ = ρ₁(θ) 与 ρ = ρ₂(θ) 之间、夹在两条射线之间的区域，面积是两者平方差的一半积分',
+    width: 510,
+    height: 400,
+    // 外圈半径 2.3，y 必须给到 ±2.6 以上，否则圆会被绘图区上下边裁掉一截
+    x: [-3.5, 3.5],
+    y: [-2.625, 2.625],
+    bare: true,
+    polarGrid: { rays: 45, circles: [1, 2] },
+    fills: [
+      {
+        upper: { polar: { rho: '2.3', theta: [0.3, 1.5] } },
+        lower: { polar: { rho: '1.35', theta: [0.3, 1.5] } },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      { polar: { rho: '2.3', theta: [0, 2 * Math.PI] }, color: 'accent' },
+      { polar: { rho: '1.35', theta: [0, 2 * Math.PI] }, color: 'green' },
+    ],
+    arcs: [{ center: [0, 0], radius: 0.55, from: 0.3, to: 1.5, color: 'red' }],
+    notes: [
+      { x: 1.85, y: 1.15, text: 'ρ₁(θ)', anchor: 'start', color: 'accent' },
+      { x: 0.95, y: 0.72, text: 'ρ₂(θ)', anchor: 'start', color: 'green' },
+      { x: 0.42, y: 0.2, text: 'α', anchor: 'end', color: 'red' },
+      { x: 0.45, y: 1.42, text: 'β', anchor: 'end', color: 'red' },
+    ],
+  },
+  {
+    id: 'hm5-22-arc-length-element',
+    alt: '弧长微元：在小段曲线上用弦长近似弧长，ds = √(dx² + dy²)',
+    width: 640,
+    height: 400,
+    x: [0.3, 2.9],
+    y: [0.3, 2.4],
+    xTick: { type: 'num', target: 5 },
+    yTick: { type: 'num', target: 4 },
+    curves: [{ fn: '0.22*x^2+0.5', color: 'accent' }],
+    segments: [
+      // 直角三角形两条直角边：dx 水平、dy 竖直
+      { points: [[1.0, 0.72], [2.3, 0.72]], color: 'green', dash: '5 4' },
+      { points: [[2.3, 0.72], [2.3, 1.6636]], color: 'red', dash: '5 4' },
+    ],
+    dots: [
+      { x: 1.0, y: 0.72, color: 'ink', r: 3.4, label: 'P', dx: -12, dy: 4, anchor: 'end' },
+      { x: 2.3, y: 1.6636, color: 'ink', r: 3.4, label: 'Q', dx: 10, dy: -6 },
+    ],
+    notes: [
+      { x: 1.65, y: 0.55, text: 'dx', anchor: 'middle', color: 'green' },
+      { x: 2.42, y: 1.2, text: 'dy', anchor: 'start', color: 'red' },
+      { x: 1.42, y: 1.36, text: 'ds（弦长）', anchor: 'end', color: 'ink' },
+      { x: 1.9, y: 2.15, text: 'ds = √(dx² + dy²)', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  // ── 第 5 章：定积分应用里的立体 ─────────────────────────────────────
+  // 这一组的关键是「切片」：曲面画得淡（0.3~0.4），截面/代表微元画得实（0.6~0.9），
+  // 读者的注意力自然落到「那一刀切下去是什么形状」上。
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-16-parallel-cross-section',
+    title: '平行截面法  V = ∫A(x)dx',
+    alt: '平行截面法：用垂直于 x 轴的平面去截立体 Ω，截面面积是 x 的函数 A(x)，把每个薄片 A(x)dx 累加就是体积',
+    width: 600,
+    height: 460,
+    threeD: {
+      azimuth: 40,
+      elevation: 20,
+      surfaces: [
+        {
+          u: [0, Math.PI],
+          v: [0, Math.PI * 2],
+          nu: 16,
+          nv: 30,
+          x: '1.55*sin(u)*cos(v)',
+          y: '1.15*sin(u)*sin(v)',
+          z: '0.95*cos(u)',
+          color: 'accent',
+          opacity: 0.3,
+        },
+        {
+          // x = 0.6 处切下来的截面（椭圆片）
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 2,
+          nv: 40,
+          x: '0.6',
+          y: '1.06*u*cos(v)',
+          z: '0.876*u*sin(v)',
+          color: 'red',
+          opacity: 0.7,
+        },
+      ],
+      axes: [{ to: [2.1, 0, 0], label: 'x', labelAt: [2.25, 0, 0] }],
+      points: [{ p: [0.6, 0, 0.876], label: '截面面积 A(x)', dx: 12, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-17-cylinder-cut-volume',
+    title: '平面斜截圆柱体',
+    alt: '平面斜截圆柱体：底圆半径为 R 的圆柱被一个与底面成角 α 的平面截下，截口的斜高是 y·tan α',
+    width: 600,
+    height: 460,
+    threeD: {
+      azimuth: 38,
+      elevation: 20,
+      surfaces: [
+        {
+          // 侧面：高度随 y 变化，z 从 0 到 R·tanα·sin v
+          u: [0, Math.PI * 2],
+          v: [0, 1],
+          nu: 32,
+          nv: 10,
+          x: '1.2*cos(u)',
+          y: '1.2*sin(u)',
+          z: '0.55*1.2*sin(u)*v',
+          color: 'accent',
+          opacity: 0.34,
+        },
+        {
+          // 底面圆
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 3,
+          nv: 36,
+          x: '1.2*u*cos(v)',
+          y: '1.2*u*sin(v)',
+          z: '0',
+          color: 'red',
+          opacity: 0.5,
+        },
+        {
+          // 斜截口（平面截出来的椭圆面）
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 3,
+          nv: 36,
+          x: '1.2*u*cos(v)',
+          y: '1.2*u*sin(v)',
+          z: '0.55*1.2*u*sin(v)',
+          color: 'green',
+          opacity: 0.6,
+        },
+      ],
+      axes: [{ to: [0, 0, 1.4], label: 'z', labelAt: [0, 0, 1.55] }],
+      points: [{ p: [0, 1.2, 0.66], label: '斜高 y·tan α', dx: 12, dy: -6, color: 'green' }],
+    },
+    notes: [],
+  },
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-18-solid-x-type-region',
+    title: 'X 型区域绕 x 轴旋转（圆盘法）',
+    alt: '圆盘法：曲线 y = f(x) 与 x 轴围成的区域绕 x 轴旋转，垂直于 x 轴的截面是半径 |f(x)| 的圆',
+    width: 620,
+    height: 460,
+    threeD: {
+      azimuth: 34,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.5, 1.5],
+          v: [0, Math.PI * 2],
+          nu: 20,
+          nv: 34,
+          x: 'u',
+          y: '(0.85 - 0.2*u^2)*cos(v)',
+          z: '(0.85 - 0.2*u^2)*sin(v)',
+          color: 'accent',
+          opacity: 0.32,
+        },
+        {
+          // x = 0.6 处的圆盘截面
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 2,
+          nv: 36,
+          x: '0.6',
+          y: '0.778*u*cos(v)',
+          z: '0.778*u*sin(v)',
+          color: 'red',
+          opacity: 0.75,
+        },
+      ],
+      axes: [{ to: [1.95, 0, 0], label: 'x', labelAt: [2.1, 0, 0] }],
+      curves: [
+        // 生成曲线（在 xOz 面内）
+        {
+          x: 't',
+          y: '0',
+          z: '0.85 - 0.2*t^2',
+          t: [-1.5, 1.5],
+          color: 'green',
+          width: 2.4,
+          samples: 50,
+        },
+      ],
+      points: [{ p: [0.6, 0, 0.778], label: '半径 |f(x)|', dx: 12, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-19-solid-y-type-region',
+    title: 'Y 型区域绕 y 轴旋转（圆盘法）',
+    alt: '圆盘法：曲线 x = φ(y) 与 y 轴围成的区域绕 y 轴旋转，垂直于 y 轴的截面是半径 |φ(y)| 的圆',
+    width: 320,
+    height: 470,
+    threeD: {
+      // 旋转轴是 y，把 y 摆成竖直方向，读者才认得出「这是个旋转体」
+      upAxis: 'y',
+      azimuth: 38,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.25, 1.25],
+          v: [0, Math.PI * 2],
+          nu: 20,
+          nv: 34,
+          x: '(0.8 - 0.15*u^2)*cos(v)',
+          y: 'u',
+          z: '(0.8 - 0.15*u^2)*sin(v)',
+          color: 'accent',
+          opacity: 0.32,
+        },
+        {
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 2,
+          nv: 36,
+          x: '0.7625*u*cos(v)',
+          y: '0.5',
+          z: '0.7625*u*sin(v)',
+          color: 'red',
+          opacity: 0.75,
+        },
+      ],
+      axes: [{ to: [0, 1.95, 0], label: 'y', labelAt: [0, 2.1, 0] }],
+      curves: [
+        { x: '0.8 - 0.15*t^2', y: 't', z: '0', t: [-1.25, 1.25], color: 'green', width: 2.4, samples: 50 },
+      ],
+      points: [{ p: [0.7625, 0.5, 0], label: '半径 |φ(y)|', dx: 12, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-20-solid-ring-region',
+    title: '环形区域绕 x 轴旋转（截面是圆环）',
+    alt: '圆环法：上下两条曲线之间的区域绕 x 轴旋转，截面是外径 f₁(x)、内径 f₂(x) 的圆环',
+    width: 620,
+    height: 460,
+    threeD: {
+      azimuth: 34,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.2, 1.2],
+          v: [0, Math.PI * 2],
+          nu: 12,
+          nv: 26,
+          x: 'u',
+          y: '(1.0 - 0.1*u^2)*cos(v)',
+          z: '(1.0 - 0.1*u^2)*sin(v)',
+          color: 'accent',
+          opacity: 0.3,
+        },
+        {
+          u: [-1.2, 1.2],
+          v: [0, Math.PI * 2],
+          nu: 12,
+          nv: 26,
+          x: 'u',
+          y: '(0.55 + 0.05*u^2)*cos(v)',
+          z: '(0.55 + 0.05*u^2)*sin(v)',
+          color: 'green',
+          opacity: 0.34,
+        },
+        {
+          // x = 0.5 处的圆环截面
+          u: [0, 1],
+          v: [0, Math.PI * 2],
+          nu: 2,
+          nv: 36,
+          x: '0.5',
+          y: '(0.5625 + 0.4125*u)*cos(v)',
+          z: '(0.5625 + 0.4125*u)*sin(v)',
+          color: 'red',
+          opacity: 0.7,
+        },
+      ],
+      axes: [{ to: [1.7, 0, 0], label: 'x', labelAt: [1.85, 0, 0] }],
+      points: [{ p: [0.5, 0, 0.975], label: '外径 f₁、内径 f₂', dx: 12, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    disabled: true, // 作者认为三维网格不够清晰，改用手绘
+    id: 'hm5-21-shell-method',
+    title: '柱壳法：窄条绕 y 轴旋转成柱壳',
+    alt: '柱壳法：在 x 处取宽 dx 的窄条，绕 y 轴旋转形成一个薄柱壳，展开后是长 2πx、高 |f(x)|、厚 dx 的薄片',
+    width: 620,
+    height: 470,
+    threeD: {
+      // 柱壳是绕 y 轴卷起来的，同样把 y 摆成竖直
+      upAxis: 'y',
+      azimuth: 34,
+      elevation: 16,
+      surfaces: [
+        {
+          // 代表柱壳：半径 t = 0.9，高 f(0.9)
+          u: [0, Math.PI * 2],
+          v: [0, 1],
+          nu: 32,
+          nv: 8,
+          x: '0.9*cos(u)',
+          y: '1.103*v',
+          z: '0.9*sin(u)',
+          color: 'accent',
+          opacity: 0.42,
+        },
+        {
+          // 生成区域（在 xOy 面内）
+          u: [0.4, 1.4],
+          v: [0, 1],
+          nu: 12,
+          nv: 8,
+          x: 'u',
+          y: '(1.2 - 0.12*u^2)*v',
+          z: '0',
+          color: 'green',
+          opacity: 0.42,
+        },
+      ],
+      axes: [{ to: [0, 1.9, 0], label: 'y', labelAt: [0, 2.05, 0] }],
+      lines3d: [
+        // 代表窄条：x = 0.9 处的一竖条
+        { from: [0.9, 0, 0], to: [0.9, 1.103, 0], color: 'red', width: 3, onTop: true },
+      ],
+      points: [{ p: [0.9, 1.103, 0], label: '高 |f(x)|、厚 dx', dx: 12, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  // ── 第 7 章：二次曲面（截痕法 + 旋转/平移生成）───────────────────────
+  // 统一约定：虚实线用同一套配色；截痕曲线一律红色；曲面半透明（0.7 左右），
+  // 这样背面看得见，截痕落在曲面里也读得出前后关系。
+  {
+    id: 'hm7-17-ellipsoid-and-sphere',
+    title: '椭球面  x²/a² + y²/b² + z²/c² = 1',
+    alt: '椭球面：压扁的球，用水平面 z = t 截出的是椭圆；t 从 −c 变到 c 时椭圆先变大再缩小为一点',
+    width: 600,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 22,
+      surfaces: [
+        {
+          u: [0, Math.PI],
+          v: [0, Math.PI * 2],
+          nu: 16,
+          nv: 30,
+          x: '1.5*sin(u)*cos(v)',
+          y: '1.1*sin(u)*sin(v)',
+          z: '0.9*cos(u)',
+          color: 'accent',
+          opacity: 0.55,
+        },
+      ],
+      axes: [
+        { to: [1.95, 0, 0], label: 'x', labelAt: [2.1, 0, 0] },
+        { to: [0, 1.55, 0], label: 'y', labelAt: [0, 1.7, 0] },
+        { to: [0, 0, 1.35], label: 'z', labelAt: [0, 0, 1.5] },
+      ],
+      // 两个截口：z = 0 最大（红），z = 0.55 小一圈（绿）—— 直观说明「椭圆随 t 变化」
+      curves: [
+        { x: '1.5*cos(t)', y: '1.1*sin(t)', z: '0', t: [0, Math.PI * 2], color: 'red', width: 2 },
+        {
+          x: '1.188*cos(t)',
+          y: '0.871*sin(t)',
+          z: '0.55',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 0.55], label: 'z = t', dx: 12, dy: -4, color: 'green' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-18-elliptic-cone',
+    title: '椭圆锥面  x²/a² + y²/b² = z²',
+    alt: '椭圆锥面：漏斗形，上下一对锥面在原点相接；用 z = t 截得椭圆，t 越大椭圆越大',
+    width: 450,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 24,
+      surfaces: [
+        {
+          u: [-1.45, 1.45],
+          v: [0, Math.PI * 2],
+          nu: 14,
+          nv: 30,
+          x: '1.1*u*cos(v)',
+          y: '0.8*u*sin(v)',
+          z: 'u',
+          color: 'accent',
+          opacity: 0.6,
+        },
+      ],
+      axes: [
+        { to: [1.55, 0, 0], label: 'x', labelAt: [1.72, 0, 0] },
+        { to: [0, 1.15, 0], label: 'y', labelAt: [0, 1.3, 0] },
+        { to: [0, 0, 1.85], label: 'z', labelAt: [0, 0, 2.0] },
+      ],
+      curves: [
+        {
+          x: '0.99*cos(t)',
+          y: '0.72*sin(t)',
+          z: '0.9',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2,
+        },
+        {
+          x: '0.66*cos(t)',
+          y: '0.48*sin(t)',
+          z: '0.6',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 0], label: '顶点', dx: 12, dy: 12, color: 'ink' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-19-elliptic-paraboloid',
+    title: '椭圆抛物面  z = x²/a² + y²/b²',
+    alt: '椭圆抛物面：开口朝上的碗形曲面，用水平面 z = t 去截，截线是一族椭圆',
+    width: 600,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 24,
+      surfaces: [
+        {
+          u: [-1.6, 1.6],
+          v: [-1.2, 1.2],
+          nu: 18,
+          nv: 16,
+          x: 'u',
+          y: 'v',
+          z: '0.34*u^2 + 0.62*v^2',
+          color: 'accent',
+          opacity: 0.65,
+        },
+      ],
+      axes: [
+        { to: [1.95, 0, 0], label: 'x', labelAt: [2.12, 0, 0] },
+        { to: [0, 1.55, 0], label: 'y', labelAt: [0, 1.72, 0] },
+        { to: [0, 0, 1.95], label: 'z', labelAt: [0, 0, 2.1] },
+      ],
+      // z = 0.8 处的截线：0.34x² + 0.62y² = 0.8 即椭圆 x²/1.53² + y²/1.14² = 1
+      curves: [
+        {
+          x: '1.534*cos(t)',
+          y: '1.136*sin(t)',
+          z: '0.8',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 0.8], label: 'z = t 截得椭圆', dx: 13, dy: 5, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-20-hyperboloid-one-sheet',
+    title: '单叶双曲面  x²/a² + y²/b² − z²/c² = 1',
+    alt: '单叶双曲面：腰鼓形，中间最细处是腰椭圆；用 z = t 截得的椭圆始终存在，上下越来越大',
+    width: 470,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 22,
+      surfaces: [
+        {
+          u: [-1.25, 1.25],
+          v: [0, Math.PI * 2],
+          nu: 16,
+          nv: 30,
+          x: '1.0*cosh(u)*cos(v)',
+          y: '0.8*cosh(u)*sin(v)',
+          z: '0.9*sinh(u)',
+          color: 'accent',
+          opacity: 0.55,
+        },
+      ],
+      axes: [
+        { to: [1.9, 0, 0], label: 'x', labelAt: [2.05, 0, 0] },
+        { to: [0, 1.6, 0], label: 'y', labelAt: [0, 1.75, 0] },
+        { to: [0, 0, 1.5], label: 'z', labelAt: [0, 0, 1.65] },
+      ],
+      // 腰椭圆（z = 0，最小）与 z = 0.6 处的椭圆（更大）—— 说明「椭圆始终存在」
+      curves: [
+        { x: '1.0*cos(t)', y: '0.8*sin(t)', z: '0', t: [0, Math.PI * 2], color: 'red', width: 2 },
+        {
+          x: '1.202*cos(t)',
+          y: '0.961*sin(t)',
+          z: '0.6',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 0], label: '腰椭圆', dx: 12, dy: 14, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-21-hyperboloid-two-sheets',
+    title: '双叶双曲面  z²/c² − x²/a² − y²/b² = 1',
+    alt: '双叶双曲面：上下两片互相分离；只有 |z| ≥ c 的平面才截得到椭圆，z = ±c 时缩成两点',
+    width: 320,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 20,
+      surfaces: [
+        {
+          u: [1, 1.9],
+          v: [0, Math.PI * 2],
+          nu: 10,
+          nv: 28,
+          x: '0.75*sqrt(u^2-1)*cos(v)',
+          y: '0.6*sqrt(u^2-1)*sin(v)',
+          z: 'u',
+          color: 'accent',
+          opacity: 0.62,
+        },
+        {
+          u: [1, 1.9],
+          v: [0, Math.PI * 2],
+          nu: 10,
+          nv: 28,
+          x: '0.75*sqrt(u^2-1)*cos(v)',
+          y: '0.6*sqrt(u^2-1)*sin(v)',
+          z: '-u',
+          color: 'accent',
+          opacity: 0.62,
+        },
+      ],
+      axes: [
+        { to: [1.5, 0, 0], label: 'x', labelAt: [1.65, 0, 0] },
+        { to: [0, 1.2, 0], label: 'y', labelAt: [0, 1.35, 0] },
+        { to: [0, 0, 2.15], label: 'z', labelAt: [0, 0, 2.3] },
+      ],
+      // z = ±1.6 处的截口椭圆（r = sqrt(1.6² − 1) = 1.249）
+      curves: [
+        {
+          x: '0.937*cos(t)',
+          y: '0.749*sin(t)',
+          z: '1.6',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2,
+        },
+        {
+          x: '0.937*cos(t)',
+          y: '0.749*sin(t)',
+          z: '-1.6',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 1], label: 'z = c 时缩为一点', dx: 13, dy: -4, color: 'ink' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-22-hyperbolic-paraboloid',
+    title: '双曲抛物面（马鞍面）  z = x²/a² − y²/b²',
+    alt: '双曲抛物面：马鞍形，一个方向向上弯、另一个方向向下弯；用 z = t 截得双曲线，用 x = t 截得抛物线',
+    width: 600,
+    height: 470,
+    threeD: {
+      azimuth: 40,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.5, 1.5],
+          v: [-1.5, 1.5],
+          nu: 16,
+          nv: 16,
+          x: 'u',
+          y: 'v',
+          z: '0.42*u^2 - 0.42*v^2',
+          color: 'accent',
+          opacity: 0.62,
+        },
+      ],
+      axes: [
+        { to: [1.95, 0, 0], label: 'x', labelAt: [2.1, 0, 0] },
+        { to: [0, 1.95, 0], label: 'y', labelAt: [0, 2.1, 0] },
+        { to: [0, 0, 1.3], label: 'z', labelAt: [0, 0, 1.45] },
+      ],
+      // z = 0 时是两条相交直线；z = 0.5 时是左右两支双曲线
+      curves: [
+        {
+          x: '1.091*cosh(t)',
+          y: '1.091*sinh(t)',
+          z: '0.5',
+          t: [-0.9, 0.9],
+          color: 'red',
+          width: 2,
+        },
+        {
+          x: '-1.091*cosh(t)',
+          y: '1.091*sinh(t)',
+          z: '0.5',
+          t: [-0.9, 0.9],
+          color: 'red',
+          width: 2,
+        },
+      ],
+      points: [{ p: [0, 0, 0], label: '鞍点', dx: 12, dy: 14, color: 'ink' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-23-surface-of-revolution',
+    title: '曲线绕 z 轴旋转 → 旋转曲面',
+    alt: '旋转曲面：yOz 面内的母线绕 z 轴旋转，母线上每一点画出一个纬圆',
+    width: 600,
+    height: 470,
+    threeD: {
+      azimuth: 34,
+      elevation: 20,
+      surfaces: [
+        {
+          u: [0, 1.25],
+          v: [0, Math.PI * 2],
+          nu: 14,
+          nv: 30,
+          x: 'u*cos(v)',
+          y: 'u*sin(v)',
+          z: 'u^2',
+          color: 'accent',
+          opacity: 0.34,
+        },
+      ],
+      axes: [{ to: [0, 0, 2.1], label: 'z', labelAt: [0, 0, 2.25], color: 'axis' }],
+      // 母线：位于 yOz 面（x = 0）内的 z = y²
+      curves: [
+        {
+          x: '0',
+          y: 't',
+          z: 't^2',
+          t: [0, 1.25],
+          color: 'red',
+          width: 2.4,
+          samples: 60,
+        },
+        // 两个纬圆（高度不变、半径不变）
+        {
+          x: '0.707*cos(t)',
+          y: '0.707*sin(t)',
+          z: '0.5',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 1.8,
+        },
+        {
+          x: '1.0*cos(t)',
+          y: '1.0*sin(t)',
+          z: '1.0',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 1.8,
+        },
+      ],
+      points: [{ p: [0, 0.707, 0.5], label: '纬圆', dx: 11, dy: -6, color: 'green' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-24-cone-surface',
+    title: '圆锥面  z² = (x² + y²)cot²α',
+    alt: '圆锥面：yOz 面内的直线 z = y·cot α 绕 z 轴旋转，得到顶点在原点的圆锥面',
+    width: 600,
+    height: 470,
+    threeD: {
+      azimuth: 38,
+      elevation: 20,
+      surfaces: [
+        {
+          u: [0, 1.75],
+          v: [0, Math.PI * 2],
+          nu: 14,
+          nv: 30,
+          x: 'u*cos(v)',
+          y: 'u*sin(v)',
+          z: '0.72*u',
+          color: 'accent',
+          opacity: 0.4,
+        },
+      ],
+      axes: [
+        { to: [0, 0, 2.0], label: 'z', labelAt: [0, 0, 2.15] },
+        { to: [1.6, 0, 0], label: 'x', labelAt: [1.75, 0, 0] },
+      ],
+      curves: [
+        // 母线 z = y·cot α（在 yOz 面内）
+        { x: '0', y: 't', z: '0.72*t', t: [0, 1.75], color: 'red', width: 2.4, samples: 40 },
+        // 一个纬圆
+        {
+          x: '1.26*cos(t)',
+          y: '1.26*sin(t)',
+          z: '0.907',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 1.8,
+        },
+      ],
+      points: [{ p: [0, 0, 0], label: '顶点', dx: 12, dy: 14, color: 'ink' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-25-revolved-hyperboloid',
+    title: '旋转单叶双曲面  (x² + y²)/a² − z²/c² = 1',
+    alt: '旋转单叶双曲面：双曲线 y²/a² − z²/c² = 1 绕 z 轴旋转所得，腰鼓形',
+    width: 450,
+    height: 470,
+    threeD: {
+      azimuth: 38,
+      elevation: 20,
+      surfaces: [
+        {
+          u: [-1.1, 1.1],
+          v: [0, Math.PI * 2],
+          nu: 14,
+          nv: 30,
+          x: '0.75*cosh(u)*cos(v)',
+          y: '0.75*cosh(u)*sin(v)',
+          z: '0.9*sinh(u)',
+          color: 'accent',
+          opacity: 0.5,
+        },
+      ],
+      axes: [
+        { to: [0, 0, 1.6], label: 'z', labelAt: [0, 0, 1.75] },
+        { to: [1.35, 0, 0], label: 'x', labelAt: [1.5, 0, 0] },
+      ],
+      // 母线：yOz 面内的双曲线 y²/a² − z²/c² = 1 的右支
+      curves: [
+        {
+          x: '0',
+          y: '0.75*cosh(t)',
+          z: '0.9*sinh(t)',
+          t: [-1.1, 1.1],
+          color: 'red',
+          width: 2.4,
+          samples: 60,
+        },
+        {
+          x: '1.2*cos(t)',
+          y: '1.2*sin(t)',
+          z: '0.8',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 1.8,
+        },
+      ],
+      points: [{ p: [0, 0.75, 0], label: '腰圆', dx: 12, dy: 12, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-26-revolved-paraboloid',
+    title: '旋转抛物面  z = x² + y²',
+    alt: '旋转抛物面：抛物线 z = k·y² 绕 z 轴旋转所得，开口朝上的碗形',
+    width: 480,
+    height: 470,
+    threeD: {
+      azimuth: 38,
+      elevation: 22,
+      surfaces: [
+        {
+          u: [0, 1.35],
+          v: [0, Math.PI * 2],
+          nu: 14,
+          nv: 30,
+          x: 'u*cos(v)',
+          y: 'u*sin(v)',
+          z: '1.15*u^2',
+          color: 'accent',
+          opacity: 0.55,
+        },
+      ],
+      axes: [
+        { to: [0, 0, 2.3], label: 'z', labelAt: [0, 0, 2.45] },
+        { to: [1.6, 0, 0], label: 'x', labelAt: [1.75, 0, 0] },
+      ],
+      curves: [
+        { x: '0', y: 't', z: '1.15*t^2', t: [-1.35, 1.35], color: 'red', width: 2.4, samples: 60 },
+        {
+          x: '1.0*cos(t)',
+          y: '1.0*sin(t)',
+          z: '1.15',
+          t: [0, Math.PI * 2],
+          color: 'green',
+          width: 1.8,
+        },
+      ],
+      points: [{ p: [0, 0, 0], label: '顶点', dx: 12, dy: 14, color: 'ink' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-27-circular-cylinder',
+    title: '圆柱面  x² + y² = R²',
+    alt: '圆柱面：圆沿 z 轴方向平移形成，缺少变量 z 说明母线平行于 z 轴',
+    width: 450,
+    height: 470,
+    threeD: {
+      azimuth: 36,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [0, Math.PI * 2],
+          v: [0, 2.4],
+          nu: 30,
+          nv: 10,
+          x: '1.1*cos(u)',
+          y: '1.1*sin(u)',
+          z: 'v',
+          color: 'accent',
+          opacity: 0.45,
+        },
+      ],
+      axes: [{ to: [0, 0, 2.9], label: 'z', labelAt: [0, 0, 3.05] }],
+      curves: [
+        // 准线：xOy 面上的圆
+        {
+          x: '1.1*cos(t)',
+          y: '1.1*sin(t)',
+          z: '0',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2.2,
+        },
+      ],
+      // 母线：曲面上的竖直直线
+      lines3d: [
+        { from: [1.1, 0, 0], to: [1.1, 0, 2.4], color: 'green', width: 2, onTop: true },
+      ],
+      points: [{ p: [1.1, 0, 2.4], label: '母线 ∥ z 轴', dx: 11, dy: -6, color: 'green' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-28-1-parabolic-cylinder',
+    title: '抛物柱面  x² = 2py',
+    alt: '抛物柱面：抛物线沿 z 轴方向平移形成，方程里缺少 z',
+    width: 380,
+    height: 460,
+    threeD: {
+      azimuth: 36,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.4, 1.4],
+          v: [0, 2.3],
+          nu: 22,
+          nv: 12,
+          x: 'u',
+          y: '0.55*u^2 - 0.9',
+          z: 'v',
+          color: 'accent',
+          opacity: 0.5,
+        },
+      ],
+      axes: [{ to: [0, 0, 2.85], label: 'z', labelAt: [0, 0, 3.0] }],
+      curves: [
+        {
+          x: 't',
+          y: '0.55*t^2 - 0.9',
+          z: '0',
+          t: [-1.4, 1.4],
+          color: 'red',
+          width: 2.2,
+          samples: 60,
+        },
+      ],
+      points: [{ p: [0, -0.9, 0], label: '准线', dx: 10, dy: 14, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm7-28-2-hyperbolic-cylinder',
+    title: '双曲柱面  x²/a² − y²/b² = 1',
+    alt: '双曲柱面：双曲线沿 z 轴方向平移形成，分成左右两片',
+    width: 560,
+    height: 460,
+    threeD: {
+      azimuth: 36,
+      elevation: 18,
+      surfaces: [
+        {
+          u: [-1.15, 1.15],
+          v: [0, 2.3],
+          nu: 14,
+          nv: 12,
+          x: '1.0*cosh(u)',
+          y: '0.75*sinh(u)',
+          z: 'v',
+          color: 'accent',
+          opacity: 0.5,
+        },
+        {
+          u: [-1.15, 1.15],
+          v: [0, 2.3],
+          nu: 14,
+          nv: 12,
+          x: '-1.0*cosh(u)',
+          y: '0.75*sinh(u)',
+          z: 'v',
+          color: 'accent',
+          opacity: 0.5,
+        },
+      ],
+      axes: [{ to: [0, 0, 2.85], label: 'z', labelAt: [0, 0, 3.0] }],
+      curves: [
+        {
+          x: '1.0*cosh(t)',
+          y: '0.75*sinh(t)',
+          z: '0',
+          t: [-1.15, 1.15],
+          color: 'red',
+          width: 2.2,
+          samples: 50,
+        },
+        {
+          x: '-1.0*cosh(t)',
+          y: '0.75*sinh(t)',
+          z: '0',
+          t: [-1.15, 1.15],
+          color: 'red',
+          width: 2.2,
+          samples: 50,
+        },
+      ],
+      points: [{ p: [1.0, 0, 0], label: '两片分离', dx: 10, dy: 14, color: 'red' }],
+    },
+    notes: [],
+  },
   {
     id: 'hm5-15-cardioid-graph',
     alt: '心形线 ρ = 2(1 + cos θ) 的图形，画在极坐标网格上',
@@ -1552,7 +3590,10 @@ function main() {
   const onlyArg = process.argv.indexOf('--only');
   const only = onlyArg > -1 ? process.argv[onlyArg + 1] : null;
 
-  const targets = FIGURES.filter((fig) => !only || fig.id.includes(only));
+  // disabled 的图跳过不生成（规格留着备查，见文件里标记了 disabled 的那几条）
+  const targets = FIGURES.filter((fig) => !only || fig.id.includes(only)).filter(
+    (fig) => !fig.disabled
+  );
   if (targets.length === 0) {
     console.error(`[plot] --only ${only} 没有匹配到任何图`);
     process.exitCode = 1;
@@ -1563,13 +3604,28 @@ function main() {
 
   const rows = [];
   for (const fig of targets) {
-    // 先全部编译一遍再落盘：表达式写错时不要留下半套图
-    for (const c of fig.curves ?? []) {
-      if (c.parametric) {
-        compile(c.parametric.x, c.parametric.var ?? 't', c.parametric.consts ?? {});
-        compile(c.parametric.y, c.parametric.var ?? 't', c.parametric.consts ?? {});
-      } else {
-        compile(c.fn, 'x', c.consts ?? {});
+    // 先把所有表达式编译一遍：写错时直接指出是哪张图、哪一条，别留下半套图。
+    // 曲线的三种写法（fn / parametric / polar）都要过一遍，漏掉一种就会在渲染时才炸。
+    const checkCurve = (c, where) => {
+      try {
+        // 曲线用 parametric、填充的边界用 param，两种名字都认
+        const par = c.parametric ?? c.param;
+        if (c.polar) compile(c.polar.rho, 't', c.polar.consts ?? {});
+        else if (par) {
+          compile(par.x, par.var ?? 't', par.consts ?? {});
+          compile(par.y, par.var ?? 't', par.consts ?? {});
+        } else compile(c.fn, c.var ?? 'x', c.consts ?? {});
+      } catch (e) {
+        throw new Error(`[${fig.id}] ${where}：${e.message}`);
+      }
+    };
+    for (const c of fig.curves ?? []) checkCurve(c, 'curves');
+    for (const t of fig.tangents ?? []) checkCurve({ fn: t.fn, consts: t.consts }, 'tangents');
+    for (const fl of fig.fills ?? []) {
+      if (fl.fn) checkCurve({ fn: fl.fn, consts: fl.consts }, 'fills');
+      else {
+        if (fl.upper && !fl.upper.point) checkCurve(fl.upper, 'fills.upper');
+        if (fl.lower && !fl.lower.point) checkCurve(fl.lower, 'fills.lower');
       }
     }
 

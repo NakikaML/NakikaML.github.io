@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Y 型区域的面积元：在高度 y 处取一条水平窄条，宽度是右曲边减左曲边 ψ(y) − φ(y)">
+  <title>Y 型区域的面积元：在高度 y 处取一条水平窄条，宽度是右曲边减左曲边 ψ(y) − φ(y)</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .guide line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1; stroke-dasharray: none; }
+  svg .guide-label { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-09-y-type-region-area"><rect x="46" y="34" width="570" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="570" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-09-y-type-region-area)"><line x1="160" y1="34" x2="160" y2="364"/><line x1="302.5" y1="34" x2="302.5" y2="364"/><line x1="445" y1="34" x2="445" y2="364"/><line x1="587.5" y1="34" x2="587.5" y2="364"/><line x1="46" y1="316.86" x2="616" y2="316.86"/><line x1="46" y1="238.29" x2="616" y2="238.29"/><line x1="46" y1="159.71" x2="616" y2="159.71"/><line x1="46" y1="81.14" x2="616" y2="81.14"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-09-y-type-region-area)"><path d="M331 316.9 L502 81.1 L231.3 81.1 L223.9 88 L216 95.9 L209.4 102.8 L202.2 110.6 L195.5 118.5 L189.9 125.3 L184.7 132.2 L179.1 140.1 L174 147.9 L169.9 154.8 L166.1 161.7 L162.1 169.5 L158.6 177.4 L155.9 184.3 L153.4 191.1 L151.1 199 L149.4 205.9 L147.8 213.7 L146.7 221.6 L146.1 228.5 L145.8 236.3 L145.8 243.2 L146.3 251.1 L147.1 257.9 L148.2 264.8 L149.8 272.7 L151.9 280.5 L154.1 287.4 L157 295.3 L159.9 302.1 L163.1 309 L167.1 316.9 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.16" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-09-y-type-region-area)"></g>
+  <g class="guide" clip-path="url(#clip-hm5-09-y-type-region-area)"><line x1="46" y1="191.14" x2="616" y2="191.14" stroke-dasharray="4 4"/></g>
+  <g class="axis"><line x1="40" y1="238.29" x2="624" y2="238.29"/><line x1="160" y1="238.29" x2="160" y2="242.29"/><line x1="302.5" y1="238.29" x2="302.5" y2="242.29"/><line x1="445" y1="238.29" x2="445" y2="242.29"/><line x1="587.5" y1="238.29" x2="587.5" y2="242.29"/><line x1="46" y1="316.86" x2="42" y2="316.86"/><line x1="46" y1="238.29" x2="42" y2="238.29"/><line x1="46" y1="159.71" x2="42" y2="159.71"/><line x1="46" y1="81.14" x2="42" y2="81.14"/></g>
+  <g clip-path="url(#clip-hm5-09-y-type-region-area)"><path d="M331 316.9 L502 81.1" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M167.1 316.9 L159.8 301.9 L154.1 287.3 L149.8 272.6 L147.1 257.9 L145.8 243 L146.1 228.3 L147.8 213.7 L151.1 199 L155.8 184.3 L162.1 169.7 L169.8 155 L179.1 140.1 L189.9 125.4 L202.1 110.7 L216 95.8 L231.3 81.1" class="curve" stroke="var(--plot-c3, #4f9a76)"/><path d="M153.4 191.1 L422.2 191.1" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="3" stroke-linecap="butt"/></g>
+  <g><text class="tick" x="160" y="253.29" text-anchor="middle">1</text><text class="tick" x="302.5" y="253.29" text-anchor="middle">2</text><text class="tick" x="445" y="253.29" text-anchor="middle">3</text><text class="tick" x="587.5" y="253.29" text-anchor="middle">4</text><text class="tick" x="38" y="320.86" text-anchor="end">-1</text><text class="tick" x="38" y="242.29" text-anchor="end">0</text><text class="tick" x="38" y="163.71" text-anchor="end">1</text><text class="tick" x="38" y="85.14" text-anchor="end">2</text><text class="axisname" x="622" y="231.29">x</text></g>
+  <g></g>
+  <g><text class="note" data-color="red" x="388" y="166" text-anchor="middle">ψ(y) − φ(y)</text><text class="note" data-color="muted" x="551.88" y="210" text-anchor="start">y</text></g>
+  <g></g>
+  <g></g>
+</svg>

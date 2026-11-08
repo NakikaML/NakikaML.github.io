@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 400" width="510" height="400" role="img" aria-label="极坐标系：极点 O、极轴、极径 ρ 与极角 θ；点 M 的极坐标写作 (ρ, θ)">
+  <title>极坐标系：极点 O、极轴、极径 ρ 与极角 θ；点 M 的极坐标写作 (ρ, θ)</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .arrow { stroke-width: 1.3; fill: none; }
+  svg .arc { fill: none; stroke-width: 1.3; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-12-polar-coordinates"><rect x="46" y="34" width="440" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="440" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-12-polar-coordinates)"><ellipse cx="119.33" cy="235.67" rx="91.67" ry="91.67"/><ellipse cx="119.33" cy="235.67" rx="183.33" ry="183.33"/><ellipse cx="119.33" cy="235.67" rx="275" ry="275"/><line x1="119.33" y1="235.67" x2="999.33" y2="235.67"/><line x1="119.33" y1="235.67" x2="741.59" y2="-386.59"/><line x1="119.33" y1="235.67" x2="119.33" y2="-644.33"/><line x1="119.33" y1="235.67" x2="-502.92" y2="-386.59"/><line x1="119.33" y1="235.67" x2="-760.67" y2="235.67"/><line x1="119.33" y1="235.67" x2="-502.92" y2="857.92"/><line x1="119.33" y1="235.67" x2="119.33" y2="1115.67"/><line x1="119.33" y1="235.67" x2="741.59" y2="857.92"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-12-polar-coordinates)"></g>
+  <g class="axis"></g>
+  <g clip-path="url(#clip-hm5-12-polar-coordinates)"><path d="M119.3 235.7 L472.3 235.7" class="curve" stroke="var(--plot-c1, #d78b34)" stroke-width="1.6" stroke-linecap="butt"/><path d="M119.3 235.7 L293.5 121.1" class="curve" stroke="var(--plot-c3, #4f9a76)" stroke-width="1.6" stroke-linecap="butt"/></g>
+  <g class="arc-layer" clip-path="url(#clip-hm5-12-polar-coordinates)"><path d="M197.3 235.7 L197.2 234.9 L197.2 234.2 L197.2 233.4 L197.2 232.6 L197.2 231.9 L197.1 231.1 L197.1 230.4 L197 229.6 L197 228.9 L196.9 228.1 L196.8 227.4 L196.7 226.6 L196.6 225.9 L196.5 225.1 L196.4 224.4 L196.3 223.6 L196.2 222.9 L196.1 222.1 L195.9 221.4 L195.8 220.6 L195.6 219.9 L195.5 219.2 L195.3 218.4 L195.1 217.7 L195 217 L194.8 216.2 L194.6 215.5 L194.4 214.8 L194.2 214 L194 213.3 L193.8 212.6 L193.5 211.9 L193.3 211.2 L193.1 210.4 L192.8 209.7 L192.5 209 L192.3 208.3 L192 207.6 L191.7 206.9 L191.5 206.2 L191.2 205.5 L190.9 204.8 L190.6 204.1 L190.3 203.4 L189.9 202.7 L189.6 202 L189.3 201.4 L189 200.7 L188.6 200 L188.3 199.3 L187.9 198.7 L187.5 198 L187.2 197.4 L186.8 196.7 L186.4 196 L186 195.4 L185.6 194.8 L185.2 194.1 L184.8 193.5 L184.4 192.8" class="arc" stroke="var(--plot-c2, #c9402e)"/><text class="note" data-color="red" x="217.69" y="206.224" text-anchor="middle">θ</text></g>
+  <g class="arrow-layer"><line x1="444.75" y1="235.67" x2="475.47" y2="235.67" class="arrow" stroke="var(--plot-c1, #d78b34)"/><path d="M481.42 235.67 L474.42 238.82 L474.42 232.52 Z" fill="var(--plot-c1, #d78b34)"/></g>
+  <g></g>
+  <g><circle cx="119.33" cy="235.67" r="3.4" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="293.5" cy="121.08" r="3.6" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="303.5" y="113.08" text-anchor="start">M(ρ, θ)</text></g>
+  <g><text class="note" data-color="ink" x="106.5" y="254" text-anchor="end">O</text><text class="note" data-color="accent" x="421.83" y="259.5" text-anchor="middle">极轴</text><text class="note" data-color="green" x="227.5" y="156.83" text-anchor="middle">ρ</text></g>
+  <g></g>
+  <g></g>
+</svg>

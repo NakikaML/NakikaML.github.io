@@ -6,9 +6,9 @@ subject: 数学
 subfield: 高等数学
 topic: 向量代数与空间解析几何
 difficulty: 基础
-date: "2026-10-17"
+date: "2026-11-08"
 tags: [高等数学, 向量代数, 数量积与向量积, 混合积, 平面方程, 空间直线, 二次曲面, 截痕法]
-draft: true
+draft: false
 featured: false
 ---
 
@@ -684,7 +684,7 @@ $$
 
 直接看二次曲面方程，很难在脑海中浮现它的立体形状。**截痕法**提供了一种系统的方法：用平行于坐标面的平面（如 $z = t$）去截曲面，观察截口是什么曲线（椭圆？双曲线？抛物线？），再通过这些截口随 $t$ 变化的趋势"拼出"曲面的全貌——本质是**降维**，把三维形状问题转化为一系列二维曲线问题。
 
-![椭球面与球面：用 z=t 截出的椭圆随 t 变化](/notes-assets/hm7-17-ellipsoid-and-sphere.jpg)
+![椭球面：用水平面 z = t 截出的是椭圆，t 从 −c 变到 c 时椭圆先变大再缩小为一点](/notes-assets/hm7-17-ellipsoid-and-sphere.svg)
 
 以椭球面 $\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}+\frac{z^{2}}{c^{2}}=1$ 为例：用 $z = t$（$\lvert t\rvert < c$）去截，得到 $\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}=1-\frac{t^{2}}{c^{2}}$——一个椭圆。$t$ 从 $-c$ 变到 $c$，椭圆先变大再变小，在 $t = \pm c$ 时缩为一点。同时，用 $x = t$ 或 $y = t$ 去截也得到椭圆。三种方向的截痕综合起来，就能在脑海中构建出一个"压扁的球"的形象。
 
@@ -699,15 +699,15 @@ $$
 | 椭圆锥面 | 椭圆（$t \neq 0$） | 两条直线（$t=0$ 缩为点） | 漏斗形 |
 | 双曲抛物面 | 双曲线 | 抛物线 | 马鞍形 |
 
-![椭圆锥面：用 z=t 截得椭圆，用 x=t 截得两条直线](/notes-assets/hm7-18-elliptic-cone.jpg)
+![椭圆锥面：漏斗形，用 z = t 截得椭圆（越往上越大），上下两个锥面在原点相接](/notes-assets/hm7-18-elliptic-cone.svg)
 
-![椭圆抛物面：用 z=t\ (t>0) 截得椭圆，用 x=t 截得抛物线](/notes-assets/hm7-19-elliptic-paraboloid.jpg)
+![椭圆抛物面：碗形，用 z = t（t > 0）截得椭圆，用 x = t 截得抛物线](/notes-assets/hm7-19-elliptic-paraboloid.svg)
 
-![单叶双曲面：用 z=t 截得的椭圆始终存在，用 x=t 截得双曲线](/notes-assets/hm7-20-hyperboloid-one-sheet.jpg)
+![单叶双曲面：腰鼓形，腰椭圆最细；用 z = t 截得的椭圆始终存在，越往上下越大](/notes-assets/hm7-20-hyperboloid-one-sheet.svg)
 
-![双叶双曲面：两片分离，用 z = t（|t| ≥ c）才截得椭圆](/notes-assets/hm7-21-hyperboloid-two-sheets.jpg)
+![双叶双曲面：上下两片互相分离，只有 |z| ≥ c 的水平面才截得到椭圆，z = ±c 时缩成两点](/notes-assets/hm7-21-hyperboloid-two-sheets.svg)
 
-![双曲抛物面（马鞍面）：用 z=t 截得双曲线，用 x=t 截得抛物线](/notes-assets/hm7-22-hyperbolic-paraboloid.jpg)
+![双曲抛物面（马鞍面）：一个方向向上弯、另一个方向向下弯；用 z = t 截得双曲线，用 x = t 截得抛物线](/notes-assets/hm7-22-hyperbolic-paraboloid.svg)
 
 ### 旋转曲面
 
@@ -725,7 +725,7 @@ $$
 
 推导的关键在于理解**纬圆**——母线上每一点绕 $z$ 轴旋转时，轨迹是一个垂直于 $z$ 轴的圆。这些圆就像地球仪上的纬线，因此称为**纬圆**。在同一个纬圆上，有两个量始终保持不变：① 该点的 $z$ 坐标不变（高度不变）；② 该点到 $z$ 轴的距离不变（纬圆的半径不变，即 $\sqrt{x^{2}+y^{2}}$ 恒等于母线对应点 $y$ 坐标的绝对值）。
 
-![曲线绕 z 轴旋转生成曲面：母线与纬圆](/notes-assets/hm7-23-surface-of-revolution.jpg)
+![曲线绕 z 轴旋转生成曲面：红色是 yOz 面内的母线，绿色是母线上一点旋转出的纬圆（高度不变、到 z 轴的距离不变）](/notes-assets/hm7-23-surface-of-revolution.svg)
 
 :::tip 推导思路：纬圆的"两不变"
 设母线上一点 $(0, y_1, z_1)$ 满足 $f(y_1, z_1)=0$。该点绕 $z$ 轴旋转时，由纬圆的两不变性，旋转后任意位置 $(x, y, z)$ 满足 $z = z_1$ 且 $x^{2}+y^{2} = y_1^{2}$。从第二式解出 $y_1 = \pm\sqrt{x^{2}+y^{2}}$，代入 $f(y_1, z_1)=0$ 即得 $f(\pm\sqrt{x^{2}+y^{2}},\ z)=0$。
@@ -756,11 +756,11 @@ $$
 | 旋转单叶双曲面 | $\frac{y^{2}}{a^{2}}-\frac{z^{2}}{c^{2}}=1$ | $\frac{x^{2}+y^{2}}{a^{2}}-\frac{z^{2}}{c^{2}}=1$ | 绕 $z$ 轴 |
 | 旋转双叶双曲面 | — | $\frac{x^{2}}{a^{2}}-\frac{y^{2}+z^{2}}{c^{2}}=1$ | 绕 $x$ 轴 |
 
-![圆锥面：母线 z=ycotα 绕 z 轴旋转，顶点在原点](/notes-assets/hm7-24-cone-surface.jpg)
+![圆锥面：母线 z = y·cot α 绕 z 轴旋转，顶点在原点](/notes-assets/hm7-24-cone-surface.svg)
 
-![旋转双曲面：双曲线绕坐标轴旋转所得的曲面](/notes-assets/hm7-25-revolved-hyperboloid.jpg)
+![旋转单叶双曲面：双曲线 y²/a² − z²/c² = 1 绕 z 轴旋转所得的腰鼓形曲面](/notes-assets/hm7-25-revolved-hyperboloid.svg)
 
-![旋转抛物面：抛物线 z=ky² 绕 z 轴旋转](/notes-assets/hm7-26-revolved-paraboloid.jpg)
+![旋转抛物面：抛物线 z = k·y² 绕 z 轴旋转，开口朝上的碗形](/notes-assets/hm7-26-revolved-paraboloid.svg)
 
 **伸缩变换**——从旋转曲面到一般二次曲面：沿哪个轴伸缩 $k$ 倍，该变量乘以 $\frac{1}{k}$。例如旋转单叶双曲面 $\frac{x^{2}+y^{2}}{a^{2}}-\frac{z^{2}}{c^{2}}=1$ 沿 $y$ 轴伸缩即得一般单叶双曲面 $\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}-\frac{z^{2}}{c^{2}}=1$。
 
@@ -777,7 +777,7 @@ $$
 
 第二种生成方式：**平移**。直线 $L$ 沿一条定曲线 $C$ 平行移动，所形成的曲面称为**柱面**。定曲线 $C$ 叫做**准线**，动直线 $L$ 叫做**母线**。
 
-![圆柱面：直线沿圆平移生成](/notes-assets/hm7-27-circular-cylinder.jpg)
+![圆柱面：方程里缺少 z，说明母线平行于 z 轴 —— 红色是 xOy 面上的准线（圆），绿色是母线](/notes-assets/hm7-27-circular-cylinder.svg)
 
 柱面最显著的识别特征是方程中**缺少某个变量**。例如 $x^{2}+y^{2}=R^{2}$（缺 $z$）表示以 $z$ 轴方向为母线的圆柱面——无论 $z$ 取什么值，$x$ 和 $y$ 都满足同一个圆方程，所以 $xOy$ 面上的圆沿着 $z$ 方向无限延伸。
 
@@ -787,7 +787,9 @@ $$
 | 抛物柱面 | $x^{2}=2py$ | ∥ $z$ 轴 |
 | 双曲柱面 | $\frac{x^{2}}{a^{2}}-\frac{y^{2}}{b^{2}}=1$ | ∥ $z$ 轴 |
 
-![抛物柱面与双曲柱面](/notes-assets/hm7-28-parabolic-and-hyperbolic-cylinders.jpg)
+![抛物柱面：抛物线沿 z 轴平移，方程里缺少 z](/notes-assets/hm7-28-1-parabolic-cylinder.svg)
+
+![双曲柱面：双曲线沿 z 轴平移，分成左右两片](/notes-assets/hm7-28-2-hyperbolic-cylinder.svg)
 
 **求柱面方程**：母线平行于哪个轴就消去哪个变量。例如准线为 $\begin{cases} F(x,y,z)=0 \\ G(x,y,z)=0 \end{cases}$，母线 ∥ $z$ 轴 → 消 $z$ 得 $H(x,y)=0$ 即为柱面方程。
 

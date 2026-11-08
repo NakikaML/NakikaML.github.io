@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400" role="img" aria-label="摆线 x = a(t − sin t)、y = a(1 − cos t) 的一拱，与 x 轴围成的面积是 3πa²">
+  <title>摆线 x = a(t − sin t)、y = a(1 − cos t) 的一拱，与 x 轴围成的面积是 3πa²</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .guide line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1; stroke-dasharray: none; }
+  svg .guide-label { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm5-11-cycloid-graph"><rect x="46" y="34" width="590" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="590" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm5-11-cycloid-graph)"><line x1="91.38" y1="34" x2="91.38" y2="364"/><line x1="242.67" y1="34" x2="242.67" y2="364"/><line x1="393.95" y1="34" x2="393.95" y2="364"/><line x1="545.23" y1="34" x2="545.23" y2="364"/><line x1="46" y1="310.77" x2="636" y2="310.77"/><line x1="46" y1="204.32" x2="636" y2="204.32"/><line x1="46" y1="97.87" x2="636" y2="97.87"/></g>
+  <g class="fill-layer" clip-path="url(#clip-hm5-11-cycloid-graph)"><path d="M91.4 310.8 L92.1 302.9 L93.8 293.6 L96.2 283.4 L99.4 273 L103.2 262.3 L107.6 251.7 L112.4 241.4 L117.9 230.8 L123.6 221 L130 211 L137 201 L143.8 192.1 L151.1 183.3 L159 174.6 L167.3 166.2 L175 159 L183.1 152.1 L191.6 145.4 L200.3 139.1 L209.4 133.1 L218.8 127.5 L228.5 122.3 L238.5 117.6 L247.2 113.9 L257.5 110 L268.1 106.6 L278.8 103.8 L288.1 101.8 L299 100 L308.5 98.9 L319.5 98.1 L329 97.9 L338.5 98.1 L349.6 98.9 L359 100 L370 101.8 L379.2 103.8 L390 106.6 L400.5 110 L410.9 113.9 L419.6 117.6 L429.5 122.3 L439.2 127.5 L448.6 133.1 L457.7 139.1 L466.5 145.4 L474.9 152.1 L483 159 L490.7 166.2 L499.1 174.6 L506.9 183.3 L514.3 192.1 L521.1 201 L528.1 211 L534.4 221 L540.1 230.8 L545.7 241.4 L550.4 251.7 L554.8 262.3 L558.7 273 L561.8 283.4 L564.3 293.6 L565.9 302.9 L566.7 310.8 L91.4 310.8 Z" class="fill" fill="var(--plot-c1, #d78b34)" fill-opacity="0.2" stroke="none"/></g>
+  <g class="asym" clip-path="url(#clip-hm5-11-cycloid-graph)"></g>
+  <g class="guide" clip-path="url(#clip-hm5-11-cycloid-graph)"><line x1="566.65" y1="34" x2="566.65" y2="364" stroke-dasharray="5 4"/></g>
+  <g class="axis"><line x1="40" y1="310.77" x2="644" y2="310.77"/><line x1="91.38" y1="368" x2="91.38" y2="26"/><line x1="91.38" y1="310.77" x2="91.38" y2="314.77"/><line x1="242.67" y1="310.77" x2="242.67" y2="314.77"/><line x1="393.95" y1="310.77" x2="393.95" y2="314.77"/><line x1="545.23" y1="310.77" x2="545.23" y2="314.77"/><line x1="91.38" y1="204.32" x2="87.38" y2="204.32"/><line x1="91.38" y1="97.87" x2="87.38" y2="97.87"/></g>
+  <g clip-path="url(#clip-hm5-11-cycloid-graph)"><path d="M91.4 310.8 L92.1 303 L93.8 293.3 L99.4 272.8 L107.5 251.9 L117.9 230.8 L130 211 L143.3 192.6 L158.2 175.4 L175 159 L191.9 145.2 L210.1 132.7 L228.5 122.3 L247.9 113.6 L268.1 106.6 L287.7 101.9 L308.8 98.8 L329 97.9 L349.2 98.8 L370.3 101.9 L390 106.6 L410.1 113.6 L429.5 122.3 L447.9 132.7 L466.2 145.2 L483 159 L499.8 175.4 L514.7 192.6 L528.1 211 L540.1 230.8 L550.5 251.9 L558.6 272.8 L564.2 293.3 L565.9 303 L566.7 310.8" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g><text class="tick" x="91.38" y="325.77" text-anchor="middle">0</text><text class="tick" x="242.67" y="325.77" text-anchor="middle">2</text><text class="tick" x="393.95" y="325.77" text-anchor="middle">4</text><text class="tick" x="545.23" y="325.77" text-anchor="middle">6</text><text class="tick" x="82.38" y="322.77" text-anchor="end">0</text><text class="tick" x="83.38" y="208.32" text-anchor="end">1</text><text class="tick" x="83.38" y="101.87" text-anchor="end">2</text><text class="tick tick--mark" x="329.02" y="325.77" text-anchor="middle">πa</text><text class="axisname" x="642" y="303.77">x</text><text class="axisname" x="98.38" y="30">y</text><text class="guide-label" x="566.65" y="29" text-anchor="middle">2πa</text></g>
+  <g><circle cx="91.38" cy="310.77" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="566.65" cy="310.77" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="329.02" cy="97.87" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><text class="note" data-color="ink" x="339.02" y="88.87" text-anchor="start">最高点 2a</text></g>
+  <g><text class="note" data-color="ink" x="325.87" y="252.23" text-anchor="middle">S = 3πa²</text></g>
+  <g></g>
+  <g></g>
+</svg>
