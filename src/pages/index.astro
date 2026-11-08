@@ -14,13 +14,13 @@ const notes = await contentNotes();
 const posts = visible(await getCollection('blog')).sort(byDateDesc);
 const works = visible(await getCollection('works')).sort(byDateDesc);
 
-// 「更新小提示」的数据（opinion-31）：新笔记 / 补写过的笔记 / 新作品 / 新博客。
+// 「更新小提示」的数据（opinion-31）：新笔记 / 更新过的笔记 / 新作品 / 新博客。
 // 横幅默认 hidden，由组件里的脚本按 localStorage 里的批次指纹决定要不要露出来。
 const updates = updateFeed({ notes, works, posts });
 
 const cats = countByCategory(notes);
 // 这块叫「最近更新」，就得真的按最后更新时间排（opinion-11）：
-// 补写过旧笔记的话，它会重新冒到前面来，而不是永远压在首发日期那一列里。
+// 更新过旧笔记的话，它会重新冒到前面来，而不是永远压在首发日期那一列里。
 const latestNotes = recentNotes(notes, 6);
 // 精选优先：标了 featured 的排前面，不足 3 件时用最新作品补齐。
 // （以前是「有精选就只显示精选」，只标 1 件时首页就只剩一张孤零零的卡）

@@ -314,7 +314,7 @@ $$
 | 判平行 | — | $\overrightarrow{a} \times \overrightarrow{b} = \overrightarrow{0}$ |
 | 交换律 | 满足 | **不满足**（反交换） |
 
-### 混合积（选学）
+### * 混合积
 
 #### 定义与几何意义
 

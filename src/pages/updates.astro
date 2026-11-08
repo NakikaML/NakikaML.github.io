@@ -1,6 +1,6 @@
 ---
 /**
- * 更新日志（opinion-31）—— 站上新增与补写过的内容，按时间倒序。
+ * 更新日志（opinion-31）—— 站上新增与更新过的内容，按时间倒序。
  * 数据是 utils/updates.ts 的那一份，和首页横幅同源：横幅只是「指路」，这里才是全量。
  * 只收内容（笔记 / 博客），代码与样式的改动不记 —— 读者要的是「有什么可看」。
  * 作品也暂时不收，原因见 utils/updates.ts 里的 INCLUDE_WORKS（作品的日期不是上站日期）。
@@ -18,14 +18,14 @@ const feed = updateFeed({ notes, works, posts });
 
 <BaseLayout
   title="更新日志"
-  description={`站上新增与补写过的内容，共 ${feed.all.length} 条，按时间倒序。`}
+  description={`站上新增与更新过的内容，共 ${feed.all.length} 条，按时间倒序。`}
 >
   <div class="wrap">
     <div class="page-head">
       <p class="page-head__kicker">Changelog</p>
       <h1>更新日志</h1>
       <p class="page-head__lede">
-        站上<strong>新增</strong>与<strong>补写</strong>过的内容，按时间倒序。只记你能读到的东西 ——
+        站上<strong>新增</strong>与<strong>更新</strong>过的内容，按时间倒序。只记你能读到的东西 ——
         改样式、修构建这类事不在这里。
       </p>
     </div>
@@ -59,7 +59,7 @@ const feed = updateFeed({ notes, works, posts });
                 ) : (
                   <span class="update__title">{u.title}</span>
                 )}
-                {u.revised && <span class="update__flag">补写</span>}
+                {u.revised && <span class="update__flag">更新</span>}
                 {u.summary && <p class="update__summary">{u.summary}</p>}
               </li>
             ))}

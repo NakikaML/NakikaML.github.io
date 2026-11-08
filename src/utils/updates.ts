@@ -3,7 +3,7 @@
  * ==================================================================
  * 首页那条「最近更新了什么」的小横幅，和 /updates/ 更新日志页，读的都是这里。
  *
- * 只统计**内容**：新笔记、补写/订正过的笔记（opinion-11 的 `updated`）、新作品、新博客。
+ * 只统计**内容**：新笔记、更新/订正过的笔记（opinion-11 的 `updated`）、新作品、新博客。
  * 代码与样式改动**不算** —— 否则改一个错别字也会让所有访客看到一次「有新内容」，
  * 这条提示很快就变成噪音。
  *
@@ -35,9 +35,9 @@ export interface SiteUpdate {
   id: string;
   title: string;
   href: string;
-  /** YYYY-MM-DD：笔记取 `updated`（补写过）或 `date`，功能取上线那天，其余取发布日期 */
+  /** YYYY-MM-DD：一条更新的发生日 —— 新增取 `date`，更新取 `updated`，功能取上线那天，其余取发布日期 */
   date: string;
-  /** true = 回头补写/订正过的（只有笔记会为 true） */
+  /** true = 回头更新/订正过的（只有笔记会为 true） */
   revised: boolean;
   /** 只有功能条目有：一句话说明，显示在 /updates/ 里 */
   summary?: string;
@@ -123,18 +123,20 @@ export function collectUpdates(input: { notes: Note[]; works: Work[]; posts: Pos
   }
 
   for (const n of input.notes) {
+    const href = `/notes/${n.id}/`;
+    const created = fmtDate(n.data.date);
     // noteUpdated 只在 updated 真的比 date 晚时才有值（见 utils/notes.ts）
     const revisedOn = noteUpdated(n);
-    const date = revisedOn || fmtDate(n.data.date);
-    if (!date) continue;
-    out.push({
-      kind: 'note',
-      id: n.id,
-      title: n.data.title,
-      href: `/notes/${n.id}/`,
-      date,
-      revised: Boolean(revisedOn),
-    });
+
+    // 新增与更新**各记一条**。早先这里是一条记录、日期取「更新的那天」，
+    // 结果笔记一更新，它当初「发布」那条日志就被顶掉消失了 ——
+    // 日志的意义就是留住这两件事，所以两个日期都保留。
+    if (created) {
+      out.push({ kind: 'note', id: n.id, title: n.data.title, href, date: created, revised: false });
+    }
+    if (revisedOn) {
+      out.push({ kind: 'note', id: n.id, title: n.data.title, href, date: revisedOn, revised: true });
+    }
   }
 
   if (INCLUDE_WORKS) {

@@ -6,9 +6,9 @@ subject: 数学
 subfield: 高等数学
 topic: 多元函数微分学
 difficulty: 基础
-date: "2026-10-17"
+date: "2026-11-08"
 tags: [高等数学, 二重极限, 偏导数, 全微分, 方向导数, 梯度, 多元函数极值, 拉格朗日乘数法]
-draft: true
+draft: false
 featured: false
 ---
 
@@ -35,7 +35,7 @@ featured: false
 | **边界点** | 任一邻域内既有 $E$ 中的点也有不是 $E$ 中的点 | 可能属于也可能不属于 |
 | **聚点** | 任一去心邻域内总有 $E$ 中的点 | 可能属于也可能不属于 |
 
-![平面上内点、外点、边界点与聚点的关系](/notes-assets/hm8-01-point-set-relations.jpg)
+![点与点集 E 的关系：内点的某个邻域完全落在 E 内，外点的邻域与 E 不相交，边界点的每个邻域都横跨 E 的内外](/notes-assets/hm8-01-point-set-relations.svg)
 
 > $E$ 的边界点的全体，称为 $E$ 的边界，记作 $\partial E$
 >

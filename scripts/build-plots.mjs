@@ -353,14 +353,24 @@ const textWidth = (s, size = 12) => {
 const PAD = { top: 34, right: 24, bottom: 36, left: 46 };
 
 export function makeFrame(fig) {
-  const [x0, x1] = fig.x;
-  const [y0, y1] = fig.y;
+  let [x0, x1] = fig.x;
+  let [y0, y1] = fig.y;
   const W = fig.width;
   const H = fig.height;
   const L = PAD.left;
   const T = PAD.top;
   const w = W - PAD.left - PAD.right;
   const h = H - PAD.top - PAD.bottom;
+
+  // 等比：把 y 范围按画布比例撑开（保持原来的中心）。
+  // 画邻域圆、方向角弧、等值线椭圆时必须开，否则圆会被拉成椭圆、
+  // 手填的 (width-70)/(height-70) 又很容易算错。
+  if (fig.equalAspect) {
+    const want = ((x1 - x0) * h) / w;
+    const mid = (y0 + y1) / 2;
+    y0 = mid - want / 2;
+    y1 = mid + want / 2;
+  }
 
   const sx = (x) => L + ((x - x0) / (x1 - x0)) * w;
   const sy = (y) => T + h - ((y - y0) / (y1 - y0)) * h;
@@ -990,6 +1000,9 @@ function renderFigure(fig) {
 
   // 刻度 + 文字
   for (const t of bare ? [] : xTickList) {
+    // 原点的「0」由下面 y 轴那一轮统一画（贴着 y 轴、位置更合适）。
+    // 两轴都在图内时，这里再画一个就会跟它叠成「0 0」。
+    if (Math.abs(t.v) < 1e-9 && axisX !== null && axisY !== null) continue;
     const X = sx(t.v);
     const Y = axisY ?? bottom;
     axis.push(`<line x1="${num(X)}" y1="${num(Y)}" x2="${num(X)}" y2="${num(Y + 4)}"/>`);
@@ -3553,6 +3566,238 @@ export const FIGURES = [
       points: [{ p: [1.0, 0, 0], label: '两片分离', dx: 10, dy: 14, color: 'red' }],
     },
     notes: [],
+  },
+  // ── 第 8 章：多元函数微分学 ─────────────────────────────────────────
+  // 这一组全是平面上的几何图，所以一律开 equalAspect —— 邻域要画成圆、
+  // 等值线要画成真正的椭圆/圆，比例一歪这些图就没法看了。
+  // 三维的那几张（偏导数几何意义、切向量、切平面与法线）仍然是手绘。
+  {
+    id: 'hm8-01-point-set-relations',
+    title: '内点、外点与边界点',
+    alt: '平面上点与点集 E 的关系：内点的某个邻域完全落在 E 内，外点的邻域与 E 不相交，边界点的任一邻域内既有 E 中的点也有 E 外的点',
+    width: 600,
+    height: 430,
+    x: [-2.7, 2.7],
+    y: [-1.6, 1.6],
+    equalAspect: true,
+    fills: [
+      {
+        upper: { fn: '0.95*sqrt(1-(x/1.9)^2)', range: [-1.9, 1.9] },
+        lower: { fn: '-0.95*sqrt(1-(x/1.9)^2)', range: [-1.9, 1.9] },
+        color: 'accent',
+        opacity: 0.22,
+      },
+    ],
+    curves: [
+      {
+        parametric: { x: '1.9*cos(t)', y: '0.95*sin(t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 1.9,
+      },
+    ],
+    arcs: [
+      { center: [0.45, 0.35], radius: 0.42, from: 0, to: Math.PI * 2, color: 'green', dash: '4 3' },
+      { center: [-2.15, 1.32], radius: 0.4, from: 0, to: Math.PI * 2, color: 'red', dash: '4 3' },
+      { center: [0.65, 0.893], radius: 0.38, from: 0, to: Math.PI * 2, color: 'ink', dash: '4 3' },
+    ],
+    dots: [
+      { x: 0.45, y: 0.35, color: 'green', r: 3.6, label: '内点 P', dx: 10, dy: -8 },
+      { x: -2.15, y: 1.32, color: 'red', r: 3.6, label: '外点 Q', dx: 10, dy: -8 },
+      { x: 0.65, y: 0.893, color: 'ink', r: 3.6, label: '边界点 R', dx: 9, dy: -14 },
+    ],
+    notes: [{ x: -1.05, y: -0.42, text: 'E', anchor: 'middle', color: 'accent' }],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm8-02-double-limit-definition',
+    title: '二重极限：沿任意路径都趋于 A',
+    alt: '二重极限：动点 P 沿直线、抛物线等任意路径趋近 P₀ 时，函数值都趋于同一个 A，二元极限才存在',
+    width: 600,
+    height: 430,
+    x: [-2.5, 2.5],
+    y: [-1.7, 1.7],
+    equalAspect: true,
+    curves: [
+      { parametric: { x: '-2.2+2.2*t', y: '1.4-1.4*t', t: [0, 1] }, color: 'ink', width: 1.5 },
+      { parametric: { x: '2.0-2.0*t', y: '-1.3+1.3*t', t: [0, 1] }, color: 'ink', width: 1.5 },
+      { parametric: { x: 't', y: '0.55*t^2', t: [-1.75, -0.12] }, color: 'ink', width: 1.5 },
+    ],
+    arrows: [
+      { from: [-0.40, 0.254], to: [-0.13, 0.083], color: 'ink' },
+      { from: [0.38, -0.247], to: [0.12, -0.078], color: 'ink' },
+      { from: [-0.56, 0.172], to: [-0.17, 0.016], color: 'ink' },
+    ],
+    arcs: [
+      { center: [0, 0], radius: 0.5, from: 0, to: Math.PI * 2, color: 'accent', dash: '5 4' },
+    ],
+    dots: [{ x: 0, y: 0, color: 'red', r: 4, label: 'P₀', dx: 9, dy: 17 }],
+    notes: [
+      { x: 0.72, y: 0.72, text: 'δ 邻域', anchor: 'start', color: 'accent' },
+      { x: -2.32, y: 1.12, text: '直线', anchor: 'end', color: 'muted' },
+      { x: -1.62, y: 1.42, text: '抛物线', anchor: 'start', color: 'muted' },
+      { x: 2.3, y: -1.42, text: '直线', anchor: 'end', color: 'muted' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm8-08-directional-derivative',
+    title: '方向导数：沿射线 l 的变化率',
+    alt: '方向导数：从 P₀ 出发沿射线 l（与 x 轴夹角 α）走一段距离，函数值的平均变化率取极限就是方向导数',
+    width: 600,
+    height: 430,
+    x: [-2.4, 2.4],
+    y: [-1.5, 1.5],
+    equalAspect: true,
+    curves: [
+      {
+        parametric: { x: '1.265*cos(t)', y: '0.894*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.4,
+      },
+      {
+        parametric: { x: '1.789*cos(t)', y: '1.265*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.4,
+      },
+      {
+        parametric: { x: '2.191*cos(t)', y: '1.549*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.4,
+      },
+    ],
+    segments: [
+      { points: [[1.0, 0.55], [2.106, 1.324]], color: 'red', width: 2 },
+      { points: [[1.0, 0.55], [1.95, 0.55]], color: 'muted', width: 1.2, dash: '4 3' },
+    ],
+    arrows: [{ from: [1.86, 1.043], to: [2.08, 1.30], color: 'red' }],
+    arcs: [
+      {
+        center: [1.0, 0.55],
+        radius: 0.52,
+        from: 0,
+        to: (35 * Math.PI) / 180,
+        color: 'red',
+        label: 'α',
+        labelRadius: 0.68,
+      },
+    ],
+    dots: [{ x: 1.0, y: 0.55, color: 'ink', r: 3.6, label: 'P₀', dx: 8, dy: -9 }],
+    notes: [
+      { x: 2.16, y: 1.44, text: 'l', anchor: 'middle', color: 'red' },
+      { x: 1.62, y: 0.16, text: '∂f/∂l', anchor: 'middle', color: 'red' },
+      { x: -1.55, y: 1.06, text: '等值线', anchor: 'middle', color: 'green' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm8-09-gradient-geometry',
+    title: '梯度方向 = 函数值增加最快的方向',
+    alt: '梯度方向垂直于过该点的等值线，并指向函数值增加的一侧；沿梯度走是上升最陡的方向',
+    width: 600,
+    height: 430,
+    x: [-2.3, 2.3],
+    y: [-1.5, 1.5],
+    equalAspect: true,
+    curves: [
+      {
+        parametric: { x: '0.894*cos(t)', y: '0.632*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.4,
+      },
+      {
+        parametric: { x: '1.312*cos(t)', y: '0.927*sin(t)', t: [0, Math.PI * 2] },
+        color: 'red',
+        width: 1.9,
+      },
+      {
+        parametric: { x: '1.789*cos(t)', y: '1.265*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.4,
+      },
+    ],
+    segments: [
+      { points: [[0.347, 1.144], [1.653, 0.056]], color: 'muted', width: 1.2, dash: '4 3' },
+    ],
+    arrows: [{ from: [1.10, 0.72], to: [1.60, 1.32], color: 'accent' }],
+    dots: [{ x: 1.0, y: 0.6, color: 'red', r: 3.8, label: 'P₀', dx: 9, dy: -9 }],
+    notes: [
+      { x: 1.72, y: 1.34, text: '∇f', anchor: 'middle', color: 'accent' },
+      { x: 2.25, y: 0.10, text: '切线（变化率为 0）', anchor: 'end', color: 'muted' },
+      { x: -1.5, y: 1.02, text: 'f = C', anchor: 'middle', color: 'red' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm8-10-contour-lines',
+    title: '等值线与梯度',
+    alt: '等值线是一圈圈同心圆（函数值为常数的曲线）；每个点处的梯度都垂直于该点的等值线，并指向函数值增大的一侧',
+    width: 560,
+    height: 470,
+    x: [-2.3, 2.3],
+    y: [-1.5, 1.5],
+    equalAspect: true,
+    curves: [
+      { parametric: { x: '0.7*cos(t)', y: '0.7*sin(t)', t: [0, Math.PI * 2] }, color: 'green', width: 1.4 },
+      { parametric: { x: '1.3*cos(t)', y: '1.3*sin(t)', t: [0, Math.PI * 2] }, color: 'green', width: 1.4 },
+      { parametric: { x: '1.85*cos(t)', y: '1.85*sin(t)', t: [0, Math.PI * 2] }, color: 'green', width: 1.4 },
+    ],
+    arrows: [
+      { from: [1.034, 0.868], to: [1.494, 1.254], color: 'accent' },
+      { from: [-1.224, 0.570], to: [-1.769, 0.824], color: 'accent' },
+    ],
+    dots: [
+      { x: 0.996, y: 0.836, color: 'red', r: 3.6 },
+      { x: -1.178, y: 0.549, color: 'red', r: 3.6 },
+    ],
+    notes: [
+      { x: 1.05, y: 1.42, text: '∇f', anchor: 'middle', color: 'accent' },
+      { x: -1.86, y: 1.06, text: '∇f', anchor: 'middle', color: 'accent' },
+      { x: 0.0, y: 0.32, text: 'C₁', anchor: 'middle', color: 'muted' },
+      { x: 0.0, y: 1.36, text: 'C₂', anchor: 'middle', color: 'muted' },
+      { x: -1.32, y: -1.32, text: 'C₃', anchor: 'middle', color: 'muted' },
+      { x: 1.72, y: -1.16, text: 'C₁ < C₂ < C₃', anchor: 'middle', color: 'muted' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm8-12-lagrange-multiplier',
+    title: '拉格朗日乘数法：两梯度平行处相切',
+    alt: '拉格朗日乘数法：目标函数的等值线与约束曲线相切时取得条件极值，此时两个梯度 ∇f 与 ∇φ 平行',
+    width: 600,
+    height: 430,
+    // 最外那条等值线的半径是 1.6，y 必须留到 ±1.75 以上，否则圆的下半截会被画布裁掉。
+    // x 跨度 5.3 配 600×430（内容区 530×360）正好让 equalAspect 算出 y 跨度 3.6。
+    x: [-1.8, 3.5],
+    y: [-1.75, 1.85],
+    equalAspect: true,
+    curves: [
+      // 目标函数 f = x² + y² 的等值线（圆）。r = 0.707 那一条正好与约束直线相切 ——
+      // 它就是条件极值点所在的等值线，用副色加粗突出，另外两条只当背景。
+      {
+        parametric: { x: '0.707*cos(t)', y: '0.707*sin(t)', t: [0, Math.PI * 2] },
+        color: 'red',
+        width: 1.9,
+      },
+      {
+        parametric: { x: '1.1*cos(t)', y: '1.1*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.3,
+      },
+      {
+        parametric: { x: '1.6*cos(t)', y: '1.6*sin(t)', t: [0, Math.PI * 2] },
+        color: 'green',
+        width: 1.3,
+      },
+      // 约束曲线 φ: x + y = 1
+      { parametric: { x: 't', y: '1-t', t: [-0.72, 2.02] }, color: 'ink', width: 2.2 },
+    ],
+    arrows: [{ from: [0.58, 0.58], to: [1.18, 1.18], color: 'accent' }],
+    dots: [{ x: 0.5, y: 0.5, color: 'red', r: 4.2, label: '切点', dx: -40, dy: -16 }],
+    notes: [
+      { x: 1.34, y: 1.30, text: '∇f ∥ ∇φ', anchor: 'start', color: 'accent' },
+      { x: 2.0, y: -0.45, text: 'x + y = 1', anchor: 'start', color: 'ink' },
+      { x: -1.72, y: 1.66, text: '等值线 f = C', anchor: 'start', color: 'green' },
+    ],
   },
   {
     id: 'hm5-15-cardioid-graph',
