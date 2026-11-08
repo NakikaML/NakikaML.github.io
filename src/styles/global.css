@@ -2379,28 +2379,6 @@ a.route-chapter__name:hover { color: var(--accent-text); }
 }
 .route-chapter.is-pending .route-chapter__name { color: var(--text-faint); }
 
-/* 408 考研权重（opinion-26）：只给标注过的章出现，别让每行都挂满角标。
-   core 用副色（绯朱红）—— 它是这一行里唯一「要考试」的信息，比灰色角标更该被看见；
-   basic 退回灰调，弱一档。 */
-.route-chapter__exam {
-  padding: 0.02rem 0.38rem;
-  border: 1px solid color-mix(in srgb, var(--red) 45%, transparent);
-  border-radius: 4px;
-  background: var(--red-soft);
-  font-size: 0.66rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  color: var(--red-text);
-  white-space: nowrap;
-}
-.route-chapter__exam--basic {
-  border-color: var(--border-strong);
-  background: transparent;
-  font-weight: 600;
-  color: var(--text-faint);
-}
-
 /* --------------------------------------------- 未归入课程的笔记 */
 .route-orphans {
   margin: 2rem 0 0;

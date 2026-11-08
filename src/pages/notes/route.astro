@@ -244,24 +244,10 @@ const discVars = (key: string) =>
                               ) : (
                                 <span class="route-chapter__name">{ch.label}</span>
                               )}
-                              {(ch.prereq.length > 0 || ch.unlisted || !ch.href || ch.exam408) && (
+                              {(ch.prereq.length > 0 || ch.unlisted || !ch.href) && (
                                 <span class="route-chapter__meta">
-                                  {/* 408 权重（opinion-26）：只在标注过时出现。
-                                      core 标「408」、basic 标「408·了解」，off 不标 ——
-                                      让读者一眼看出这一章在考研里值多少。 */}
-                                  {ch.exam408 === 'core' && (
-                                    <span class="route-chapter__exam" title="408 考研必考重点">
-                                      408
-                                    </span>
-                                  )}
-                                  {ch.exam408 === 'basic' && (
-                                    <span
-                                      class="route-chapter__exam route-chapter__exam--basic"
-                                      title="408 要求了解，或只考其中一部分"
-                                    >
-                                      408·了解
-                                    </span>
-                                  )}
+                                  {/* 408 权重角标已按作者要求去掉（数据还留在 curriculum.ts，
+                                      搜索里仍可按「408」筛，只是不再显示红色角标）。 */}
                                   {ch.prereq.length > 0 && (
                                     <span
                                       class="route-chapter__pre"
