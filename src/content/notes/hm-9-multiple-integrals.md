@@ -6,9 +6,9 @@ subject: 数学
 subfield: 高等数学
 topic: 重积分
 difficulty: 基础
-date: "2026-10-17"
+date: "2026-11-09"
 tags: [高等数学, 二重积分, 三重积分, 极坐标, 柱面坐标, 球面坐标, 雅可比行列式, 轮换对称性]
-draft: true
+draft: false
 featured: false
 ---
 
@@ -73,7 +73,7 @@ $$
 | **X 型** | $\{(x,y) \mid a \le x \le b,\ \varphi_1(x) \le y \le \varphi_2(x)\}$ | 上下边界为 $x$ 的函数，左右边界为竖直线 |
 | **Y 型** | $\{(x,y) \mid \psi_1(y) \le x \le \psi_2(y),\ c \le y \le d\}$ | 左右边界为 $y$ 的函数，上下边界为水平线 |
 
-![X 型区域与 Y 型区域的点集表示](/notes-assets/hm9-02-x-type-and-y-type-regions.jpg)
+![左：X 型区域，上下边界是 x 的函数 y=φ₂(x) 与 y=φ₁(x)，左右边界是竖直线 x=a 与 x=b；右：Y 型区域，左右边界是 y 的函数 x=ψ₁(y) 与 x=ψ₂(y)，上下边界是水平线 y=c 与 y=d](/notes-assets/hm9-02-x-type-and-y-type-regions.svg)
 
 > 同一个区域通常可以用两种类型表示。选择哪一种取决于哪种表示法使积分更容易计算。
 
@@ -211,14 +211,14 @@ $$
 | $D$ 关于 $y$ 轴对称 | $f(-x,y)=-f(x,y)$（关于 $x$ 奇） | $I=0$ |
 | | $f(-x,y)=f(x,y)$（关于 $x$ 偶） | $I=2\iint_{D_{\text{右}}}$ |
 
-![D 关于坐标轴对称时，被积函数的奇偶性直接决定积分值](/notes-assets/hm9-04-double-integral-parity-symmetry.jpg)
+![左：积分区域 D 关于 x 轴对称，上下两半互为镜像；右：积分区域 D 关于 y 轴对称，左右两半互为镜像 —— 这时被积函数的奇偶性直接决定积分值](/notes-assets/hm9-04-double-integral-parity-symmetry.svg)
 
 :::example 例 7 · 用对称性把复杂积分一步化零
 $D$ 由 $y=4-x^{2},\ y=-3x,\ x=1$ 围成，求 $I=\iint_{D} y\ln(x+\sqrt{1+x^{2}})\,dxdy$。
 
 **思路**：被积函数看起来非常复杂，先别急着硬算——看对称性。
 
-![用直线 y=3x 把原区域 D 划成 D1 与 D2 两部分](/notes-assets/hm9-05-double-integral-example-10.jpg)
+![区域 D 由抛物线 y=4−x²、直线 y=−3x 与竖直线 x=1 围成；再用直线 y=3x（绿色虚线）把它分成两块：D₁ 关于 y 轴对称，D₂ 关于 x 轴对称](/notes-assets/hm9-05-double-integral-example-10.svg)
 
 联立方程组
 
@@ -298,7 +298,7 @@ $D=\{(x,y)\mid x^{2}+y^{2}\le 4,\ x\ge 0,\ y\ge 0\}$，$f(x)$ 为正连续函数
 
 极坐标下面积元素不是简单的 $d\rho\,d\theta$，而是 $\rho\,d\rho\,d\theta$。原因：面积微元是一个小扇形环——外半径 $(\rho+\Delta\rho)$、内半径 $\rho$、张角 $\Delta\theta$，其面积 $\approx \rho\Delta\rho\Delta\theta$。
 
-![极坐标下的面积微元：外半径 ρ+Δρ、内半径 ρ、张角 Δθ 的小扇形环](/notes-assets/hm9-06-polar-area-element.jpg)
+![极坐标的面积微元：内半径 ρ、外半径 ρ+Δρ、张角 Δθ 的小扇形环，其面积约为 ρ·Δρ·Δθ](/notes-assets/hm9-06-polar-area-element.jpg)
 
 $$
 \iint_{D} f(x,y)\,d\sigma = \iint_{D} f(\rho\cos\theta,\ \rho\sin\theta)\ \rho\,d\rho\,d\theta
@@ -411,7 +411,7 @@ $$
 :::example 例 1 · 广义极坐标处理椭圆区域
 计算 $\iint_{D} \sqrt{1-\frac{x^{2}}{a^{2}}-\frac{y^{2}}{b^{2}}}\,dxdy$，$D$ 为椭圆 $\frac{x^{2}}{a^{2}}+\frac{y^{2}}{b^{2}}=1$。
 
-![椭圆区域经 x = ar cos θ、y = br sin θ 变为 rθ 平面上的矩形](/notes-assets/hm9-08-substitution-example-2.jpg)
+![广义极坐标：椭圆 x²/a²+y²/b²=1 经伸缩变换 x = ar cos θ、y = br sin θ 后，变成单位圆 r ≤ 1](/notes-assets/hm9-08-substitution-example-2.svg)
 
 **解**：令 $x=ar\cos\theta,\ y=br\sin\theta$，$J=abr$。
 
@@ -431,7 +431,7 @@ $$
 
 **思路**：被积函数含 $\frac{y-x}{y+x}$，令 $u=y-x,\ v=y+x$ 使指数简化为 $e^{\frac{u}{v}}$。
 
-![换元 u=y-x,\ v=y+x 后，三角形区域 D 变为 uOv 面上的区域 D'](/notes-assets/hm9-09-substitution-example-1.jpg)
+![一般换元 u=y−x、v=y+x：xOy 面上由 x=0、y=0、x+y=2 围成的三角形 D（面积 2），变成 uOv 面上由 u=−v、u=v、v=2 围成的三角形 D′（面积 4，正好是 1/|J| 倍）](/notes-assets/hm9-09-substitution-example-1.svg)
 
 **解**：作变换 $u=y-x,\ v=y+x$，反解得
 
@@ -667,7 +667,7 @@ $\Omega$ 由 $x^{2}+y^{2}+z^{2}=2z\ (z\ge 1)$ 与 $z=\sqrt{x^{2}+y^{2}}$ 围成�
 
 **思路**：先看对称性——$\Omega$ 关于 $zOx$ 面和 $yOz$ 面对称，$x$ 和 $y$ 的奇函数在对称区域上积分为零，消掉两个最麻烦的项。剩下的 $z^{3}$ 用球面坐标处理。
 
-![球面 x²+y²+(z-1)²=1 与锥面 z=x²+y² 围成的区域](/notes-assets/hm9-15-triple-integral-example.jpg)
+![球面 x²+y²+z²=2z（球心 (0,0,1)、半径 1）与锥面 z=√(x²+y²) 围成的区域 Ω：球在锥内的那一顶（φ ≤ π/4），两曲面的交线是 z = 1 平面上的单位圆](/notes-assets/hm9-15-triple-integral-example.jpg)
 
 **解**：$\Omega$ 关于 $zOx$ 面和 $yOz$ 面对称 ⇒ $\iiint_{\Omega} x\,dV = \iiint_{\Omega} y\,dV = 0$。原式 $=\iiint_{\Omega} z^{3}\,dV$。
 

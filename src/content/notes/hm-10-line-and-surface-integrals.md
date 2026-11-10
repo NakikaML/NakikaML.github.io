@@ -6,9 +6,9 @@ subject: 数学
 subfield: 高等数学
 topic: 曲线积分与曲面积分
 difficulty: 中等
-date: "2026-10-17"
+date: "2026-11-10"
 tags: [高等数学, 曲线积分, 曲面积分, 格林公式, 高斯公式, 斯托克斯公式, 散度与旋度]
-draft: true
+draft: false
 featured: false
 ---
 
@@ -91,7 +91,7 @@ $$
 | $x=\psi(y)$ | $\int_{a}^{b} f[\psi(y),y]\sqrt{\psi'^2(y)+1}\,dy$ | $a \le y \le b$ |
 | $\rho=\rho(\theta)$ | $\int_{\alpha}^{\beta} f[\rho\cos\theta,\rho\sin\theta]\sqrt{\rho^2+\rho'^2}\,d\theta$ | $\alpha \le \theta \le \beta$ |
 
-![对弧长的曲线积分计算法：把弧长微元 ds 化成参数 t 的微分](/notes-assets/hm10-01-arc-length-integral-computation.jpg)
+![对弧长的曲线积分：在曲线上取一小段弧，两端点 P、Q 都在曲线上，斜边 ds 是这段弧的弦，两条直角边分别是它在坐标轴上的投影 dx 与 dy](/notes-assets/hm10-01-arc-length-integral-computation.svg)
 
 :::example 例 1 · 抛物线弧上的对弧长积分
 计算 $\int_{L}\sqrt{y}\,ds$，$L$ 为 $y=x^2$ 上 $O(0,0)$ 到 $B(1,1)$ 的一段弧。
@@ -455,7 +455,7 @@ $$
 
 **单连通与复连通**：若 $D$ 内任一闭曲线所围部分都在 $D$ 内，则 $D$ 为**单连通区域**（无"洞"）；否则为**复连通区域**（有"洞"）。
 
-![单连通区域（无洞）与复连通区域（有洞）的对比](/notes-assets/hm10-02-planar-connected-region.jpg)
+![三种情形：左 —— 单连通区域，任一条闭曲线所围的部分仍在区域内（无洞）；中 —— 复连通区域，中间被挖去一个洞；右 —— 复连通区域，中间只被挖去一个点（洞缩成一点，绕着它的小圆周仍不能缩成一点，所以依旧是复连通）](/notes-assets/hm10-02-planar-connected-region.svg)
 
 **边界曲线的正向**：沿 $L$ 行走时，区域 $D$ 始终在观察者的**左边**。因此外边界正向为**逆时针**，内边界正向为**顺时针**。
 
@@ -897,11 +897,11 @@ $$
 :::
 
 :::example 例 2 · 长方体整个表面的分片计算
-计算 $\iint_{\Sigma} x^2\,dydz + y^2\,dzdx + z^2\,dxdy$，$\Sigma$ 为长方体 $\Omega: 0\le x\le a, 0\le y\le b, 0\le z\le c$ 的整个表面外侧。
+计算 $\oiint_{\Sigma} x^2\,dydz + y^2\,dzdx + z^2\,dxdy$，$\Sigma$ 为长方体 $\Omega: 0\le x\le a, 0\le y\le b, 0\le z\le c$ 的整个表面外侧。
 
 **思路**：六个面分别计算。利用"只有与投影面平行的面才有非零投影"——$dydz$ 只需算前后两面。
 
-**解**：对 $\iint_{\Sigma} x^2\,dydz$：只有 $x=a$（前侧，正）和 $x=0$（后侧，负）有非零投影。
+**解**：对 $\oiint_{\Sigma} x^2\,dydz$：只有 $x=a$（前侧，正）和 $x=0$（后侧，负）有非零投影。
 
 $$
 = \iint_{D_{yz}} a^2\,dydz - \iint_{D_{yz}} 0^2\,dydz = a^2bc
@@ -1000,22 +1000,22 @@ $$
 设空间闭区域 $\Omega$ 由分片光滑的闭曲面 $\Sigma$ 围成，$P,Q,R$ 在 $\Omega$ 上有一阶连续偏导数，则：
 
 $$
-\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right)dV = \iint\limits_{\Sigma} P\,dydz + Q\,dzdx + R\,dxdy
+\iiint\limits_{\Omega} \left(\frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z}\right)dV = \oiint\limits_{\Sigma} P\,dydz + Q\,dzdx + R\,dxdy
 $$
 
-或等价地：$\displaystyle\iiint_{\Omega} \left(\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}\right)dV = \iint_{\Sigma} (P\cos\alpha+Q\cos\beta+R\cos\gamma)\,dS$。
+或等价地：$\displaystyle\iiint_{\Omega} \left(\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}\right)dV = \oiint_{\Sigma} (P\cos\alpha+Q\cos\beta+R\cos\gamma)\,dS$。
 
 其中 $\Sigma$ 是 $\Omega$ 的整个边界曲面的**外侧**。
 
 :::tip 高斯公式的证明思路
-先证 $\iiint_{\Omega} \frac{\partial R}{\partial z}\,dV = \iint_{\Sigma} R\,dxdy$：将 $\Omega$ 向 $xOy$ 面投影，上下边界分别记为 $z_2(x,y)$ 和 $z_1(x,y)$，三重积分化为先 $z$ 后 $xy$ 的积分：$\iint_{D_{xy}} [R(x,y,z_2)-R(x,y,z_1)]\,dxdy$。上侧 $R(x,y,z_2)\,dxdy$ 取正，下侧 $R(x,y,z_1)\,dxdy$ 取负，恰为 $\iint_{\Sigma} R\,dxdy$。$P$ 和 $Q$ 同理，三式相加即得。
+先证 $\iiint_{\Omega} \frac{\partial R}{\partial z}\,dV = \oiint_{\Sigma} R\,dxdy$：将 $\Omega$ 向 $xOy$ 面投影，上下边界分别记为 $z_2(x,y)$ 和 $z_1(x,y)$，三重积分化为先 $z$ 后 $xy$ 的积分：$\iint_{D_{xy}} [R(x,y,z_2)-R(x,y,z_1)]\,dxdy$。上侧 $R(x,y,z_2)\,dxdy$ 取正，下侧 $R(x,y,z_1)\,dxdy$ 取负，恰为 $\oiint_{\Sigma} R\,dxdy$。$P$ 和 $Q$ 同理，三式相加即得。
 
 ![高斯公式的证明：把三重积分先对 z 积分，再与上下侧曲面积分对上](/notes-assets/hm10-08-gauss-theorem-proof.jpg)
 
 :::
 
 :::example 例 1 · 柱体边界上的高斯公式
-计算 $\iint_{\Sigma} (x-y)\,dxdy + (y-z)x\,dydz$，$\Sigma$ 为柱面 $x^2+y^2=1$ 及平面 $z=0,z=3$ 所围闭区域 $\Omega$ 的整个边界曲面外侧。
+计算 $\oiint_{\Sigma} (x-y)\,dxdy + (y-z)x\,dydz$，$\Sigma$ 为柱面 $x^2+y^2=1$ 及平面 $z=0,z=3$ 所围闭区域 $\Omega$ 的整个边界曲面外侧。
 
 **思路**：闭曲面直接套高斯公式，三重积分用对称性简化。
 
@@ -1038,7 +1038,7 @@ $$
 :::
 
 :::example 例 2 · 高斯公式配形心公式
-计算 $\iint_{\Sigma} x^2\,dydz + y^2\,dzdx + z^2\,dxdy$，$\Sigma$ 为长方体 $[0,a]\times[0,b]\times[0,c]$ 的整个表面外侧（与 10.5.1 节的例 2 是同一题）。
+计算 $\oiint_{\Sigma} x^2\,dydz + y^2\,dzdx + z^2\,dxdy$，$\Sigma$ 为长方体 $[0,a]\times[0,b]\times[0,c]$ 的整个表面外侧（与 10.5.1 节的例 2 是同一题）。
 
 **思路**：对比直接分片计算与高斯公式的差异。
 
@@ -1061,7 +1061,7 @@ $$
 
 **思路**：锥面下侧不封闭，补顶部圆盘 $\Sigma_1: z=h,\ x^2+y^2\le h^2$（上侧）。$\Sigma+\Sigma_1$ 构成闭曲面（锥体），用高斯公式。
 
-**解**：由高斯公式，$\iint_{\Sigma+\Sigma_1} = \iiint_{\Omega} 2(x+y+z)\,dV$。对称性消去 $x,y$ 项，保留 $2\iiint_{\Omega} z\,dV$。柱面坐标计算得 $\frac{1}{2}\pi h^4$。
+**解**：由高斯公式，$\oiint_{\Sigma+\Sigma_1} = \iiint_{\Omega} 2(x+y+z)\,dV$。对称性消去 $x,y$ 项，保留 $2\iiint_{\Omega} z\,dV$。柱面坐标计算得 $\frac{1}{2}\pi h^4$。
 
 $\iint_{\Sigma_1} = \iint_{\Sigma_1} z^2\,dxdy = \iint_{D_{xy}} h^2\,dxdy = h^2 \cdot \pi h^2 = \pi h^4$。
 
@@ -1078,11 +1078,11 @@ $$
 被积函数在区域内某点无定义时，以该点为中心挖一个小球面，对外围区域用高斯公式。
 
 :::example 例 4 · 挖洞法处理原点奇点
-计算 $I=\iint_{\Sigma} \frac{x\,dydz+y\,dzdx+z\,dxdy}{(x^2+y^2+z^2)^{3/2}}$，$\Sigma$ 为 $2x^2+2y^2+z^2=4$ 的外侧。
+计算 $I=\oiint_{\Sigma} \frac{x\,dydz+y\,dzdx+z\,dxdy}{(x^2+y^2+z^2)^{3/2}}$，$\Sigma$ 为 $2x^2+2y^2+z^2=4$ 的外侧。
 
 **思路**：原点 $(0,0,0)$ 是奇点。挖小球面 $\Sigma_1: x^2+y^2+z^2=\varepsilon^2$（内侧），在 $\Sigma+\Sigma_1$ 围成的区域内 $\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}=0$。
 
-**解**：验证 $\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}=0$（在非原点处），高斯公式给出 $\iint_{\Sigma+\Sigma_1}=0$。
+**解**：验证 $\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}=0$（在非原点处），高斯公式给出 $\oiint_{\Sigma+\Sigma_1}=0$。
 
 $$
 I = -\iint_{\Sigma_1} \frac{x\,dydz+y\,dzdx+z\,dxdy}{\varepsilon^3} = -\frac{1}{\varepsilon^3}\iint_{\Sigma_1} (x\,dydz+y\,dzdx+z\,dxdy)
@@ -1122,7 +1122,7 @@ $$
 - $\operatorname{div}\overrightarrow{A} < 0$：该点有"**负源**"（汇/洞，流体向内汇聚）
 - $\operatorname{div}\overrightarrow{A} = 0$：**无源场**
 
-高斯公式的向量形式：$\displaystyle\iint_{\Sigma} \overrightarrow{A} \cdot d\overrightarrow{S} = \iiint_{\Omega} (\nabla \cdot \overrightarrow{A})\,dV$。即：穿过闭曲面的总通量 = 散度在内部的体积分——也称**高斯散度定理**。
+高斯公式的向量形式：$\displaystyle\oiint_{\Sigma} \overrightarrow{A} \cdot d\overrightarrow{S} = \iiint_{\Omega} (\nabla \cdot \overrightarrow{A})\,dV$。即：穿过闭曲面的总通量 = 散度在内部的体积分——也称**高斯散度定理**。
 
 :::example 例 1 · 求向量场的散度
 求 $\overrightarrow{A} = yz\overrightarrow{i} + z^2\overrightarrow{k}$ 的散度。
@@ -1274,7 +1274,7 @@ $$
 | :--- | :--- | :--- |
 | 牛顿-莱布尼茨 | $1 \to 0$ | $\int_{a}^{b} f'(x)\,dx = f(b)-f(a)$ |
 | 格林公式 | $2 \to 1$ | $\iint_{D} (\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y})\,dxdy = \oint_{L} P\,dx+Q\,dy$ |
-| 高斯公式 | $3 \to 2$ | $\iiint_{\Omega} (\nabla\cdot\overrightarrow{A})\,dV = \iint_{\Sigma} \overrightarrow{A}\cdot d\overrightarrow{S}$ |
+| 高斯公式 | $3 \to 2$ | $\iiint_{\Omega} (\nabla\cdot\overrightarrow{A})\,dV = \oiint_{\Sigma} \overrightarrow{A}\cdot d\overrightarrow{S}$ |
 | 斯托克斯公式 | $2 \to 1$（三维） | $\iint_{\Sigma} (\nabla\times\overrightarrow{A})\cdot d\overrightarrow{S} = \oint_{\Gamma} \overrightarrow{A}\cdot d\overrightarrow{r}$ |
 
 这四大公式都可以统一表达为广义斯托克斯定理：

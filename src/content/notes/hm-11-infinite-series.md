@@ -6,9 +6,9 @@ subject: 数学
 subfield: 高等数学
 topic: 无穷级数
 difficulty: 中等
-date: "2026-10-17"
+date: "2026-11-10"
 tags: [高等数学, 无穷级数, 正项级数审敛法, 收敛半径, 幂级数展开, 傅里叶级数, 绝对收敛与条件收敛]
-draft: true
+draft: false
 featured: false
 ---
 

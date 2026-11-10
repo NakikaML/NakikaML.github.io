@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="960" height="340" role="img" aria-label="三种情形：左，单连通区域，任一条闭曲线所围的部分仍在区域内（无洞）；中，复连通区域，中间被挖去一个洞；右，复连通区域，中间只被挖去一个点（洞缩成一点，仍是复连通）">
+  <title>三种情形：左，单连通区域，任一条闭曲线所围的部分仍在区域内（无洞）；中，复连通区域，中间被挖去一个洞；右，复连通区域，中间只被挖去一个点（洞缩成一点，仍是复连通）</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm10-02-planar-connected-region"><rect x="46" y="34" width="890" height="270" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="890" height="270" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm10-02-planar-connected-region)"></g>
+  <g class="asym" clip-path="url(#clip-hm10-02-planar-connected-region)"></g>
+  <g class="axis"></g>
+  <g clip-path="url(#clip-hm10-02-planar-connected-region)"><path d="M279.4 169 L279 160.2 L277.7 151.4 L275.8 142.9 L273.2 135.2 L269.8 127.3 L265.6 119.9 L260.7 113 L255.6 107.2 L250 102 L243.4 97 L236.9 93.1 L229.3 89.6 L221.4 86.8 L213.2 84.9 L204.6 83.7 L195.9 83.4 L186.4 83.8 L176.2 85.2 L166.1 87.5 L156.1 90.6 L146.3 94.5 L136.4 99.3 L127 104.9 L118.4 111 L110.5 117.5 L103.5 124.5 L97.4 131.8 L92.7 138.9 L88.8 146.7 L86.1 154 L84.5 161.5 L84 169 L84.5 176.5 L86.1 184 L88.8 191.3 L92.7 199.1 L97.4 206.2 L103.5 213.5 L110.5 220.5 L118.4 227 L127 233.1 L136.4 238.7 L146.3 243.5 L156.1 247.4 L166.1 250.5 L176.2 252.8 L186.4 254.2 L195.9 254.6 L204.6 254.3 L213.2 253.1 L221.4 251.2 L229.3 248.4 L236.9 244.9 L243.4 241 L250 236 L255.6 230.8 L260.7 225 L265.6 218.1 L269.8 210.7 L273.2 202.8 L275.8 195.1 L277.7 186.6 L279 177.8 L279.4 169" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M588.7 169 L588.3 160.2 L587.1 151.4 L585.1 142.9 L582.6 135.2 L579.1 127.3 L574.9 119.9 L570 113 L564.9 107.2 L559.3 102 L552.7 97 L546.2 93.1 L538.7 89.6 L530.7 86.8 L522.5 84.9 L514 83.7 L505.3 83.4 L495.8 83.8 L485.5 85.2 L475.4 87.5 L465.4 90.6 L455.7 94.5 L445.7 99.3 L436.4 104.9 L427.7 111 L419.8 117.5 L412.8 124.5 L406.7 131.8 L402 138.9 L398.1 146.7 L395.5 154 L393.9 161.5 L393.3 169 L393.9 176.5 L395.5 184 L398.1 191.3 L402 199.1 L406.7 206.2 L412.8 213.5 L419.8 220.5 L427.7 227 L436.4 233.1 L445.7 238.7 L455.7 243.5 L465.4 247.4 L475.4 250.5 L485.5 252.8 L495.8 254.2 L505.3 254.6 L514 254.3 L522.5 253.1 L530.7 251.2 L538.7 248.4 L546.2 244.9 L552.7 241 L559.3 236 L564.9 230.8 L570 225 L574.9 218.1 L579.1 210.7 L582.6 202.8 L585.1 195.1 L587.1 186.6 L588.3 177.8 L588.7 169" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M525.7 169 L525.1 163.1 L523.1 157.4 L519.9 152.2 L515.6 147.6 L510.2 143.7 L504.2 140.9 L497.7 139.2 L491 138.6 L484.3 139.2 L477.8 140.9 L471.8 143.7 L466.5 147.4 L462.2 152 L459 157.2 L457 162.9 L456.3 169 L456.9 174.9 L458.9 180.6 L462.1 185.8 L466.5 190.6 L471.8 194.3 L477.8 197.1 L484.3 198.8 L491 199.4 L497.7 198.8 L504.2 197.1 L510.2 194.3 L515.6 190.4 L519.9 185.8 L523.1 180.6 L525.1 174.9 L525.7 169" class="curve" stroke="var(--plot-c2, #c9402e)"/><path d="M898 169 L897.6 160.2 L896.4 151.4 L894.4 142.9 L891.9 135.2 L888.4 127.3 L884.2 119.9 L879.4 113 L874.3 107.2 L868.7 102 L862.1 97 L855.5 93.1 L848 89.6 L840.1 86.8 L831.8 84.9 L823.3 83.7 L814.6 83.4 L805.1 83.8 L794.9 85.2 L784.7 87.5 L774.7 90.6 L765 94.5 L755.1 99.3 L745.7 104.9 L737 111 L729.1 117.5 L722.1 124.5 L716.1 131.8 L711.4 138.9 L707.4 146.7 L704.8 154 L703.2 161.5 L702.6 169 L703.2 176.5 L704.8 184 L707.4 191.3 L711.4 199.1 L716.1 206.2 L722.1 213.5 L729.1 220.5 L737 227 L745.7 233.1 L755.1 238.7 L765 243.5 L774.7 247.4 L784.7 250.5 L794.9 252.8 L805.1 254.2 L814.6 254.6 L823.3 254.3 L831.8 253.1 L840.1 251.2 L848 248.4 L855.5 244.9 L862.1 241 L868.7 236 L874.3 230.8 L879.4 225 L884.2 218.1 L888.4 210.7 L891.9 202.8 L894.4 195.1 L896.4 186.6 L897.6 177.8 L898 169" class="curve" stroke="var(--plot-c1, #d78b34)"/></g>
+  <g></g>
+  <g><circle cx="800.33" cy="169" r="5" fill="none" stroke="var(--plot-c2, #c9402e)" stroke-width="1.6"/></g>
+  <g><text class="note" data-color="accent" x="181.67" y="160.32" text-anchor="middle">D</text><text class="note" data-color="accent" x="491" y="103.88" text-anchor="middle">D</text><text class="note" data-color="red" x="491" y="173.34" text-anchor="middle">洞</text><text class="note" data-color="accent" x="800.33" y="103.88" text-anchor="middle">D</text><text class="note" data-color="red" x="800.33" y="205.9" text-anchor="middle">挖去的点</text><text class="note" data-color="ink" x="181.67" y="284.05" text-anchor="middle">单连通（无洞）</text><text class="note" data-color="ink" x="491" y="284.05" text-anchor="middle">复连通（挖掉一个洞）</text><text class="note" data-color="ink" x="800.33" y="284.05" text-anchor="middle">复连通（挖掉一个点）</text></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-ink, #241d17)">单连通区域与复连通区域</text></g>
+  <g></g>
+</svg>

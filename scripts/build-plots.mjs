@@ -1132,6 +1132,7 @@ function renderFigure(fig) {
 
   // ---- 面积填充（定积分的几何意义、两个函数围成的区域、极坐标扇形都靠它）
   const fills = [];
+  const hatchDefs = [];
   for (const fl of fig.fills ?? []) {
     let upper = fl.upper;
     let lower = fl.lower;
@@ -1164,6 +1165,51 @@ function renderFigure(fig) {
     const d = screenPts
       .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${num(x, 1)} ${num(y, 1)}`)
       .join(' ');
+
+    // hatch: true → 不铺色块，改画 45° 斜线阴影（教材里「积分区域」的习惯画法）。
+    // 做法：把区域多边形存成 clipPath，再在一大片平行线外面套上这个 clip。
+    if (fl.hatch) {
+      const hid = `hatch-${fig.id}-${hatchDefs.length}`;
+      hatchDefs.push(`<clipPath id="${hid}"><path d="${d} Z"/></clipPath>`);
+      const xs = screenPts.map((p) => p[0]);
+      const ys = screenPts.map((p) => p[1]);
+      const bx0 = Math.min(...xs);
+      const bx1 = Math.max(...xs);
+      const by0 = Math.min(...ys);
+      const by1 = Math.max(...ys);
+      const gap = fl.hatchGap ?? 7;
+      const lines = [];
+      // hatchAngle：45°（默认，教材里的斜线阴影）/ 90°（竖线）/ 0°（横线）。
+      // 竖线和横线用来画「沿这个方向切片」的示意。
+      const ang = ((fl.hatchAngle ?? 45) * Math.PI) / 180;
+      const dx = Math.cos(ang);
+      const dy = -Math.sin(ang);
+      const nx = -dy; // 法向
+      const ny = dx;
+      const reach = Math.hypot(bx1 - bx0, by1 - by0);
+      const ccx = (bx0 + bx1) / 2;
+      const ccy = (by0 + by1) / 2;
+      // 只需要覆盖 bbox 在法向上的投影范围，多出来的线纯属浪费字节
+      const halfExtent = (Math.abs(nx) * (bx1 - bx0) + Math.abs(ny) * (by1 - by0)) / 2;
+      const steps = Math.ceil(halfExtent / gap) + 1;
+      for (let k = -steps; k <= steps; k++) {
+        const ax1 = ccx + nx * k * gap - dx * reach;
+        const ay1 = ccy + ny * k * gap - dy * reach;
+        const ax2 = ccx + nx * k * gap + dx * reach;
+        const ay2 = ccy + ny * k * gap + dy * reach;
+        lines.push(`<line x1="${num(ax1, 1)}" y1="${num(ay1, 1)}" x2="${num(ax2, 1)}" y2="${num(
+          ay2,
+          1
+        )}"/>`);
+      }
+      fills.push(
+        `<g clip-path="url(#${hid})"><g class="hatch" stroke="${
+          COLOR[fl.color] ?? COLOR.accent
+        }">${lines.join('')}</g></g>`
+      );
+      continue;
+    }
+
     fills.push(
       `<path d="${d} Z" class="fill" fill="${COLOR[fl.color] ?? COLOR.accent}" fill-opacity="${
         fl.opacity ?? 0.2
@@ -1472,13 +1518,17 @@ ${extraCss ? `${extraCss}\n` : ''}  svg .tick { font-size: 11px; fill: ${COLOR.m
   svg .note[data-color="accent"] { fill: ${COLOR.accent}; }
   svg .note[data-color="red"] { fill: ${COLOR.red}; }
   svg .note[data-color="green"] { fill: ${COLOR.green}; }
-  svg .note[data-color="ink"] { fill: ${COLOR.ink}; }`.trim();
+  svg .note[data-color="ink"] { fill: ${COLOR.ink}; }${
+    (fig.fills ?? []).some((fl) => fl.hatch)
+      ? `\n  svg .hatch { stroke-width: 1; stroke-opacity: 0.55; stroke-linecap: round; }`
+      : ''
+  }`.trim();
 
   const body = [
     `<style>${style}</style>`,
     `<defs><clipPath id="${clipId}"><rect x="${num(L)}" y="${num(T)}" width="${num(
       w
-    )}" height="${num(h)}" rx="6"/></clipPath></defs>`,
+    )}" height="${num(h)}" rx="6"/></clipPath>${hatchDefs.join('')}</defs>`,
     `<rect x="${num(L)}" y="${num(T)}" width="${num(w)}" height="${num(h)}" fill="${
       fig.background ?? 'none'
     }" rx="6"/>`,
@@ -3797,6 +3847,638 @@ export const FIGURES = [
       { x: 1.34, y: 1.30, text: '∇f ∥ ∇φ', anchor: 'start', color: 'accent' },
       { x: 2.0, y: -0.45, text: 'x + y = 1', anchor: 'start', color: 'ink' },
       { x: -1.72, y: 1.66, text: '等值线 f = C', anchor: 'start', color: 'green' },
+    ],
+  },
+  // ── 第 9 章：重积分 ───────────────────────────────────────────────
+  // 这一章大半是「实体」和坐标系图（曲顶柱体、投影法、柱面/球面坐标），
+  // 按取舍原则继续留给手绘。
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm9-06-polar-area-element',
+    title: '极坐标的面积微元',
+    alt: '极坐标面积微元：取内半径 ρ、外半径 ρ+Δρ、张角 Δθ 的小扇形环，其面积约为 ρ·Δρ·Δθ',
+    width: 520,
+    height: 500,
+    x: [-0.9, 3.3],
+    y: [-0.9, 3.3],
+    equalAspect: true,
+    bare: true,
+    polarGrid: { rays: 15, circles: [1, 2, 3] },
+    fills: [
+      {
+        upper: { polar: { rho: '2.7', theta: [0.55, 0.95] } },
+        lower: { polar: { rho: '2.2', theta: [0.55, 0.95] } },
+        color: 'accent',
+        opacity: 0.35,
+      },
+    ],
+    segments: [
+      { points: [[0, 0], [2.52, 1.54]], color: 'red', width: 1.6 },
+      { points: [[0, 0], [1.72, 2.40]], color: 'red', width: 1.6 },
+    ],
+    curves: [
+      { polar: { rho: '2.2', theta: [0.55, 0.95] }, color: 'red', width: 1.8 },
+      { polar: { rho: '2.7', theta: [0.55, 0.95] }, color: 'red', width: 1.8 },
+    ],
+    arcs: [
+      {
+        center: [0, 0],
+        radius: 0.95,
+        from: 0.55,
+        to: 0.95,
+        color: 'red',
+        label: 'Δθ',
+        labelRadius: 1.16,
+      },
+    ],
+    dots: [{ x: 0, y: 0, color: 'ink', r: 3.2 }],
+    notes: [
+      { x: -0.08, y: -0.22, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 1.34, y: 1.28, text: 'ρ', anchor: 'middle', color: 'red' },
+      { x: 2.36, y: 1.42, text: 'ρ+Δρ', anchor: 'start', color: 'red' },
+      { x: 0.42, y: -0.62, text: 'Δσ ≈ ρ·Δρ·Δθ', anchor: 'start', color: 'accent' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm9-15-triple-integral-example',
+    title: '球面 x²+y²+z²=2z 与锥面 z=√(x²+y²) 围成的区域',
+    alt: '球面 x²+y²+z²=2z（球心在 (0,0,1)、半径为 1）与锥面 z=√(x²+y²) 围成的立体：球在锥内的那一顶（φ≤π/4），两曲面的交线是 z=1 平面上的单位圆',
+    width: 620,
+    height: 520,
+    threeD: {
+      azimuth: 38,
+      elevation: 22,
+      surfaces: [
+        {
+          // 球面在 Ω 之外的部分（φ 从 π/4 到 π，即 z 从 1 落到 0）：只当底色，
+          // 让人看出「这一顶是从整个球上切下来的」
+          u: [Math.PI / 4, Math.PI],
+          v: [0, Math.PI * 2],
+          nu: 12,
+          nv: 28,
+          x: 'sin(u)*cos(v)',
+          y: 'sin(u)*sin(v)',
+          z: '1 + cos(u)',
+          color: 'accent',
+          opacity: 0.16,
+        },
+        {
+          // Ω 的球面部分：φ ∈ [0, π/4]
+          u: [0, Math.PI / 4],
+          v: [0, Math.PI * 2],
+          nu: 5,
+          nv: 28,
+          x: 'sin(u)*cos(v)',
+          y: 'sin(u)*sin(v)',
+          z: '1 + cos(u)',
+          color: 'red',
+          opacity: 0.5,
+        },
+        {
+          // Ω 的锥面部分：顶点到交线（u 到 √2 时 z = 1）
+          u: [0, Math.SQRT2],
+          v: [0, Math.PI * 2],
+          nu: 9,
+          nv: 26,
+          x: 'u*cos(v)',
+          y: 'u*sin(v)',
+          z: 'u',
+          color: 'red',
+          opacity: 0.42,
+        },
+      ],
+      axes: [
+        { to: [0, 0, 2.4], label: 'z', labelAt: [0, 0, 2.55] },
+        { to: [1.55, 0, 0], label: 'x', labelAt: [1.7, 0, 0] },
+        { to: [0, 1.55, 0], label: 'y', labelAt: [0, 1.7, 0] },
+      ],
+      // 两曲面的交线：φ = π/4 处 r = 2cos(π/4) = √2，落在 z = 1 的单位圆上
+      curves: [
+        {
+          x: 'cos(t)',
+          y: 'sin(t)',
+          z: '1',
+          t: [0, Math.PI * 2],
+          color: 'red',
+          width: 2.2,
+          samples: 64,
+        },
+      ],
+      points: [{ p: [1, 0, 1], label: '交线 z = 1、ρ = 1', dx: 10, dy: -8, color: 'red' }],
+    },
+    notes: [],
+  },
+  {
+    id: 'hm9-02-x-type-and-y-type-regions',
+    title: 'X 型区域与 Y 型区域',
+    alt: '左：X 型区域，上下边界是 x 的函数 y=φ₂(x) 与 y=φ₁(x)，左右边界是竖直线 x=a 与 x=b；右：Y 型区域，左右边界是 y 的函数 x=ψ₁(y) 与 x=ψ₂(y)，上下边界是水平线 y=c 与 y=d',
+    width: 820,
+    height: 370,
+    x: [-0.6, 13.4],
+    y: [-0.9, 4.7],
+    equalAspect: true,
+    bare: true,
+    // 两块面板拼在一张画布上：左边 X 型（左右用竖线切），右边 Y 型（上下用横线切）。
+    // 斜线阴影用 hatch —— 教材里「积分区域」的习惯画法，比铺一层淡色更明确。
+    fills: [
+      {
+        upper: { fn: '3.05 - 0.14*(x-3.2)^2 + 0.26*sin(2.1*(x-1.5))', range: [1.5, 5.0] },
+        lower: { fn: '1.45 + 0.22*cos(1.9*(x-1.5)) + 0.085*(x-3.2)^2', range: [1.5, 5.0] },
+        color: 'accent',
+        hatch: true,
+      },
+      {
+        upper: {
+          param: { x: '12.1 - 0.20*(t-2.3)^2 + 0.22*cos(1.8*(t-1.05))', y: 't', t: [1.05, 3.6] },
+        },
+        lower: {
+          param: { x: '8.6 + 0.30*sin(1.8*(t-1.05)) + 0.10*(t-2.3)^2', y: 't', t: [1.05, 3.6] },
+        },
+        color: 'accent',
+        hatch: true,
+      },
+    ],
+    curves: [
+      // 左：上下两条边界
+      {
+        fn: '3.05 - 0.14*(x-3.2)^2 + 0.26*sin(2.1*(x-1.5))',
+        domain: [1.5, 5.0],
+        color: 'accent',
+        width: 1.9,
+      },
+      {
+        fn: '1.45 + 0.22*cos(1.9*(x-1.5)) + 0.085*(x-3.2)^2',
+        domain: [1.5, 5.0],
+        color: 'accent',
+        width: 1.9,
+      },
+      // 右：左右两条边界（写成 y 的参数曲线）
+      {
+        parametric: { x: '8.6 + 0.30*sin(1.8*(t-1.05)) + 0.10*(t-2.3)^2', y: 't', t: [1.05, 3.6] },
+        color: 'accent',
+        width: 1.9,
+      },
+      {
+        parametric: { x: '12.1 - 0.20*(t-2.3)^2 + 0.22*cos(1.8*(t-1.05))', y: 't', t: [1.05, 3.6] },
+        color: 'accent',
+        width: 1.9,
+      },
+    ],
+    segments: [
+      // 坐标轴（bare 模式下自己画）
+      { points: [[0.4, 0], [6.3, 0]], color: 'ink', width: 1.5 },
+      { points: [[0.4, 0], [0.4, 4.4]], color: 'ink', width: 1.5 },
+      { points: [[7.7, 0], [13.2, 0]], color: 'ink', width: 1.5 },
+      { points: [[7.7, 0], [7.7, 4.4]], color: 'ink', width: 1.5 },
+      // 左面板的两条竖直边界 x = a、x = b
+      { points: [[1.5, 0], [1.5, 2.646]], color: 'muted', width: 1.2, dash: '4 3' },
+      { points: [[5.0, 0], [5.0, 2.826]], color: 'muted', width: 1.2, dash: '4 3' },
+      // 右面板的两条水平边界 y = c、y = d
+      { points: [[7.7, 1.05], [8.756, 1.05]], color: 'muted', width: 1.2, dash: '4 3' },
+      { points: [[7.7, 3.6], [8.470, 3.6]], color: 'muted', width: 1.2, dash: '4 3' },
+    ],
+    arrows: [
+      { from: [6.0, 0], to: [6.35, 0], color: 'ink' },
+      { from: [0.4, 4.05], to: [0.4, 4.45], color: 'ink' },
+      { from: [12.9, 0], to: [13.25, 0], color: 'ink' },
+      { from: [7.7, 4.05], to: [7.7, 4.45], color: 'ink' },
+    ],
+    notes: [
+      { x: 0.26, y: -0.34, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 6.44, y: 0.14, text: 'x', anchor: 'start', color: 'ink' },
+      { x: 0.2, y: 4.5, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 1.5, y: -0.36, text: 'a', anchor: 'middle', color: 'ink' },
+      { x: 5.0, y: -0.36, text: 'b', anchor: 'middle', color: 'ink' },
+      { x: 5.18, y: 3.0, text: 'y = φ_{2}(x)', anchor: 'start', color: 'accent' },
+      { x: 5.18, y: 1.72, text: 'y = φ_{1}(x)', anchor: 'start', color: 'accent' },
+
+      { x: 7.56, y: -0.34, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 13.34, y: 0.14, text: 'x', anchor: 'start', color: 'ink' },
+      { x: 7.5, y: 4.5, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 7.56, y: 1.0, text: 'c', anchor: 'end', color: 'ink' },
+      { x: 7.56, y: 3.55, text: 'd', anchor: 'end', color: 'ink' },
+      { x: 8.62, y: 3.86, text: 'x = ψ_{1}(y)', anchor: 'middle', color: 'accent' },
+      { x: 11.68, y: 3.86, text: 'x = ψ_{2}(y)', anchor: 'middle', color: 'accent' },
+    ],
+  },
+  {
+    id: 'hm9-04-double-integral-parity-symmetry',
+    title: '二重积分的对称性',
+    alt: '左：积分区域 D 关于 x 轴对称，上下两半互为镜像；右：积分区域 D 关于 y 轴对称，左右两半互为镜像',
+    width: 700,
+    height: 400,
+    x: [-0.8, 4.9],
+    y: [-1.5, 1.5],
+    equalAspect: true,
+    bare: true,
+    // 两张小图并排，都是笛卡尔心形线，只是朝向差 90°：
+    // 左图 ρ = a(1 + cos θ) —— 尖点在原点、两瓣朝右，整体【关于 x 轴对称】；
+    // 右图 ρ = a(1 − sin θ) —— 凹口朝上、圆底在下，整体【关于 y 轴对称】。
+    curves: [
+      {
+        parametric: {
+          x: '0.8*(1 + cos(t))*cos(t)',
+          y: '0.8*(1 + cos(t))*sin(t)',
+          t: [0, Math.PI * 2],
+        },
+        color: 'accent',
+        width: 2.2,
+        samples: 220,
+      },
+      {
+        parametric: {
+          x: '3.5 + 0.9*(1 - sin(t))*cos(t)',
+          y: '0.9 + 0.9*(1 - sin(t))*sin(t)',
+          t: [0, Math.PI * 2],
+        },
+        color: 'accent',
+        width: 2.2,
+        samples: 220,
+      },
+    ],
+    segments: [
+      { points: [[-0.5, 0], [1.85, 0]], color: 'ink', width: 1.4 },
+      { points: [[0, -1.4], [0, 1.4]], color: 'ink', width: 1.4 },
+      { points: [[2.25, 0], [4.75, 0]], color: 'ink', width: 1.4 },
+      { points: [[3.5, -1.4], [3.5, 1.4]], color: 'ink', width: 1.4 },
+    ],
+    arrows: [
+      { from: [1.6, 0], to: [1.88, 0], color: 'ink' },
+      { from: [0, 1.18], to: [0, 1.44], color: 'ink' },
+      { from: [4.5, 0], to: [4.78, 0], color: 'ink' },
+      { from: [3.5, 1.18], to: [3.5, 1.44], color: 'ink' },
+    ],
+    notes: [
+      { x: -0.1, y: -0.24, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 1.9, y: 0.2, text: 'x', anchor: 'start', color: 'ink' },
+      { x: -0.08, y: 1.36, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 0.9, y: -1.38, text: 'D 关于 x 轴对称', anchor: 'middle', color: 'accent' },
+      { x: 3.4, y: -0.24, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 4.8, y: 0.2, text: 'x', anchor: 'start', color: 'ink' },
+      { x: 3.42, y: 1.36, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 3.5, y: -1.38, text: 'D 关于 y 轴对称', anchor: 'middle', color: 'accent' },
+    ],
+  },
+  {
+    id: 'hm9-05-double-integral-example-10',
+    title: '用直线 y = 3x 把区域 D 分成 D₁、D₂',
+    alt: '区域 D 由抛物线 y=4−x²、直线 y=−3x 与竖直线 x=1 围成；再用直线 y=3x 把它分成两块：D₁ 关于 y 轴对称，D₂ 关于 x 轴对称',
+    width: 520,
+    height: 620,
+    // 这道题纵向跨 7.4、横向只有 3，严格等比会画成一根竖条。
+    // 教材原图也是压扁画的（横向像素密度约为纵向的 2 倍），这里照做。
+    x: [-1.5, 1.5],
+    y: [-3.4, 4.0],
+    fills: [
+      // D₁ 的左半（区域关于 y 轴对称，所以左右各填一块）
+      { upper: { fn: '4 - x^2', range: [-1, 0] }, lower: { fn: '-3*x', range: [-1, 0] }, color: 'accent', opacity: 0.22 },
+      { upper: { fn: '4 - x^2', range: [0, 1] }, lower: { fn: '3*x', range: [0, 1] }, color: 'accent', opacity: 0.22 },
+      // D₂：夹在 y = ±3x 之间
+      { upper: { fn: '3*x', range: [0, 1] }, lower: { fn: '-3*x', range: [0, 1] }, color: 'green', opacity: 0.3 },
+    ],
+    curves: [
+      { fn: '4 - x^2', domain: [-1.5, 1.5], color: 'accent', width: 2 },
+      { fn: '-3*x', domain: [-1.5, 1.32], color: 'accent', width: 2 },
+      { fn: '3*x', domain: [-1.2, 1.2], color: 'green', width: 2, dash: '6 4' },
+    ],
+    segments: [{ points: [[1, -3], [1, 3.2]], color: 'accent', width: 2 }],
+    dots: [
+      { x: 1, y: 3, color: 'red', r: 3.6 },
+      { x: 1, y: -3, color: 'red', r: 3.6 },
+      { x: -1, y: 3, color: 'red', r: 3.6 },
+    ],
+    notes: [
+      { x: -0.08, y: -0.26, text: 'O', anchor: 'end', color: 'ink' },
+      { x: -0.6, y: 2.55, text: 'D_{1}', anchor: 'middle', color: 'ink' },
+      { x: 0.56, y: 1.35, text: 'D_{2}', anchor: 'middle', color: 'ink' },
+      { x: 1.12, y: 3.15, text: '(1, 3)', anchor: 'start', color: 'red' },
+      { x: 1.12, y: -3.15, text: '(1, −3)', anchor: 'start', color: 'red' },
+      { x: -1.12, y: 3.15, text: '(−1, 3)', anchor: 'end', color: 'red' },
+      { x: 1.36, y: 2.3, text: 'x = 1', anchor: 'start', color: 'accent' },
+      { x: 0.72, y: 2.35, text: 'y = 3x', anchor: 'start', color: 'green' },
+    ],
+  },
+  {
+    id: 'hm9-08-substitution-example-2',
+    title: '广义极坐标：椭圆区域拉成圆',
+    alt: '广义极坐标：椭圆 x²/a²+y²/b²=1 经 x = ar cos θ、y = br sin θ 的伸缩变换，变成 rθ 方向上的单位圆（0 ≤ r ≤ 1）',
+    width: 760,
+    height: 340,
+    x: [-2.2, 6.0],
+    y: [-1.5, 1.5],
+    equalAspect: true,
+    bare: true,
+    fills: [
+      {
+        upper: { fn: '0.8*sqrt(1-(x/1.5)^2)', range: [-1.5, 1.5] },
+        lower: { fn: '-0.8*sqrt(1-(x/1.5)^2)', range: [-1.5, 1.5] },
+        color: 'accent',
+        hatch: true,
+      },
+      {
+        upper: { fn: 'sqrt(1-(x-4.6)^2)', range: [3.6, 5.6] },
+        lower: { fn: '-sqrt(1-(x-4.6)^2)', range: [3.6, 5.6] },
+        color: 'accent',
+        hatch: true,
+      },
+    ],
+    curves: [
+      {
+        parametric: { x: '1.5*cos(t)', y: '0.8*sin(t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2,
+      },
+      {
+        parametric: { x: '4.6 + cos(t)', y: 'sin(t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2,
+      },
+    ],
+    segments: [
+      // 左：椭圆区域的坐标轴
+      { points: [[-1.9, 0], [2.1, 0]], color: 'ink', width: 1.4 },
+      { points: [[0, -1.3], [0, 1.3]], color: 'ink', width: 1.4 },
+      // 中间的变换箭头
+      { points: [[2.35, 0], [3.05, 0]], color: 'ink', width: 1.4 },
+      // 右：单位圆的坐标轴，以及从极点出发的半径
+      { points: [[3.2, 0], [6.0, 0]], color: 'ink', width: 1.4 },
+      { points: [[4.6, -1.3], [4.6, 1.3]], color: 'ink', width: 1.4 },
+      { points: [[4.6, 0], [5.366, 0.643]], color: 'red', width: 1.6 },
+    ],
+    arrows: [
+      { from: [1.85, 0], to: [2.15, 0], color: 'ink' },
+      { from: [0, 1.05], to: [0, 1.35], color: 'ink' },
+      { from: [2.78, 0], to: [3.08, 0], color: 'ink' },
+      { from: [5.72, 0], to: [6.02, 0], color: 'ink' },
+      { from: [4.6, 1.05], to: [4.6, 1.35], color: 'ink' },
+    ],
+    arcs: [
+      {
+        center: [4.6, 0],
+        radius: 0.36,
+        from: 0,
+        to: Math.PI / 4.5,
+        color: 'red',
+        label: 'θ',
+        labelRadius: 0.55,
+      },
+    ],
+    notes: [
+      { x: -0.08, y: -0.24, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 2.16, y: 0.2, text: 'x', anchor: 'start', color: 'ink' },
+      { x: -0.08, y: 1.28, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 1.62, y: -0.3, text: 'a', anchor: 'start', color: 'accent' },
+      { x: 0.16, y: 0.86, text: 'b', anchor: 'start', color: 'accent' },
+      { x: 4.94, y: 0.44, text: 'r', anchor: 'start', color: 'red' },
+      { x: 5.66, y: -0.26, text: '1', anchor: 'start', color: 'accent' },
+      { x: 4.52, y: -0.24, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 6.06, y: 0.2, text: 'x', anchor: 'start', color: 'ink' },
+      { x: 4.52, y: 1.28, text: 'y', anchor: 'end', color: 'ink' },
+    ],
+  },
+  {
+    id: 'hm9-09-substitution-example-1',
+    title: '一般换元：三角形区域 D → D′',
+    alt: '换元 u=y−x、v=y+x：xOy 面上由 x=0、y=0、x+y=2 围成的三角形 D，变成 uOv 面上由 u=−v、u=v、v=2 围成的三角形 D′',
+    width: 760,
+    height: 360,
+    x: [-0.7, 7.7],
+    y: [-0.5, 2.9],
+    equalAspect: true,
+    bare: true,
+    fills: [
+      { fn: '2-x', from: 0, to: 2, baseline: 0, color: 'accent', hatch: true },
+      {
+        upper: { param: { x: '5.2 + t', y: 't', t: [0, 2] } },
+        lower: { param: { x: '5.2 - t', y: 't', t: [0, 2] } },
+        color: 'accent',
+        hatch: true,
+      },
+    ],
+    curves: [
+      { fn: '2-x', domain: [0, 2], color: 'accent', width: 2 },
+      { parametric: { x: '5.2 + t', y: 't', t: [0, 2] }, color: 'accent', width: 2 },
+      { parametric: { x: '5.2 - t', y: 't', t: [0, 2] }, color: 'accent', width: 2 },
+    ],
+    segments: [
+      { points: [[-0.35, 0], [2.5, 0]], color: 'ink', width: 1.4 },
+      { points: [[0, -0.35], [0, 2.5]], color: 'ink', width: 1.4 },
+      { points: [[2.8, 1.2], [3.5, 1.2]], color: 'ink', width: 1.4 },
+      { points: [[2.9, 0], [7.4, 0]], color: 'ink', width: 1.4 },
+      { points: [[5.2, 0], [5.2, 2.6]], color: 'ink', width: 1.4 },
+    ],
+    arrows: [
+      { from: [2.2, 0], to: [2.52, 0], color: 'ink' },
+      { from: [0, 2.2], to: [0, 2.52], color: 'ink' },
+      { from: [3.22, 1.2], to: [3.52, 1.2], color: 'ink' },
+      { from: [7.1, 0], to: [7.42, 0], color: 'ink' },
+      { from: [5.2, 2.3], to: [5.2, 2.62], color: 'ink' },
+    ],
+    notes: [
+      { x: -0.08, y: -0.22, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 2.56, y: 0.2, text: 'x', anchor: 'start', color: 'ink' },
+      { x: -0.08, y: 2.42, text: 'y', anchor: 'end', color: 'ink' },
+      { x: 2.0, y: -0.26, text: '2', anchor: 'middle', color: 'ink' },
+      { x: -0.22, y: 1.94, text: '2', anchor: 'end', color: 'ink' },
+      { x: 1.18, y: 1.06, text: 'x + y = 2', anchor: 'start', color: 'accent' },
+      { x: 5.12, y: -0.22, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 7.48, y: 0.2, text: 'u', anchor: 'start', color: 'ink' },
+      { x: 5.36, y: 2.5, text: 'v', anchor: 'start', color: 'ink' },
+      { x: 5.36, y: 1.95, text: '2', anchor: 'start', color: 'ink' },
+      { x: 4.3, y: 0.82, text: 'u = −v', anchor: 'end', color: 'accent' },
+      { x: 6.1, y: 0.82, text: 'u = v', anchor: 'start', color: 'accent' },
+    ],
+  },
+  // ── 第 10 章：曲线积分与曲面积分 ──────────────────────────────────
+  // 这一章 10 张图里有 6 张是三维曲面/证明图（面片、法向量、高斯与斯托克斯的证明、
+  // 右手定则），按取舍原则留给手绘；下面 4 张是平面图。
+  {
+    id: 'hm10-01-arc-length-integral-computation',
+    title: '弧长微元  ds = √(x′² + y′²) dt',
+    alt: '对弧长的曲线积分：在曲线上取一小段弧，弧长微元 ds 是切线方向的斜边，它在两条坐标轴上的投影分别是 dx 与 dy',
+    width: 560,
+    height: 400,
+    x: [-0.5, 2.4],
+    y: [-0.4, 1.6],
+    equalAspect: true,
+    curves: [{ fn: '0.45*x^2', domain: [0, 1.75], color: 'accent', width: 2 }],
+    // 直角三角形的斜边取曲线上的【两个点】P(1.2, 0.648) 与 Q(1.4, 0.882) 的弦，
+    // 这样三个顶点里有两点严格落在曲线上（之前画成切线延长，末端会差一点点）。
+    segments: [
+      { points: [[1.2, 0.648], [1.4, 0.648]], color: 'ink', width: 1.3 },
+      { points: [[1.4, 0.648], [1.4, 0.882]], color: 'ink', width: 1.3 },
+      { points: [[1.2, 0.648], [1.4, 0.882]], color: 'red', width: 2.2 },
+    ],
+    dots: [
+      { x: 0, y: 0, color: 'ink', r: 3.2 },
+      { x: 1.2, y: 0.648, color: 'red', r: 3.4 },
+      { x: 1.4, y: 0.882, color: 'red', r: 3.4 },
+    ],
+    notes: [
+      { x: -0.06, y: -0.2, text: 'O', anchor: 'end', color: 'ink' },
+      { x: 1.3, y: 0.55, text: 'dx', anchor: 'middle', color: 'ink' },
+      { x: 1.46, y: 0.75, text: 'dy', anchor: 'start', color: 'ink' },
+      { x: 1.16, y: 0.86, text: 'ds', anchor: 'middle', color: 'red' },
+      { x: 1.62, y: 1.24, text: 'L', anchor: 'middle', color: 'accent' },
+    ],
+  },
+  {
+    id: 'hm10-02-planar-connected-region',
+    title: '单连通区域与复连通区域',
+    alt: '三种情形：左，单连通区域，任一条闭曲线所围的部分仍在区域内（无洞）；中，复连通区域，中间被挖去一个洞；右，复连通区域，中间只被挖去一个点（洞缩成一点，仍是复连通）',
+    width: 960,
+    height: 340,
+    x: [-0.3, 7.9],
+    y: [-1.1, 1.1],
+    equalAspect: true,
+    bare: true,
+    curves: [
+      {
+        parametric: { x: '0.95 + 0.9*cos(t)', y: '0.78*sin(t) + 0.06*sin(2*t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2,
+      },
+      {
+        parametric: { x: '3.8 + 0.9*cos(t)', y: '0.78*sin(t) + 0.06*sin(2*t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2,
+      },
+      {
+        parametric: { x: '3.8 + 0.32*cos(t)', y: '0.28*sin(t)', t: [0, Math.PI * 2] },
+        color: 'red',
+        width: 2,
+      },
+      {
+        parametric: { x: '6.65 + 0.9*cos(t)', y: '0.78*sin(t) + 0.06*sin(2*t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2,
+      },
+    ],
+    // 第三种情形：洞缩成一个点。点被挖掉后，绕着它的任意小圆周都不能缩成一点 ——
+    // 所以「挖掉一个点」依然是复连通（格林公式里挖奇点那类题正是这种区域）。
+    dots: [{ x: 6.65, y: 0, color: 'red', r: 5, open: true }],
+    notes: [
+      { x: 0.95, y: 0.08, text: 'D', anchor: 'middle', color: 'accent' },
+      { x: 3.8, y: 0.6, text: 'D', anchor: 'middle', color: 'accent' },
+      { x: 3.8, y: -0.04, text: '洞', anchor: 'middle', color: 'red' },
+      { x: 6.65, y: 0.6, text: 'D', anchor: 'middle', color: 'accent' },
+      { x: 6.65, y: -0.34, text: '挖去的点', anchor: 'middle', color: 'red' },
+      { x: 0.95, y: -1.06, text: '单连通（无洞）', anchor: 'middle', color: 'ink' },
+      { x: 3.8, y: -1.06, text: '复连通（挖掉一个洞）', anchor: 'middle', color: 'ink' },
+      { x: 6.65, y: -1.06, text: '复连通（挖掉一个点）', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm10-03-boundary-orientation',
+    title: '边界曲线的正向',
+    alt: '边界正向：沿边界行走时区域 D 始终在左侧，所以外边界取逆时针、内边界取顺时针',
+    width: 520,
+    height: 440,
+    x: [-1.35, 1.35],
+    y: [-1.15, 1.15],
+    equalAspect: true,
+    bare: true,
+    curves: [
+      { parametric: { x: 'cos(t)', y: 'sin(t)', t: [0, Math.PI * 2] }, color: 'accent', width: 2.2 },
+      {
+        parametric: { x: '0.42*cos(t)', y: '0.42*sin(t)', t: [0, Math.PI * 2] },
+        color: 'accent',
+        width: 2.2,
+      },
+    ],
+    segments: [
+      // 两条「区域在左侧」的提示短箭头：外边界逆时针、内边界顺时针
+      { points: [[-0.342, 0.94], [-0.63, 0.833]], color: 'red', width: 2.4 },
+      { points: [[0.144, 0.395], [0.285, 0.344]], color: 'red', width: 2.4 },
+    ],
+    arrows: [
+      { from: [-0.55, 0.85], to: [-0.66, 0.81], color: 'red' },
+      { from: [0.24, 0.36], to: [0.30, 0.34], color: 'red' },
+    ],
+    notes: [
+      { x: 0.66, y: 0.04, text: 'D', anchor: 'middle', color: 'accent' },
+      { x: -0.78, y: -0.78, text: 'L_{外}', anchor: 'middle', color: 'accent' },
+      { x: 0.0, y: -0.62, text: 'L_{内}', anchor: 'middle', color: 'accent' },
+      { x: 0, y: -1.06, text: '沿边界走，区域 D 恒在左侧', anchor: 'middle', color: 'ink' },
+    ],
+  },
+  {
+    disabled: true, // 作者认为手绘更好，改回原图
+    id: 'hm10-04-green-theorem-proof',
+    title: '格林公式的证明：X 型区域与 Y 型区域',
+    alt: '格林公式的证明分两步：左图把区域看成 X 型（先对 y 积分，竖直窄条），右图看成 Y 型（先对 x 积分，水平窄条）',
+    width: 760,
+    height: 360,
+    x: [-0.4, 7.4],
+    y: [-1.0, 2.0],
+    equalAspect: true,
+    bare: true,
+    fills: [
+      // 左：整块区域淡淡铺一层；右：同理
+      {
+        upper: { fn: '1.55 - 0.10*(x-1.65)^2 + 0.28*sin(2.0*(x-0.3))', range: [0.3, 3.0] },
+        lower: { fn: '0.15 + 0.20*cos(1.7*(x-0.3))', range: [0.3, 3.0] },
+        color: 'accent',
+        opacity: 0.12,
+      },
+      {
+        upper: { param: { x: '7.0 - 0.22*(t-0.5)^2 + 0.25*cos(1.4*(t+0.8))', y: 't', t: [-0.8, 1.8] } },
+        lower: { param: { x: '4.85 + 0.28*sin(1.6*(t+0.8)) + 0.10*(t-0.5)^2', y: 't', t: [-0.8, 1.8] } },
+        color: 'accent',
+        opacity: 0.12,
+      },
+      // 左边那一条竖直窄条 (x, x+dx)
+      {
+        upper: { fn: '1.55 - 0.10*(x-1.65)^2 + 0.28*sin(2.0*(x-0.3))', range: [1.5, 1.64] },
+        lower: { fn: '0.15 + 0.20*cos(1.7*(x-0.3))', range: [1.5, 1.64] },
+        color: 'accent',
+        opacity: 0.35,
+      },
+      // 右边那一条水平窄条 (y, y+dy)
+      {
+        upper: {
+          param: { x: '7.0 - 0.22*(t-0.5)^2 + 0.25*cos(1.4*(t+0.8))', y: 't', t: [0.62, 0.76] },
+        },
+        lower: {
+          param: { x: '4.85 + 0.28*sin(1.6*(t+0.8)) + 0.10*(t-0.5)^2', y: 't', t: [0.62, 0.76] },
+        },
+        color: 'accent',
+        opacity: 0.35,
+      },
+    ],
+    curves: [
+      { fn: '1.55 - 0.10*(x-1.65)^2 + 0.28*sin(2.0*(x-0.3))', domain: [0.3, 3.0], color: 'accent', width: 2 },
+      { fn: '0.15 + 0.20*cos(1.7*(x-0.3))', domain: [0.3, 3.0], color: 'accent', width: 2 },
+      {
+        parametric: { x: '7.0 - 0.22*(t-0.5)^2 + 0.25*cos(1.4*(t+0.8))', y: 't', t: [-0.8, 1.8] },
+        color: 'accent',
+        width: 2,
+      },
+      {
+        parametric: { x: '4.85 + 0.28*sin(1.6*(t+0.8)) + 0.10*(t-0.5)^2', y: 't', t: [-0.8, 1.8] },
+        color: 'accent',
+        width: 2,
+      },
+    ],
+    segments: [
+      // 左右两块区域的竖直边界
+      { points: [[0.3, 0.35], [0.3, 1.368]], color: 'accent', width: 1.6 },
+      { points: [[3.0, 0.123], [3.0, 1.152]], color: 'accent', width: 1.6 },
+      { points: [[5.019, -0.8], [6.912, -0.8]], color: 'accent', width: 1.6 },
+      { points: [[4.778, 1.8], [6.410, 1.8]], color: 'accent', width: 1.6 },
+      // 窄条的两条边界
+      { points: [[1.5, 0.55], [1.5, 1.62]], color: 'red', width: 1.4, dash: '4 3' },
+      { points: [[1.64, 0.56], [1.64, 1.62]], color: 'red', width: 1.4, dash: '4 3' },
+      { points: [[4.99, 0.62], [6.94, 0.62]], color: 'red', width: 1.4, dash: '4 3' },
+      { points: [[4.98, 0.76], [6.94, 0.76]], color: 'red', width: 1.4, dash: '4 3' },
+    ],
+    notes: [
+      { x: 1.57, y: 1.78, text: 'dx', anchor: 'middle', color: 'red' },
+      { x: 5.9, y: 0.9, text: 'dy', anchor: 'middle', color: 'red' },
+      { x: 1.65, y: -0.62, text: 'X 型：先对 y 积分', anchor: 'middle', color: 'ink' },
+      { x: 5.9, y: -1.0, text: 'Y 型：先对 x 积分', anchor: 'middle', color: 'ink' },
     ],
   },
   {

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="对弧长的曲线积分：在曲线上取一小段弧，弧长微元 ds 是切线方向的斜边，它在两条坐标轴上的投影分别是 dx 与 dy">
+  <title>对弧长的曲线积分：在曲线上取一小段弧，弧长微元 ds 是切线方向的斜边，它在两条坐标轴上的投影分别是 dx 与 dy</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm10-01-arc-length-integral-computation"><rect x="46" y="34" width="490" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="490" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm10-01-arc-length-integral-computation)"><line x1="130.48" y1="34" x2="130.48" y2="364"/><line x1="214.97" y1="34" x2="214.97" y2="364"/><line x1="299.45" y1="34" x2="299.45" y2="364"/><line x1="383.93" y1="34" x2="383.93" y2="364"/><line x1="468.41" y1="34" x2="468.41" y2="364"/><line x1="46" y1="300.38" x2="536" y2="300.38"/><line x1="46" y1="215.9" x2="536" y2="215.9"/><line x1="46" y1="131.41" x2="536" y2="131.41"/><line x1="46" y1="46.93" x2="536" y2="46.93"/></g>
+  <g class="asym" clip-path="url(#clip-hm10-01-arc-length-integral-computation)"></g>
+  <g class="axis"><line x1="40" y1="300.38" x2="544" y2="300.38"/><line x1="130.48" y1="368" x2="130.48" y2="26"/><line x1="46" y1="300.38" x2="46" y2="304.38"/><line x1="214.97" y1="300.38" x2="214.97" y2="304.38"/><line x1="299.45" y1="300.38" x2="299.45" y2="304.38"/><line x1="383.93" y1="300.38" x2="383.93" y2="304.38"/><line x1="468.41" y1="300.38" x2="468.41" y2="304.38"/><line x1="130.48" y1="215.9" x2="126.48" y2="215.9"/><line x1="130.48" y1="131.41" x2="126.48" y2="131.41"/><line x1="130.48" y1="46.93" x2="126.48" y2="46.93"/></g>
+  <g clip-path="url(#clip-hm10-01-arc-length-integral-computation)"><path d="M130.5 300.4 L149 299.5 L167.4 296.7 L185.9 292.2 L204.4 285.8 L222.9 277.6 L241.4 267.6 L259.8 255.8 L278.3 242.2 L296.8 226.7 L315.3 209.4 L333.8 190.3 L352.3 169.4 L370.7 146.7 L389.2 122.1 L407.7 95.7 L426.2 67.5" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M333.2 190.9 L367 190.9" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.3" stroke-linecap="butt"/><path d="M367 190.9 L367 151.4" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.3" stroke-linecap="butt"/><path d="M333.2 190.9 L367 151.4" class="curve" stroke="var(--plot-c2, #c9402e)" stroke-width="2.2" stroke-linecap="butt"/></g>
+  <g><text class="tick" x="46" y="315.38" text-anchor="middle">-0.5</text><text class="tick" x="214.97" y="315.38" text-anchor="middle">0.5</text><text class="tick" x="299.45" y="315.38" text-anchor="middle">1</text><text class="tick" x="383.93" y="315.38" text-anchor="middle">1.5</text><text class="tick" x="468.41" y="315.38" text-anchor="middle">2</text><text class="tick" x="121.48" y="312.38" text-anchor="end">0</text><text class="tick" x="122.48" y="219.9" text-anchor="end">0.5</text><text class="tick" x="122.48" y="135.41" text-anchor="end">1</text><text class="tick" x="122.48" y="50.93" text-anchor="end">1.5</text><text class="axisname" x="542" y="293.38">x</text><text class="axisname" x="137.48" y="30">y</text></g>
+  <g><circle cx="130.48" cy="300.38" r="3.2" fill="var(--plot-ink, #241d17)" stroke="var(--plot-ink, #241d17)" stroke-width="1.6"/><circle cx="333.24" cy="190.89" r="3.4" fill="var(--plot-c2, #c9402e)" stroke="var(--plot-c2, #c9402e)" stroke-width="1.6"/><circle cx="367.03" cy="151.35" r="3.4" fill="var(--plot-c2, #c9402e)" stroke="var(--plot-c2, #c9402e)" stroke-width="1.6"/></g>
+  <g><text class="note" data-color="ink" x="120.34" y="334.17" text-anchor="end">O</text><text class="note" data-color="ink" x="350.14" y="207.45" text-anchor="middle">dx</text><text class="note" data-color="ink" x="377.17" y="173.66" text-anchor="start">dy</text><text class="note" data-color="red" x="326.48" y="155.07" text-anchor="middle">ds</text><text class="note" data-color="accent" x="404.21" y="90.86" text-anchor="middle">L</text></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-c1, #d78b34)">弧长微元  ds = √(x′² + y′²) dt</text></g>
+  <g></g>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400" role="img" aria-label="左：积分区域 D 关于 x 轴对称，上下两半互为镜像；右：积分区域 D 关于 y 轴对称，左右两半互为镜像">
+  <title>左：积分区域 D 关于 x 轴对称，上下两半互为镜像；右：积分区域 D 关于 y 轴对称，左右两半互为镜像</title>
+  <style>svg { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  svg .grid line, svg .grid ellipse { stroke: var(--plot-grid, #e2d7c7); stroke-width: 1; fill: none; }
+  svg .axis line { stroke: var(--plot-axis, #9a8d7d); stroke-width: 1.2; }
+  svg .asym line { stroke: var(--plot-asym, #c2ac92); stroke-width: 1; stroke-dasharray: 5 5; }
+  svg .curve { fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  svg .arrow { stroke-width: 1.3; fill: none; }
+  svg .tick { font-size: 11px; fill: var(--plot-muted, #6c6255); }
+  svg .tick--mark { font-size: 12px; font-style: italic; font-weight: 600; fill: var(--plot-ink, #241d17); }
+  svg .axisname { font-size: 12px; font-style: italic; fill: var(--plot-ink, #241d17); }
+  svg .legend { font-size: 12px; fill: var(--plot-ink, #241d17); }
+  svg .figname { font-size: 13px; font-weight: 600; }
+  svg .note { font-size: 12px; fill: var(--plot-muted, #6c6255); }
+  svg .note[data-color="accent"] { fill: var(--plot-c1, #d78b34); }
+  svg .note[data-color="red"] { fill: var(--plot-c2, #c9402e); }
+  svg .note[data-color="green"] { fill: var(--plot-c3, #4f9a76); }
+  svg .note[data-color="ink"] { fill: var(--plot-ink, #241d17); }</style>
+  <defs><clipPath id="clip-hm9-04-double-integral-parity-symmetry"><rect x="46" y="34" width="630" height="330" rx="6"/></clipPath></defs>
+  <rect x="46" y="34" width="630" height="330" fill="none" rx="6"/>
+  <g class="grid" clip-path="url(#clip-hm9-04-double-integral-parity-symmetry)"></g>
+  <g class="asym" clip-path="url(#clip-hm9-04-double-integral-parity-symmetry)"></g>
+  <g class="axis"></g>
+  <g clip-path="url(#clip-hm9-04-double-integral-parity-symmetry)"><path d="M311.3 199 L310.9 190.4 L309.8 180.6 L308.2 172.1 L305.5 162.6 L302.6 154.6 L298.5 145.7 L293.7 137.2 L288.3 129.2 L283 122.6 L276.5 115.7 L269.4 109.3 L261.9 103.6 L254 98.6 L245.9 94.3 L237.4 90.8 L228.9 88 L220.2 86 L210.4 84.6 L201.8 84.1 L192.3 84.5 L184 85.5 L175 87.5 L166.4 90.2 L158.4 93.7 L150.8 97.8 L143.2 103 L137 108.1 L130.9 114.4 L125.7 120.9 L121 128.4 L117.3 136 L114.7 143.6 L112.8 153.1 L112.3 161.9 L113.2 170.6 L115.3 178.7 L118.8 186.1 L123.5 192.4 L129 197 L134.4 199 L128.6 201.3 L122.8 206.4 L117.9 213.4 L114.5 221.7 L112.7 230.7 L112.4 239.8 L113.6 249.6 L116.3 259.2 L120.2 268.2 L125.2 276.4 L131.4 284.3 L138.3 291 L146.1 297.2 L154.9 302.6 L164.6 307.1 L174 310.2 L186 312.8 L198.6 313.8 L211.5 313.3 L223.5 311.3 L235.3 308 L246.9 303.2 L258 297 L268.5 289.4 L278.2 280.6 L286.8 270.7 L294.4 259.8 L300.1 249 L305.1 236.5 L308.4 224.7 L310.6 211.3 L311.3 199" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M620.7 99.5 L609.1 89.7 L596 82 L589 79.1 L582 76.9 L575.2 75.5 L567.9 74.8 L559.6 74.8 L552 75.9 L544.7 77.9 L537.5 81 L531.4 84.9 L526.5 89.5 L522.9 94.7 L521.3 99.5 L520.1 95.6 L517.4 91.2 L513.5 87 L509 83.4 L504.2 80.5 L498.4 78 L492.3 76.3 L485.6 75.1 L472.5 74.9 L459 77.4 L446.5 82 L434.2 89.1 L426 95.5 L418.4 103.1 L412 111 L406.3 119.8 L401.4 129.4 L397.8 138.7 L394.7 149.6 L392.9 159.9 L392.1 170.5 L392.3 181.4 L393.5 192.4 L395.8 203.4 L399.1 214.2 L403 223.7 L408.3 234.1 L414 243 L422.1 253.4 L430.4 262.2 L440.6 271 L450.6 278 L462.5 284.7 L473.8 289.7 L485.6 293.6 L497.8 296.4 L510.2 298 L522.7 298.5 L535.1 297.7 L548.8 295.6 L560.9 292.4 L573.8 287.6 L584.9 282.2 L596.5 275 L606.1 267.6 L615.9 258.4 L624.7 248.3 L632.2 237.5 L638.4 226.1 L643.4 214.2 L647.1 202.1 L649.4 189.9 L650.4 177.8 L650.1 164.6 L648.5 153 L645.4 140.8 L641.1 129.4 L635.7 118.9 L628.7 108.5 L620.7 99.5" class="curve" stroke="var(--plot-c1, #d78b34)"/><path d="M79.2 199 L338.9 199" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.4" stroke-linecap="butt"/><path d="M134.4 353.7 L134.4 44.3" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.4" stroke-linecap="butt"/><path d="M383.1 199 L659.4 199" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.4" stroke-linecap="butt"/><path d="M521.3 353.7 L521.3 44.3" class="curve" stroke="var(--plot-ink, #241d17)" stroke-width="1.4" stroke-linecap="butt"/></g>
+  <g class="arrow-layer"><line x1="311.26" y1="199" x2="336.26" y2="199" class="arrow" stroke="var(--plot-ink, #241d17)"/><path d="M342.21 199 L335.21 202.15 L335.21 195.85 Z" fill="var(--plot-ink, #241d17)"/><line x1="134.42" y1="68.58" x2="134.42" y2="45.79" class="arrow" stroke="var(--plot-ink, #241d17)"/><path d="M134.42 39.84 L137.57 46.84 L131.27 46.84 Z" fill="var(--plot-ink, #241d17)"/><line x1="631.79" y1="199" x2="656.79" y2="199" class="arrow" stroke="var(--plot-ink, #241d17)"/><path d="M662.74 199 L655.74 202.15 L655.74 195.85 Z" fill="var(--plot-ink, #241d17)"/><line x1="521.26" y1="68.58" x2="521.26" y2="45.79" class="arrow" stroke="var(--plot-ink, #241d17)"/><path d="M521.26 39.84 L524.41 46.84 L518.11 46.84 Z" fill="var(--plot-ink, #241d17)"/></g>
+  <g></g>
+  <g></g>
+  <g><text class="note" data-color="ink" x="123.37" y="225.53" text-anchor="end">O</text><text class="note" data-color="ink" x="344.42" y="176.89" text-anchor="start">x</text><text class="note" data-color="ink" x="125.58" y="48.68" text-anchor="end">y</text><text class="note" data-color="accent" x="233.89" y="351.53" text-anchor="middle">D 关于 x 轴对称</text><text class="note" data-color="ink" x="510.21" y="225.53" text-anchor="end">O</text><text class="note" data-color="ink" x="664.95" y="176.89" text-anchor="start">x</text><text class="note" data-color="ink" x="512.42" y="48.68" text-anchor="end">y</text><text class="note" data-color="accent" x="521.26" y="351.53" text-anchor="middle">D 关于 y 轴对称</text></g>
+  <g><text class="figname" x="46" y="18" fill="var(--plot-ink, #241d17)">二重积分的对称性</text></g>
+  <g></g>
+</svg>
