@@ -298,12 +298,12 @@ export const courses: Course[] = [
     note: '数据的机器级表示 → 指令与执行 → 存储系统 → 总线与 I/O',
     chapters: [
       // 1~7 跟教材章序走；exam408 标的是「这一章在 408 里值多少」。
-      { id: 'sys-1-overview', exam408: 'core' },
-      { id: 'sys-2-data-representation', prereq: ['sys-1-overview'], exam408: 'core' },
+      { id: 'cso-1-overview', exam408: 'core' },
+      { id: 'cso-2-data-representation', prereq: ['cso-1-overview'], exam408: 'core' },
       // 第 3 章要用到 C++ 的函数与指针（栈帧、地址计算），跨课程先修只做提示、不参与排序
       {
         id: 'sys-3-machine-level-programs',
-        prereq: ['sys-2-data-representation', 'cpp-4-functions', 'cpp-6-pointers'],
+        prereq: ['cso-2-data-representation', 'cpp-4-functions', 'cpp-6-pointers'],
         exam408: 'core',
       },
       // 链接是 408 不考的本校课特色章
@@ -475,8 +475,8 @@ export const draftTitles: Record<string, string> = {
   // 计算机系统基础与组成原理 9 章：章序已定（opinion-26），笔记还没开始写。
   // 这些兜底标题让学习路线上先显示成灰色的「待发布」，等某章上线后会自动改用
   // frontmatter 里的真实标题；标题里的 `-N` 就是章号，路线与页尾都按它排序。
-  'sys-1-overview': '计算机系统基础与组成原理-1 计算机系统概述',
-  'sys-2-data-representation': '计算机系统基础与组成原理-2 数据的机器级表示与运算',
+  'cso-1-overview': '计算机系统基础与组成原理-1 计算机系统概述',
+  'cso-2-data-representation': '计算机系统基础与组成原理-2 数据的机器级表示与运算',
   'sys-3-machine-level-programs': '计算机系统基础与组成原理-3 程序的机器级表示',
   'sys-4-linking': '计算机系统基础与组成原理-4 程序的链接',
   'sys-5-program-execution': '计算机系统基础与组成原理-5 程序的执行',
