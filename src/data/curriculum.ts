@@ -430,9 +430,31 @@ export const courses: Course[] = [
     discipline: 'math',
     aliases: ['概率', '概统', '概率统计', '数理统计'],
     at: [1, 1],
-    note: '随机变量与分布、数字特征、参数估计与假设检验（先修：高等数学；笔记规划中）',
-    chapters: [],
-    planned: true,
+    note: '随机变量与分布、数字特征、参数估计与假设检验（先修：高等数学）',
+    /**
+     * 章序是作者 2026-11 定下的九章规划（前七章是概率论，八、九章是数理统计）：
+     *   1 随机事件与概率 → 2 条件概率与事件的独立性 → 3 随机变量及其分布 →
+     *   4 多维随机变量及其分布 → 5 随机变量的数字特征 →
+     *   6 数理统计 → 7 点估计 → 8 区间估计 → 9 假设检验
+     *
+     * 目前只有第 1 章写成了笔记，而且是 `draft: true`（等作者审阅后转正式稿）；
+     * 其余八章先挂在这里，路线页上它们是灰色的「待发布」，也省得以后忘登记。
+     * 章名从 `draftTitles` 取（标题里的 `-N` 就是章号，路线与页尾都按它排序）。
+     *
+     * 章与章之间的先修（prereq）暂时没写：按章号排已经表达了先后，
+     * 等各章真的写出来、知道哪一章要回头看哪一节时再补，比现在猜要准。
+     */
+    chapters: [
+      { id: 'ptms-1-random-events-and-probability' },
+      { id: 'ptms-2-conditional-probability-and-independence' },
+      { id: 'ptms-3-random-variables-and-distributions' },
+      { id: 'ptms-4-multivariate-random-variables' },
+      { id: 'ptms-5-numerical-characteristics' },
+      { id: 'ptms-6-mathematical-statistics' },
+      { id: 'ptms-7-point-estimation' },
+      { id: 'ptms-8-interval-estimation' },
+      { id: 'ptms-9-hypothesis-testing' },
+    ],
   },
   {
     id: '离散数学',
@@ -471,6 +493,19 @@ export const draftTitles: Record<string, string> = {
   'hm-9-multiple-integrals': '高等数学-9 重积分',
   'hm-10-line-and-surface-integrals': '高等数学-10 曲线积分与曲面积分',
   'hm-11-infinite-series': '高等数学-11 无穷级数',
+
+  // 概率论与数理统计 9 章（作者 2026-11 的规划）：只有第 1 章写成了笔记且是 `draft: true`，
+  // 其余八章还没开始写。留全这九条兜底标题，学习路线页就能把整条线一次画完、
+  // 未写的显示成灰色的「待发布」；哪一章上线后会自动改用 frontmatter 的真实标题。
+  'ptms-1-random-events-and-probability': '概率论与数理统计-1 随机事件与概率',
+  'ptms-2-conditional-probability-and-independence': '概率论与数理统计-2 条件概率与事件的独立性',
+  'ptms-3-random-variables-and-distributions': '概率论与数理统计-3 随机变量及其分布',
+  'ptms-4-multivariate-random-variables': '概率论与数理统计-4 多维随机变量及其分布',
+  'ptms-5-numerical-characteristics': '概率论与数理统计-5 随机变量的数字特征',
+  'ptms-6-mathematical-statistics': '概率论与数理统计-6 数理统计',
+  'ptms-7-point-estimation': '概率论与数理统计-7 点估计',
+  'ptms-8-interval-estimation': '概率论与数理统计-8 区间估计',
+  'ptms-9-hypothesis-testing': '概率论与数理统计-9 假设检验',
 
   // 计算机系统基础与组成原理 9 章：章序已定（opinion-26），笔记还没开始写。
   // 这些兜底标题让学习路线上先显示成灰色的「待发布」，等某章上线后会自动改用

@@ -4510,6 +4510,72 @@ export const FIGURES = [
       { x: 1.05, y: -2.55, text: 'θ = π：ρ = 0（尖点）', color: 'muted' },
     ],
   },
+
+  // ================================================================ 概率论与数理统计
+  // 第 1 章「几何概型」的那道例题：单位正方形里 x + y < 6/5 的区域。
+  // 原稿是手绘的示意图（12-Picture/概率论与数理统计/G-PTMS-1.4 …），但这张图要交代的全是
+  // **精确的位置**——直线交正方形于 (1/5, 1) 与 (1, 1/5)，右上角补集的两条直角边都是 4/5——
+  // 交给脚本画，比例和交点才不会走样。
+  {
+    id: 'ptms1-04-geometric-example',
+    alt: '几何概型例 2：单位正方形 Ω 里 x + y < 6/5 的区域 A（斜线阴影），右上角补集 Ā 是两条直角边均为 4/5 的直角三角形',
+    width: 560,
+    height: 566,
+    x: [-0.16, 1.38],
+    y: [-0.16, 1.4],
+    // 轴和刻度自己画：这张图只认 1/5、1、6/5 这三个位置，自动刻度会标成 0.2 / 1.2，
+    // 满篇小数点和正文的分数对不上。
+    bare: true,
+    title: 'Ω：单位正方形，A：x + y < 6/5',
+    titleColor: 'ink',
+    fills: [
+      {
+        from: 0,
+        to: 1,
+        // 上边界 = min(1, 6/5 − x)：用 |a − b| 写出 min，正方形上边才不会被直线顶出去。
+        // 面积 = 0.2×1 + ∫₀·₂¹(1.2 − x)dx = 17/25，与正文一致。
+        upper: { fn: '(1+(1.2-x)-abs(1-(1.2-x)))/2' },
+        lower: { fn: '0' },
+        hatch: true,
+        hatchGap: 8,
+        color: 'accent',
+      },
+    ],
+    // 直线 x + y = 6/5：只画两个截距之间那一段，两端正好落在坐标轴上
+    curves: [{ fn: '1.2-x', color: 'accent', domain: [0, 1.2] }],
+    segments: [
+      // 单位正方形的上边与右边（另两条边正好压在坐标轴上，不必重画）
+      { points: [[0, 1], [1, 1], [1, 0]], color: 'ink', width: 1.3, dash: '5 4' },
+      // 轴上那六个刻线
+      { points: [[0.2, -0.018], [0.2, 0.018]], color: 'axis', width: 1.1 },
+      { points: [[1, -0.018], [1, 0.018]], color: 'axis', width: 1.1 },
+      { points: [[1.2, -0.018], [1.2, 0.018]], color: 'axis', width: 1.1 },
+      { points: [[-0.018, 0.2], [0.018, 0.2]], color: 'axis', width: 1.1 },
+      { points: [[-0.018, 1], [0.018, 1]], color: 'axis', width: 1.1 },
+      { points: [[-0.018, 1.2], [0.018, 1.2]], color: 'axis', width: 1.1 },
+    ],
+    arrows: [
+      { from: [0, 0], to: [1.34, 0], color: 'axis' },
+      { from: [0, 0], to: [0, 1.34], color: 'axis' },
+    ],
+    notes: [
+      { x: -0.03, y: -0.06, text: 'O', anchor: 'end' },
+      { x: 0.2, y: -0.075, text: '1/5', anchor: 'middle' },
+      { x: 1, y: -0.075, text: '1', anchor: 'middle' },
+      { x: 1.2, y: -0.075, text: '6/5', anchor: 'middle' },
+      { x: -0.05, y: 0.2, text: '1/5', anchor: 'end' },
+      { x: -0.05, y: 1, text: '1', anchor: 'end' },
+      { x: -0.05, y: 1.2, text: '6/5', anchor: 'end' },
+      { x: 1.33, y: 0.09, text: 'x', anchor: 'middle', color: 'ink' },
+      { x: 0.08, y: 1.33, text: 'y', anchor: 'start', color: 'ink' },
+      { x: 0.16, y: 1.2, text: 'x + y = 6/5', anchor: 'start', color: 'accent' },
+      { x: 0.42, y: 0.44, text: 'A', anchor: 'middle', color: 'ink' },
+      { x: 0.8, y: 0.82, text: 'Ā', anchor: 'middle', color: 'ink' },
+      // 补集那两条直角边：各长 1 − 1/5 = 4/5。贴着各自那条边写，别飘到区域中间去。
+      { x: 0.6, y: 0.95, text: '4/5', anchor: 'middle' },
+      { x: 0.95, y: 0.6, text: '4/5', anchor: 'end' },
+    ],
+  },
 ];
 
 // ------------------------------------------------------------------ 主流程
